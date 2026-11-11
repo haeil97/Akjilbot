@@ -1,0 +1,13 @@
+{
+  "name": "akjilbot",
+  "version": "4.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "build": "node akjilbot4/build.js",
+    "check": "node --check 악질봇4.0.0.js",
+    "test": "node akjilbot4/build.js && node --test --experimental-test-isolation=none akjilbot4/tests/*.test.js"
+  }
+}

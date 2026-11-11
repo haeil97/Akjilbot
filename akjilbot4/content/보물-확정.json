@@ -1,0 +1,546 @@
+{
+  "version": "4.0.0",
+  "count": 54,
+  "treasures": [
+    {
+      "id": "recycling_bin",
+      "upgradeable": false,
+      "tier": "low",
+      "kind": "passive",
+      "name": "재활용 쓰레기통",
+      "element": null,
+      "cost": null,
+      "text": "내 카드가 카운터당할 때마다 방어도를 5 얻습니다."
+    },
+    {
+      "id": "lucky_shovel",
+      "upgradeable": false,
+      "tier": "low",
+      "kind": "passive",
+      "name": "행운의 삽",
+      "element": null,
+      "cost": null,
+      "text": "한 턴에 한 번, 내가 카드를 발견한 후에, 그 카드를 복사하여 내 손으로 가져옵니다. 그 카드들의 비용이 (1) 감소합니다."
+    },
+    {
+      "id": "philosopher_stone",
+      "upgradeable": false,
+      "tier": "low",
+      "kind": "passive",
+      "name": "현자의 돌",
+      "element": null,
+      "cost": null,
+      "text": "내가 비용이 (2) 이상인 카드를 낸 후에, 내 손에 있는 카드들의 비용이 (1) 감소합니다."
+    },
+    {
+      "id": "zephrys_lamp",
+      "upgradeable": false,
+      "tier": "low",
+      "kind": "card",
+      "name": "제피르스의 램프",
+      "element": "LIGHTNING",
+      "cost": 0,
+      "text": "원하는 카드를 검색하여 내 손으로 가져옵니다."
+    },
+    {
+      "id": "infinity_stone",
+      "upgradeable": false,
+      "tier": "high",
+      "kind": "card",
+      "name": "인피니티 스톤",
+      "element": "FIRE",
+      "cost": 4,
+      "text": "상대의 모든 것을 절반 파괴합니다."
+    },
+    {
+      "id": "innate_talent",
+      "upgradeable": false,
+      "tier": "high",
+      "kind": "card",
+      "name": "천부적 재능",
+      "element": "HOLY",
+      "cost": 2,
+      "text": "선천성, 일회용. 비용이 0인 강화된 카드를 발견합니다. 내 영웅 능력이 비용이 (1)인 그 카드로 바뀝니다."
+    },
+    {
+      "id": "molten_bone",
+      "upgradeable": false,
+      "tier": "low",
+      "kind": "passive",
+      "name": "녹아내린 뼈",
+      "element": null,
+      "cost": null,
+      "text": "상대에게 중독을 부여할 때마다, 1 더 부여합니다."
+    },
+    {
+      "id": "antarctic_clock",
+      "upgradeable": false,
+      "tier": "low",
+      "kind": "passive",
+      "name": "남극 시계",
+      "element": null,
+      "cost": null,
+      "text": "내가 비용이 0인 카드를 낼 때마다 상대에게 피해를 4 줍니다."
+    },
+    {
+      "id": "shaladrassil",
+      "upgradeable": false,
+      "tier": "high",
+      "kind": "card",
+      "name": "살라드라실",
+      "element": "NATURE",
+      "cost": 4,
+      "text": "내 손, 덱, 레스트에 있는 모든 강화되지 않은 카드를 강화합니다."
+    },
+    {
+      "id": "time_potion",
+      "upgradeable": false,
+      "tier": "high",
+      "kind": "passive",
+      "name": "시간 왜곡 물약",
+      "element": null,
+      "cost": null,
+      "text": "내 모든 카드가 일시적이 됩니다. 매 스탠바이 페이즈시마다 카드를 4장 뽑습니다."
+    },
+    {
+      "id": "decay_potion",
+      "upgradeable": false,
+      "tier": "high",
+      "kind": "passive",
+      "name": "부패 물약",
+      "element": null,
+      "cost": null,
+      "text": "상대에게 부여된 중독이 감소하지 않지만, 상대에게 중독을 부여할 때마다 나에게도 부여합니다."
+    },
+    {
+      "id": "mana_receipt",
+      "tier": "low",
+      "kind": "passive",
+      "name": "마나 영수증",
+      "element": null,
+      "cost": null,
+      "text": "메인 페이즈 1에서 카드 비용으로 마나를 2 이상 소모했다면, 메인 페이즈 2가 시작될 때 마나를 1 회복합니다.",
+      "upgradeable": false
+    },
+    {
+      "id": "endless_waves",
+      "tier": "low",
+      "kind": "passive",
+      "name": "끝없는 파도",
+      "element": null,
+      "cost": null,
+      "text": "엔드 페이즈시에 손패가 2장 이하라면, 다음 턴의 스탠바이 페이즈시에 카드를 뽑습니다.",
+      "upgradeable": false
+    },
+    {
+      "id": "prism_compass",
+      "tier": "low",
+      "kind": "passive",
+      "name": "프리즘 나침반",
+      "element": null,
+      "cost": null,
+      "text": "턴에 처음 직접 사용하는 카드의 속성이 이전 턴에 처음 직접 사용한 카드와 다르면, 그 카드의 비용이 1 감소합니다. 단, 1보다 낮아지진 않습니다.",
+      "upgradeable": false
+    },
+    {
+      "id": "pelgozi_wallet",
+      "tier": "low",
+      "kind": "passive",
+      "name": "펠고지의 지갑",
+      "element": null,
+      "cost": null,
+      "text": "내 손패 한도가 3장 증가합니다.",
+      "upgradeable": false
+    },
+    {
+      "id": "twin_ring",
+      "tier": "low",
+      "kind": "passive",
+      "name": "쌍둥이 반지",
+      "element": null,
+      "cost": null,
+      "text": "한 턴에 처음으로 같은 속성의 카드를 사용하면 카드를 뽑습니다.",
+      "upgradeable": false
+    },
+    {
+      "id": "loaded_dice",
+      "tier": "low",
+      "kind": "passive",
+      "name": "사기 주사위",
+      "element": null,
+      "cost": null,
+      "text": "매 턴의 스탠바이 페이즈시에 내 덱에서 카드를 뽑는 대신 카드를 발견하여 내 손으로 가져옵니다.",
+      "upgradeable": false
+    },
+    {
+      "id": "magic_mirror_passive",
+      "tier": "low",
+      "kind": "passive",
+      "name": "보석 팬던트",
+      "element": null,
+      "cost": null,
+      "text": "턴에 처음으로 카드를 발견하면, 선택하지 않은 선택지 중 1장도 내 손으로 가져옵니다.",
+      "upgradeable": false
+    },
+    {
+      "id": "lightning_rod",
+      "tier": "low",
+      "kind": "passive",
+      "name": "피뢰침",
+      "element": null,
+      "cost": null,
+      "text": "내 마나가 과부하될 때마다 과부하된 마나당 상대에게 피해를 6 줍니다.",
+      "upgradeable": false
+    },
+    {
+      "id": "archmage_robe",
+      "tier": "low",
+      "kind": "passive",
+      "name": "대마도사의 로브",
+      "element": null,
+      "cost": null,
+      "text": "내 카드들의 피해량이 2 증가합니다.",
+      "upgradeable": false
+    },
+    {
+      "id": "first_aid_kit",
+      "tier": "low",
+      "kind": "passive",
+      "name": "응급 치료 키트",
+      "element": null,
+      "cost": null,
+      "text": "매 턴의 엔드 페이즈시마다, 체력을 3 회복합니다.",
+      "upgradeable": false
+    },
+    {
+      "id": "judge_ring",
+      "tier": "high",
+      "kind": "passive",
+      "name": "심판관의 반지",
+      "element": null,
+      "cost": null,
+      "text": "내 영웅 능력의 비용이 (0)이 됩니다.",
+      "upgradeable": false
+    },
+    {
+      "id": "mystic_coin",
+      "tier": "low",
+      "kind": "card",
+      "name": "신비한 동전",
+      "element": "LIGHTNING",
+      "cost": 0,
+      "text": "메인 페이즈 1에 사용하면 이번 턴에만 마나를 1 얻습니다. 메인 페이즈 2에 사용하면 체력을 10 회복합니다.",
+      "upgradeable": false
+    },
+    {
+      "id": "grave_pick",
+      "tier": "low",
+      "kind": "card",
+      "name": "도굴꾼의 곡괭이",
+      "element": "ICE",
+      "cost": 1,
+      "text": "내 레스트에서 카드를 3장 발견하여 손으로 가져옵니다. 그 카드들의 비용이 (1) 감소합니다. 단, 1보다 낮아지진 않습니다.",
+      "upgradeable": false
+    },
+    {
+      "id": "paper_clone",
+      "tier": "low",
+      "kind": "card",
+      "name": "종이 분신",
+      "element": "FIRE",
+      "cost": 1,
+      "text": "내 손의 무작위 카드를 일시적, 일회용으로 복사합니다. 그 카드의 비용이 (0)이 됩니다.",
+      "upgradeable": false
+    },
+    {
+      "id": "escape_key",
+      "tier": "low",
+      "kind": "card",
+      "name": "비상구 열쇠",
+      "element": "NATURE",
+      "cost": 0,
+      "text": "일회용. 이번 턴에 내 카드가 레스트로 보내질 때마다 카드를 뽑습니다. 내 손에 있는 모든 카드를 레스트로 보냅니다.",
+      "upgradeable": false
+    },
+    {
+      "id": "empty_grail",
+      "tier": "low",
+      "kind": "card",
+      "name": "빈 잔의 성배",
+      "element": "HOLY",
+      "cost": 1,
+      "text": "내 레스트의 카드가 내 덱의 카드보다 많으면 체력을 20 회복합니다. 그렇지 않으면 카드를 3장 뽑습니다.",
+      "upgradeable": false
+    },
+    {
+      "id": "wonder_wand",
+      "tier": "low",
+      "kind": "card",
+      "name": "불가사의한 마법봉",
+      "element": "FIRE",
+      "cost": 1,
+      "text": "카드를 2장 뽑습니다. 그 카드들의 비용이 (0)이 됩니다.",
+      "upgradeable": false
+    },
+    {
+      "id": "thief_hook",
+      "tier": "low",
+      "kind": "card",
+      "name": "도둑의 갈고리",
+      "element": "ICE",
+      "cost": 0,
+      "text": "상대의 손에서 카드를 발견하여 상대의 레스트로 보냅니다. 내 레스트에서 카드를 발견하여 내 손으로 가져옵니다.",
+      "upgradeable": false
+    },
+    {
+      "id": "sealed_reliquary",
+      "tier": "low",
+      "kind": "card",
+      "name": "봉인된 유물함",
+      "element": "NATURE",
+      "cost": 1,
+      "text": "일회용. 하급 보물을 발견하여 내 손으로 가져옵니다.",
+      "upgradeable": false
+    },
+    {
+      "id": "cassette",
+      "tier": "low",
+      "kind": "card",
+      "name": "카세트테이프",
+      "element": "LIGHTNING",
+      "cost": 1,
+      "text": "지난 턴에 상대가 사용했던 카드들을 복사하여 내 손으로 가져오고 탐험 덱에 추가합니다.",
+      "upgradeable": false
+    },
+    {
+      "id": "exchange_deed",
+      "tier": "low",
+      "kind": "card",
+      "name": "교환 증서",
+      "element": "LIGHTNING",
+      "cost": 0,
+      "text": "일회용. 서로의 손에 있는 카드를 모두 바꿉니다.",
+      "upgradeable": false
+    },
+    {
+      "id": "magic_mirror_card",
+      "tier": "low",
+      "kind": "card",
+      "name": "마법 거울",
+      "element": "ICE",
+      "cost": 2,
+      "text": "일회용. 상대의 영웅 능력을 복사하여 이번 탐험 동안 얻습니다.",
+      "upgradeable": false
+    },
+    {
+      "id": "tolins_cup",
+      "tier": "low",
+      "kind": "card",
+      "name": "톨린의 술잔",
+      "element": "FIRE",
+      "cost": 0,
+      "text": "카드를 뽑습니다. 그 카드를 복사하여 내 손을 가득 채웁니다.",
+      "upgradeable": false
+    },
+    {
+      "id": "gambling_box",
+      "tier": "low",
+      "kind": "card",
+      "name": "도박의 함",
+      "element": "HOLY",
+      "cost": 2,
+      "text": "일회용. 모든 덱과 레스트를 한데 섞은 후, 상대와 반씩 나누어 각자의 덱으로 나누어 가집니다. 그 후 내 덱에 있는 모든 카드들의 비용을 (1) 감소시킵니다. 단, 1보다 낮아지진 않습니다.",
+      "upgradeable": false
+    },
+    {
+      "id": "full_bag",
+      "tier": "low",
+      "kind": "card",
+      "name": "가득 찬 가방",
+      "element": "NATURE",
+      "cost": 0,
+      "text": "내 손이 가득 찰 때까지 카드를 뽑습니다.",
+      "upgradeable": false
+    },
+    {
+      "id": "runeterra_codex",
+      "tier": "high",
+      "kind": "passive",
+      "name": "룬테라의 비전서",
+      "element": null,
+      "cost": null,
+      "text": "엔드 페이즈시에 남은 마나를 최대 2까지 저장합니다. 다음 스탠바이 페이즈시에, 저장한 만큼 일시적인 마나를 얻습니다.",
+      "upgradeable": false
+    },
+    {
+      "id": "hearthstone",
+      "tier": "high",
+      "kind": "card",
+      "name": "귀환석",
+      "element": "NATURE",
+      "cost": 0,
+      "text": "선천성. 전투 시작 전으로 탈출하고 이 카드를 내 탐험 덱에서 제거합니다.",
+      "upgradeable": false
+    },
+    {
+      "id": "element_distiller",
+      "tier": "high",
+      "kind": "passive",
+      "name": "프리즘 증류기",
+      "element": null,
+      "cost": null,
+      "text": "매 턴의 스탠바이 페이즈시에, 화염·냉기·자연·전기 중 원하는 속성을 선택하여 뽑을 수 있습니다.",
+      "upgradeable": false
+    },
+    {
+      "id": "echo_shard",
+      "tier": "high",
+      "kind": "passive",
+      "name": "메아리 조각",
+      "element": null,
+      "cost": null,
+      "text": "내가 턴에 처음으로 상대 카드를 카운터하면, 그 카드를 복사하여 내 손으로 가져옵니다. 그 카드의 비용이 (1) 감소합니다.",
+      "upgradeable": false
+    },
+    {
+      "id": "enchant_table",
+      "tier": "high",
+      "kind": "passive",
+      "name": "인챈트 테이블",
+      "element": null,
+      "cost": null,
+      "text": "내가 영웅 능력을 사용할 때마다 내 손에 있는 무작위 카드를 강화합니다.",
+      "upgradeable": false
+    },
+    {
+      "id": "loser_gramophone",
+      "tier": "low",
+      "kind": "passive",
+      "name": "패자의 축음기",
+      "element": null,
+      "cost": null,
+      "text": "매 턴의 엔드 페이즈시에, 이번 턴에 처음으로 카운터당한 내 카드를 레스트에서 내 손으로 가져옵니다.",
+      "upgradeable": false
+    },
+    {
+      "id": "grandmage_staff",
+      "tier": "high",
+      "kind": "passive",
+      "name": "대마법사의 지팡이",
+      "element": null,
+      "cost": null,
+      "text": "매 턴의 스탠바이 페이즈시에, 무작위 카드를 내 손으로 가져옵니다. 그 카드는 일회용입니다.",
+      "upgradeable": false
+    },
+    {
+      "id": "nature_hourglass",
+      "tier": "high",
+      "kind": "card",
+      "name": "자연의 모래시계",
+      "element": "NATURE",
+      "cost": 1,
+      "text": "이 카드는 메인 페이즈 1에만 사용할 수 있습니다. 이번 턴의 메인 페이즈 2에 마나를 모두 회복하고 카드를 2장 뽑습니다.",
+      "upgradeable": false
+    },
+    {
+      "id": "pickpocket_gloves",
+      "tier": "high",
+      "kind": "card",
+      "name": "소매치기 장갑",
+      "element": "ICE",
+      "cost": 0,
+      "text": "상대의 손에서 카드를 2장 훔쳐옵니다.",
+      "upgradeable": false
+    },
+    {
+      "id": "nether_portal",
+      "tier": "high",
+      "kind": "card",
+      "name": "네더 차원문",
+      "element": "HOLY",
+      "cost": 0,
+      "text": "이번 게임에서 제외된 내 카드를 발견합니다. 그 카드의 비용이 (0)이 됩니다.",
+      "upgradeable": false
+    },
+    {
+      "id": "horizon_cutter",
+      "tier": "high",
+      "kind": "card",
+      "name": "지평선 절단기",
+      "element": "FIRE",
+      "cost": 0,
+      "text": "일시적. 내 레스트에 있는 카드의 2배만큼 상대에게 피해를 줍니다.",
+      "upgradeable": false
+    },
+    {
+      "id": "mirage",
+      "tier": "low",
+      "kind": "card",
+      "name": "신기루",
+      "element": "NATURE",
+      "cost": 0,
+      "text": "내 손에 있는 카드들을 내 덱의 무작위 카드 8장으로 교체합니다. 이번 턴의 엔드 페이즈시에 원래 카드들로 돌아옵니다.",
+      "upgradeable": false
+    },
+    {
+      "id": "wish",
+      "tier": "high",
+      "kind": "card",
+      "name": "소원",
+      "element": "HOLY",
+      "cost": 5,
+      "text": "일회용. 체력을 전부 회복하고 내 손이 가득 찰 때까지 카드를 뽑습니다.",
+      "upgradeable": false
+    },
+    {
+      "id": "starlight_disassembler",
+      "tier": "high",
+      "kind": "card",
+      "name": "별빛 분해기",
+      "element": "HOLY",
+      "cost": 1,
+      "text": "상대가 낸 카드들을 모두 카운터합니다.",
+      "upgradeable": false
+    },
+    {
+      "id": "destruction_orb",
+      "tier": "high",
+      "kind": "card",
+      "name": "파괴의 구슬",
+      "element": "FIRE",
+      "cost": 1,
+      "text": "일회용. 상대의 마나 수정을 1개 파괴하고 상대의 손에서 카드를 2장 레스트로 보냅니다.",
+      "upgradeable": false
+    },
+    {
+      "id": "roasting_wand",
+      "tier": "high",
+      "kind": "card",
+      "name": "통구이 마법봉",
+      "element": "FIRE",
+      "cost": 3,
+      "text": "누군가 죽을 때까지 무작위 캐릭터에게 막거나 줄일 수 없는 피해를 10 줍니다.",
+      "upgradeable": false
+    },
+    {
+      "id": "time_warp",
+      "tier": "high",
+      "kind": "card",
+      "name": "시간 왜곡",
+      "element": "ICE",
+      "cost": 1,
+      "text": "다음 턴에 상대가 카드를 낼 수 없게 만듭니다.",
+      "upgradeable": false
+    },
+    {
+      "id": "acceleration_boots",
+      "tier": "high",
+      "kind": "card",
+      "name": "가속의 장화",
+      "element": "NATURE",
+      "cost": 2,
+      "text": "이 카드는 메인 페이즈 1에만 사용할 수 있습니다. 이번 턴의 메인 페이즈 2에 내 카드들의 비용이 (0)이 됩니다.",
+      "upgradeable": false
+    }
+  ]
+}

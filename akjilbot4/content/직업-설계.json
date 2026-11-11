@@ -1,0 +1,889 @@
+{
+  "heroes": [
+    {
+      "id": "guff",
+      "name": "거프 룬토템",
+      "power": {
+        "id": "nurture",
+        "name": "양성",
+        "kind": "active",
+        "element": "NEUTRAL",
+        "cost": 1,
+        "text": "내 손에 있는 무작위 카드의 비용이 (1) 감소합니다.",
+        "effects": [
+          {
+            "type": "discountRandomHand",
+            "amount": 1
+          }
+        ]
+      },
+      "startingTreasureId": "purification_well",
+      "cards": [
+        "starter_strike",
+        "starter_strike",
+        "starter_strike",
+        "guff_regen",
+        "starter_guard",
+        "starter_guard",
+        "starter_guard",
+        "starter_link",
+        "starter_link",
+        "guff_thunderbolt"
+      ],
+      "classPool": [
+        "guff_innervate",
+        "guff_bloom",
+        "guff_snack",
+        "guff_phytoncide",
+        "guff_growth",
+        "guff_entangle"
+      ],
+      "mechanics": [
+        "마나 부스트",
+        "회복",
+        "각성"
+      ]
+    },
+    {
+      "id": "silent",
+      "name": "사일런트",
+      "power": {
+        "id": "swift",
+        "name": "신속",
+        "kind": "active",
+        "cost": 1,
+        "element": "NEUTRAL",
+        "text": "카드를 뽑습니다.",
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1
+          }
+        ]
+      },
+      "startingTreasureId": "snake_ring",
+      "cards": [
+        "starter_strike",
+        "starter_strike",
+        "starter_strike",
+        "starter_guard",
+        "starter_guard",
+        "starter_guard",
+        "silent_neutralize",
+        "silent_neutralize",
+        "starter_link",
+        "starter_link"
+      ],
+      "classPool": [
+        "silent_apple",
+        "silent_poison",
+        "silent_sowing",
+        "silent_rising",
+        "silent_mushroom",
+        "silent_seedbomb"
+      ],
+      "mechanics": [
+        "중독",
+        "디버프",
+        "단검"
+      ]
+    },
+    {
+      "id": "celeste",
+      "name": "운룡 셀레스테",
+      "power": {
+        "id": "inquiry",
+        "name": "탐구",
+        "kind": "passive",
+        "element": "NEUTRAL",
+        "cost": 0,
+        "text": "2턴마다의 스탠바이 페이즈시마다, ‘수정구’를 내 손으로 가져옵니다.",
+        "effects": []
+      },
+      "startingTreasureId": "pandaria_codex",
+      "cards": [
+        "celeste_chain",
+        "celeste_chain",
+        "celeste_chain",
+        "starter_guard",
+        "starter_guard",
+        "starter_guard",
+        "celeste_leap",
+        "celeste_leap",
+        "starter_link",
+        "starter_link"
+      ],
+      "classPool": [
+        "celeste_focus"
+      ],
+      "mechanics": [
+        "카드 생성 및 발견",
+        "위력 증가 및 연쇄 타격",
+        "중립 카드 생성",
+        "궤도"
+      ]
+    },
+    {
+      "id": "thekal",
+      "name": "대사제 데칼",
+      "power": {
+        "id": "loa_call",
+        "name": "로아의 부름",
+        "kind": "active",
+        "element": "NEUTRAL",
+        "cost": 2,
+        "text": "내 제단이 파괴된 상태면, 부활을 1턴 가속합니다.",
+        "module": "classes",
+        "rule": "loa_call"
+      },
+      "startingTreasureId": "bound_reliquary",
+      "cards": [
+        "thekal_invocation",
+        "thekal_invocation",
+        "starter_guard",
+        "starter_guard",
+        "starter_guard",
+        "starter_link",
+        "starter_link",
+        "thekal_acolyte",
+        "thekal_acolyte",
+        "thekal_acolyte"
+      ],
+      "classPool": [
+        "thekal_icicle",
+        "thekal_curse"
+      ],
+      "mechanics": [
+        "제단",
+        "자체 디버프와 저주",
+        "처형",
+        "저주 카드군"
+      ]
+    },
+    {
+      "id": "agamaggan",
+      "name": "위대한 멧돼지 아감마간",
+      "enabled": false,
+      "incompleteReason": "시작 덱 미정",
+      "power": {
+        "id": "bloodcraft",
+        "name": "혈석 제작",
+        "kind": "active",
+        "element": "NEUTRAL",
+        "cost": 0,
+        "text": "이번 탐험에서 처치한 상대 수의 2배만큼 체력을 희생하여 혈석을 만듭니다.",
+        "module": "classes",
+        "rule": "bloodcraft"
+      },
+      "startingTreasureId": "great_blood",
+      "cards": [],
+      "classPool": [
+        "agamaggan_mimic",
+        "agamaggan_frost",
+        "agamaggan_bait",
+        "agamaggan_snow",
+        "agamaggan_drop",
+        "agamaggan_surf"
+      ],
+      "mechanics": [
+        "혈석",
+        "해방",
+        "0코스트",
+        "탈진 피해"
+      ]
+    },
+    {
+      "id": "nautilus",
+      "name": "심해의 타이탄 노틸러스",
+      "enabled": false,
+      "incompleteReason": "시작 덱 미정",
+      "power": {
+        "id": "anchor_pull",
+        "name": "닻줄 견인",
+        "kind": "active",
+        "element": "NEUTRAL",
+        "cost": 1,
+        "text": "내 덱에서 카드를 발견합니다. 그 카드를 내 덱 맨 위에 놓거나 맨 밑에 놓습니다.",
+        "module": "classes",
+        "rule": "anchor_pull"
+      },
+      "startingTreasureId": "bilgewater_tribute",
+      "cards": [],
+      "classPool": [
+        "nautilus_anchor",
+        "nautilus_stolen",
+        "nautilus_bait",
+        "nautilus_flood",
+        "nautilus_salvage",
+        "nautilus_negotiate",
+        "nautilus_rewind",
+        "nautilus_excavate",
+        "nautilus_convert",
+        "nautilus_plasma",
+        "nautilus_aurawheel",
+        "nautilus_cannon",
+        "nautilus_overdrive"
+      ],
+      "mechanics": [
+        "침몰·폐기",
+        "버리기",
+        "보물·골드 획득",
+        "레스트 재사용"
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "id": "starter_strike",
+      "name": "타격",
+      "element": "NATURE",
+      "cost": 1,
+      "text": "피해를 6 줍니다.",
+      "action": "strike",
+      "upgrade": {
+        "cost": 1,
+        "text": "피해를 9 줍니다."
+      }
+    },
+    {
+      "id": "starter_guard",
+      "name": "수비",
+      "element": "ICE",
+      "cost": 1,
+      "text": "방어도를 5 얻습니다.",
+      "action": "guard",
+      "upgrade": {
+        "cost": 1,
+        "text": "방어도를 8 얻습니다."
+      }
+    },
+    {
+      "id": "starter_link",
+      "name": "연결",
+      "element": "LIGHTNING",
+      "cost": 1,
+      "text": "카드를 2장 뽑습니다.",
+      "action": "link",
+      "upgrade": {
+        "cost": 1,
+        "text": "카드를 3장 뽑습니다."
+      }
+    },
+    {
+      "id": "guff_regen",
+      "name": "재생",
+      "element": "NATURE",
+      "cost": 1,
+      "text": "체력을 2 회복합니다. 다음 턴의 스탠바이 페이즈시에 체력을 2 회복합니다.",
+      "action": "regen",
+      "upgrade": {
+        "cost": 1,
+        "text": "체력을 4 회복합니다. 다음 턴의 스탠바이 페이즈시에 체력을 4 회복합니다."
+      }
+    },
+    {
+      "id": "guff_thunderbolt",
+      "name": "뇌전",
+      "element": "LIGHTNING",
+      "cost": 2,
+      "text": "피해를 8 줍니다. 상대에게 감전을 2 부여합니다.",
+      "action": "thunderbolt",
+      "upgrade": {
+        "cost": 2,
+        "text": "피해를 10 줍니다. 상대에게 감전을 3 부여합니다."
+      }
+    },
+    {
+      "id": "silent_neutralize",
+      "name": "무력화",
+      "element": "ICE",
+      "cost": 1,
+      "text": "피해를 3 줍니다. 약화를 1 부여합니다.",
+      "action": "neutralize",
+      "upgrade": {
+        "cost": 1,
+        "text": "피해를 4 줍니다. 약화를 2 부여합니다."
+      }
+    },
+    {
+      "id": "celeste_chain",
+      "name": "연쇄 타격",
+      "element": "FIRE",
+      "cost": 1,
+      "text": "피해를 2씩 2번 줍니다.",
+      "action": "chain",
+      "upgrade": {
+        "cost": 1,
+        "text": "피해를 2씩 3번 줍니다."
+      }
+    },
+    {
+      "id": "celeste_leap",
+      "name": "도약",
+      "element": "LIGHTNING",
+      "cost": 1,
+      "text": "내 직업의 카드를 발견하여 내 손으로 가져옵니다.",
+      "action": "leap",
+      "upgrade": {
+        "cost": 1,
+        "text": "내 직업의 카드를 발견하여 내 손으로 가져옵니다."
+      }
+    },
+    {
+      "id": "thekal_invocation",
+      "name": "기원",
+      "element": "FIRE",
+      "cost": 1,
+      "text": "내 모든 제단의 최대 체력이 3 증가합니다.",
+      "action": "invocation",
+      "upgrade": {
+        "cost": 1,
+        "text": "내 모든 제단의 최대 체력이 5 증가합니다."
+      }
+    },
+    {
+      "id": "thekal_acolyte",
+      "name": "수행자",
+      "element": "LIGHTNING",
+      "cost": 1,
+      "text": "내 제단이 피해를 3 줍니다. 내 제단의 현재 체력만큼 피해량이 증가합니다.",
+      "action": "acolyte",
+      "upgrade": {
+        "cost": 1,
+        "text": "내 제단이 피해를 6 줍니다. 내 제단의 현재 체력만큼 피해량이 증가합니다."
+      }
+    },
+    {
+      "id": "guff_innervate",
+      "name": "정신 자극",
+      "element": "NATURE",
+      "cost": 0,
+      "text": "일시적. 일시적인 마나를 1 얻습니다.",
+      "action": "innervate",
+      "upgrade": {
+        "cost": 0,
+        "text": "일시적. 일시적인 마나를 2 얻습니다."
+      }
+    },
+    {
+      "id": "guff_bloom",
+      "name": "번개 개화",
+      "element": "NATURE",
+      "cost": 0,
+      "text": "과부하: (2). 이번 턴에만 마나를 2 얻습니다.",
+      "delegate": "번개 개화",
+      "upgrade": {
+        "cost": 0,
+        "text": "과부하: (1). 이번 턴에만 마나를 2 얻습니다."
+      }
+    },
+    {
+      "id": "guff_snack",
+      "name": "등산용 간식",
+      "element": "NATURE",
+      "cost": 1,
+      "text": "다음 턴의 스탠바이 페이즈시에, 일시적인 마나를 2 얻습니다.",
+      "action": "snack",
+      "upgrade": {
+        "cost": 1,
+        "text": "다음 두 턴의 스탠바이 페이즈시에, 일시적인 마나를 2 얻습니다."
+      }
+    },
+    {
+      "id": "guff_phytoncide",
+      "name": "피톤치드",
+      "element": "NATURE",
+      "cost": 1,
+      "text": "내 최대 마나만큼 카드를 뽑습니다.",
+      "action": "phytoncide",
+      "upgrade": {
+        "cost": 0,
+        "text": "내 최대 마나만큼 카드를 뽑습니다."
+      }
+    },
+    {
+      "id": "guff_growth",
+      "name": "급속 성장",
+      "element": "NATURE",
+      "cost": 2,
+      "text": "일회용. 내 최대 마나가 1 증가합니다.",
+      "action": "growth",
+      "upgrade": {
+        "cost": 2,
+        "text": "선천성, 일회용. 내 최대 마나가 1 증가합니다."
+      }
+    },
+    {
+      "id": "guff_entangle",
+      "name": "옭아매기",
+      "element": "NATURE",
+      "cost": 0,
+      "text": "상대에게 약화를 2 부여합니다.",
+      "action": "entangle",
+      "upgrade": {
+        "cost": 0,
+        "text": "상대에게 약화를 3 부여합니다."
+      }
+    },
+    {
+      "id": "silent_apple",
+      "name": "독사과",
+      "element": "NATURE",
+      "cost": 0,
+      "text": "체력을 12 회복합니다. 나에게 중독을 3 부여합니다.",
+      "delegate": "독사과",
+      "upgrade": {
+        "cost": 0,
+        "text": "체력을 18 회복합니다. 나에게 중독을 3 부여합니다."
+      }
+    },
+    {
+      "id": "silent_poison",
+      "name": "맹독",
+      "element": "NATURE",
+      "cost": 1,
+      "text": "상대에게 중독을 3 부여합니다.",
+      "delegate": "맹독",
+      "upgrade": {
+        "cost": 1,
+        "text": "상대에게 중독을 4 부여합니다."
+      }
+    },
+    {
+      "id": "silent_sowing",
+      "name": "씨뿌리기",
+      "element": "NATURE",
+      "cost": 1,
+      "text": "상대에게 중독을 3 부여합니다. 이미 중독 상태라면, 대신 상대에게 부여된 중독을 모두 소모하고 중독 피해를 즉시 입힙니다.",
+      "delegate": "씨뿌리기",
+      "upgrade": {
+        "cost": 1,
+        "text": "상대에게 중독을 4 부여합니다. 이미 중독 상태라면, 대신 상대에게 부여된 중독을 모두 소모하고 중독 피해를 즉시 입힙니다."
+      }
+    },
+    {
+      "id": "silent_rising",
+      "name": "차오르는 독",
+      "element": "NATURE",
+      "cost": 1,
+      "text": "상대에게 중독을 2 부여합니다. 상대가 이미 중독 상태면, 대신 중독을 4 부여합니다.",
+      "delegate": "차오르는 독",
+      "upgrade": {
+        "cost": 1,
+        "text": "상대에게 중독을 3 부여합니다. 상대가 이미 중독 상태면, 대신 중독을 5 부여합니다."
+      }
+    },
+    {
+      "id": "silent_mushroom",
+      "name": "독버섯",
+      "element": "NATURE",
+      "cost": 2,
+      "text": "상대에게 중독을 5 부여합니다. 치명타: 상대에게 중독만큼 피해를 줍니다.",
+      "delegate": "독버섯",
+      "upgrade": {
+        "cost": 2,
+        "text": "상대에게 중독을 7 부여합니다. 치명타: 상대에게 중독만큼 피해를 줍니다."
+      }
+    },
+    {
+      "id": "silent_seedbomb",
+      "name": "씨폭탄",
+      "element": "NATURE",
+      "cost": 1,
+      "text": "상대에게 피해를 5 줍니다. 상대가 중독 상태라면, 대신 피해를 8 줍니다.",
+      "action": "seedbomb",
+      "upgrade": {
+        "cost": 1,
+        "text": "상대에게 피해를 10 줍니다. 상대가 중독 상태라면, 대신 피해를 16 줍니다."
+      }
+    },
+    {
+      "id": "celeste_focus",
+      "name": "힘 모으기",
+      "element": "FIRE",
+      "cost": 0,
+      "text": "이번 턴에, 내가 카드를 낼 때마다 상대에게 피해를 3 줍니다.",
+      "action": "focus"
+    },
+    {
+      "id": "thekal_icicle",
+      "name": "서리 저주",
+      "element": "ICE",
+      "cost": 1,
+      "text": "상대에게 ‘고드름’ 카드를 줍니다. 고드름 카드 양쪽에 있는 카드들의 비용이 (1) 증가합니다.",
+      "delegate": "서리 저주",
+      "upgrade": {
+        "cost": 1,
+        "text": "상대에게 ‘고드름+’ 카드를 줍니다. 고드름 카드 양쪽에 있는 카드들의 비용이 (1) 증가합니다."
+      }
+    },
+    {
+      "id": "thekal_curse",
+      "name": "심해 저주",
+      "element": "ICE",
+      "cost": 1,
+      "text": "상대에게 ‘저주’ 카드를 줍니다. 저주 카드는 매 턴 엔드 페이즈시 보유자에게 피해를 3 줍니다.",
+      "delegate": "심해 저주",
+      "upgrade": {
+        "cost": 1,
+        "text": "상대에게 ‘저주+’ 카드를 줍니다. 저주+ 카드는 매 턴 엔드 페이즈시 보유자에게 피해를 5 줍니다."
+      }
+    },
+    {
+      "id": "agamaggan_mimic",
+      "name": "모사",
+      "element": "ICE",
+      "cost": 0,
+      "text": "일회용. 내 손에 있는 가장 낮은 비용의 카드를 복사합니다.",
+      "action": "mimic",
+      "upgrade": {
+        "cost": 0,
+        "text": "일회용. 내 손에 있는 가장 낮은 비용의 카드를 2장 복사합니다."
+      }
+    },
+    {
+      "id": "agamaggan_frost",
+      "name": "서리꽃",
+      "element": "ICE",
+      "cost": 0,
+      "text": "상대의 덱에 ‘혹한’을 3장 섞어 넣습니다.",
+      "delegate": "서리꽃",
+      "upgrade": {
+        "cost": 0,
+        "text": "상대의 덱에 ‘혹한+’을 3장 섞어 넣습니다."
+      }
+    },
+    {
+      "id": "agamaggan_bait",
+      "name": "미끼 뿌리기",
+      "element": "ICE",
+      "cost": 0,
+      "text": "내 덱에서 비용이 0인 다른 카드를 이번 전투 동안 강화합니다.",
+      "action": "bait",
+      "upgrade": {
+        "cost": 0,
+        "text": "내 덱에서 비용이 0인 다른 카드 둘을 이번 전투 동안 강화합니다."
+      }
+    },
+    {
+      "id": "agamaggan_snow",
+      "name": "눈송이",
+      "element": "ICE",
+      "cost": 0,
+      "text": "내 덱에서 비용이 0인 다른 카드를 사용합니다. 침몰: 그 카드들이 두 번 시전됩니다.",
+      "action": "snow",
+      "upgrade": {
+        "cost": 0,
+        "text": "내 덱에서 비용이 0인 다른 카드를 둘 사용합니다. 침몰: 그 카드들이 두 번 시전됩니다."
+      }
+    },
+    {
+      "id": "agamaggan_drop",
+      "name": "투하",
+      "element": "ICE",
+      "cost": 2,
+      "text": "내 손이 가득 찰 때까지 비용이 0인 카드를 뽑습니다.",
+      "action": "zeroDraw",
+      "upgrade": {
+        "cost": 1,
+        "text": "내 손이 가득 찰 때까지 비용이 0인 카드를 뽑습니다."
+      }
+    },
+    {
+      "id": "agamaggan_surf",
+      "name": "파도타기",
+      "element": "ICE",
+      "cost": 1,
+      "text": "해방: 다른 카드를 3장 이상 내야 합니다. 다음 두 턴의 스탠바이 페이즈시에, 내 덱에서 비용이 0인 무작위 카드를 사용합니다.",
+      "action": "surf",
+      "liberation": {
+        "type": "played",
+        "amount": 3
+      },
+      "upgrade": {
+        "cost": 1,
+        "text": "해방: 다른 카드를 3장 이상 내야 합니다. 다음 두 턴의 스탠바이 페이즈시에, 내 덱에서 비용이 0인 카드를 발견하여 사용합니다."
+      }
+    },
+    {
+      "id": "nautilus_drop",
+      "name": "투하",
+      "element": "ICE",
+      "cost": 0,
+      "text": "폐기: 2",
+      "action": "discard",
+      "upgrade": {
+        "cost": 0,
+        "text": "폐기: 3"
+      }
+    },
+    {
+      "id": "nautilus_buried",
+      "name": "파묻힌 보물",
+      "element": "ICE",
+      "cost": 2,
+      "text": "카드를 뽑고 방어도를 5 얻습니다. 침몰: 이 카드는 어디에 있든 비용이 (0)이 됩니다.",
+      "action": "buried",
+      "upgrade": {
+        "cost": 2,
+        "text": "카드를 2장 뽑고 방어도를 10 얻습니다. 침몰: 이 카드는 어디에 있든 비용이 (0)이 됩니다."
+      }
+    },
+    {
+      "id": "nautilus_surprise",
+      "name": "서프라이드",
+      "element": "LIGHTNING",
+      "cost": 3,
+      "text": "이 카드가 레스트로 이동할 때, 상대에게 피해를 10 주고 카드를 2장 뽑습니다.",
+      "action": "restSurprise",
+      "upgrade": {
+        "cost": 3,
+        "text": "이 카드가 레스트로 이동할 때, 상대에게 피해를 16 주고 카드를 2장 뽑습니다."
+      }
+    },
+    {
+      "id": "nautilus_anchor",
+      "name": "닻을 내려라",
+      "element": "ICE",
+      "cost": 0,
+      "text": "카드를 2장 뽑습니다. 다음 턴에 카드를 뽑을 수 없습니다. 침몰: 다음 턴에도 카드를 뽑을 수 있습니다.",
+      "action": "anchor",
+      "upgrade": {
+        "cost": 0,
+        "text": "카드를 4장 뽑습니다. 다음 턴에 카드를 뽑을 수 없습니다. 침몰: 다음 턴에도 카드를 뽑을 수 있습니다."
+      }
+    },
+    {
+      "id": "nautilus_stolen",
+      "name": "장물",
+      "element": "ICE",
+      "cost": 1,
+      "text": "상대의 덱에서 무작위 카드를 내 손으로 가져옵니다. 침몰: 대신 발견하여 가져옵니다.",
+      "action": "stolen",
+      "upgrade": {
+        "cost": 1,
+        "text": "상대의 덱에서 무작위 카드 둘을 내 손으로 가져옵니다. 침몰: 대신 발견하여 가져옵니다."
+      }
+    },
+    {
+      "id": "nautilus_bait",
+      "name": "심해의 미끼",
+      "element": "ICE",
+      "cost": 1,
+      "text": "폐기: 3. 카드를 뽑습니다.",
+      "action": "deepBait",
+      "upgrade": {
+        "cost": 1,
+        "text": "폐기: 6. 카드를 뽑습니다."
+      }
+    },
+    {
+      "id": "nautilus_flood",
+      "name": "침수",
+      "element": "ICE",
+      "cost": 1,
+      "text": "폐기: 3. 내 덱 맨 위에 있는 카드 3장의 비용을 (1) 감소시킵니다.",
+      "action": "flood",
+      "upgrade": {
+        "cost": 1,
+        "text": "폐기: 3. 내 덱 맨 위에 있는 카드 5장의 비용을 (1) 감소시킵니다."
+      }
+    },
+    {
+      "id": "nautilus_salvage",
+      "name": "인양",
+      "element": "ICE",
+      "cost": 0,
+      "text": "폐기: 3. 내 레스트에서 무작위 카드를 내 손으로 가져옵니다. 침몰: 대신 카드를 발견하여 내 손으로 가져옵니다.",
+      "action": "salvage",
+      "upgrade": {
+        "cost": 0,
+        "text": "폐기: 3. 내 레스트에서 무작위 카드 둘을 내 손으로 가져옵니다. 침몰: 대신 카드를 발견하여 내 손으로 가져옵니다."
+      }
+    },
+    {
+      "id": "nautilus_negotiate",
+      "name": "혀어어어업상",
+      "element": "ICE",
+      "cost": 1,
+      "text": "폐기: 3. 상대와 내 손에서 무작위 카드를 서로 바꿉니다. 침몰: 대신 발견하여 그 카드들을 서로 바꿉니다.",
+      "action": "negotiate",
+      "upgrade": {
+        "cost": 0,
+        "text": "폐기: 3. 상대와 내 손에서 무작위 카드를 서로 바꿉니다. 침몰: 대신 발견하여 그 카드들을 서로 바꿉니다."
+      }
+    },
+    {
+      "id": "nautilus_rewind",
+      "name": "되감기",
+      "element": "ICE",
+      "cost": 1,
+      "text": "상대에게 피해를 2 줍니다. 내 레스트에 있는 무작위 카드를 사용합니다.",
+      "delegate": "되감기",
+      "upgrade": {
+        "cost": 0,
+        "text": "상대에게 피해를 4 줍니다. 내 레스트에 있는 무작위 카드를 사용합니다."
+      }
+    },
+    {
+      "id": "nautilus_excavate",
+      "name": "발굴",
+      "element": "ICE",
+      "cost": 1,
+      "text": "내 레스트에서 카드를 발견하여 내 손으로 가져옵니다.",
+      "delegate": "발굴",
+      "upgrade": {
+        "cost": 1,
+        "text": "내 레스트에서 카드를 2장 발견하여 내 손으로 가져옵니다."
+      }
+    },
+    {
+      "id": "nautilus_convert",
+      "name": "동력 전환",
+      "element": "LIGHTNING",
+      "cost": 0,
+      "text": "내 손에서 카드를 발견하여 버리고 카드를 뽑습니다.",
+      "action": "convert",
+      "upgrade": {
+        "cost": 0,
+        "text": "내 손에서 카드를 발견하여 버리고 카드를 뽑습니다."
+      }
+    },
+    {
+      "id": "nautilus_plasma",
+      "name": "플라즈마",
+      "element": "LIGHTNING",
+      "cost": 2,
+      "text": "이 카드가 레스트로 이동할 때, 상대의 손에서 카드 하나를 감전시키고 카드를 3장 뽑습니다.",
+      "action": "restPlasma",
+      "upgrade": {
+        "cost": 2,
+        "text": "이 카드가 레스트로 이동할 때, 상대의 손에서 카드 셋을 감전시키고 카드를 3장 뽑습니다."
+      }
+    },
+    {
+      "id": "nautilus_aurawheel",
+      "name": "오라휠",
+      "element": "LIGHTNING",
+      "cost": 3,
+      "text": "이 카드가 레스트로 이동할 때, 무작위 하급 보물을 내 손으로 가져옵니다.",
+      "action": "restAura",
+      "upgrade": {
+        "cost": 3,
+        "text": "이 카드가 레스트로 이동할 때, 무작위 하급 보물을 내 손으로 가져오고 내 탐험 덱에 추가합니다."
+      }
+    },
+    {
+      "id": "nautilus_cannon",
+      "name": "전자포",
+      "element": "LIGHTNING",
+      "cost": 1,
+      "text": "이 카드가 레스트로 이동할 때, 상대에게 피해를 6 주고 손에서 카드 하나를 감전시킵니다.",
+      "action": "restCannon",
+      "upgrade": {
+        "cost": 1,
+        "text": "이 카드가 레스트로 이동할 때, 상대에게 피해를 10 주고 손에서 카드 하나를 감전시킵니다."
+      }
+    },
+    {
+      "id": "nautilus_overdrive",
+      "name": "오버드라이브",
+      "element": "LIGHTNING",
+      "cost": 1,
+      "text": "내 손에 있는 카드를 모두 버립니다. 버린 수만큼 카드를 뽑습니다.",
+      "action": "overdrive",
+      "upgrade": {
+        "cost": 0,
+        "text": "내 손에 있는 카드를 모두 버립니다. 버린 수만큼 카드를 뽑습니다."
+      }
+    }
+  ],
+  "startingTreasures": [
+    {
+      "id": "purification_well",
+      "name": "정화의 원천",
+      "text": "전투마다 첫 2번의 해로운 효과를 무시합니다."
+    },
+    {
+      "id": "snake_ring",
+      "name": "뱀의 반지",
+      "text": "첫 턴에만 카드를 2장 추가로 뽑습니다."
+    },
+    {
+      "id": "pandaria_codex",
+      "name": "판다리아의 비전서",
+      "text": "‘수정구’를 5회 낼 때마다, 내 카드의 위력이 1 증가합니다."
+    },
+    {
+      "id": "bound_reliquary",
+      "name": "구속된 성물함",
+      "text": "매 턴의 스탠바이 페이즈시에, 파괴되지 않은 내 모든 제단의 최대 체력이 1 증가합니다."
+    },
+    {
+      "id": "great_blood",
+      "name": "위대한 피",
+      "text": "매 전투 종료 시 체력을 12 회복합니다."
+    },
+    {
+      "id": "bilgewater_tribute",
+      "name": "빌지워터의 공물",
+      "text": "내가 처음으로 침몰한 후에, 무작위 하급 보물을 내 손으로 가져옵니다."
+    }
+  ],
+  "shrines": [
+    {
+      "id": "akali",
+      "name": "아칼리의 용사",
+      "maxHp": 5,
+      "text": "스탠바이 페이즈시에, 내 방어도만큼 상대에게 피해를 줍니다."
+    },
+    {
+      "id": "kragwa",
+      "name": "크라그와의 미끼",
+      "maxHp": 5,
+      "text": "내가 과부하되지 않습니다. 내가 과부하 카드를 낼 때마다, 상대에게 피해를 5 줍니다."
+    },
+    {
+      "id": "gral",
+      "name": "그랄의 미끼",
+      "maxHp": 2,
+      "text": "스탠바이 페이즈시에, 상대의 덱에서 무작위 카드를 내 손으로 복사하여 가져옵니다. 그 카드의 비용이 (1) 감소합니다."
+    },
+    {
+      "id": "shirvallah",
+      "name": "시르밸라의 가호",
+      "maxHp": 5,
+      "text": "내가 카드를 사용할 때마다, 무작위 신성 카드를 내 손으로 가져옵니다."
+    },
+    {
+      "id": "halazzi",
+      "name": "할라지의 굶주림",
+      "maxHp": 5,
+      "text": "엔드 페이즈시에, 이번 턴에 내가 낸 카드의 수의 2배만큼 상대에게 피해를 줍니다."
+    },
+    {
+      "id": "gonk",
+      "name": "공크의 갑주",
+      "maxHp": 3,
+      "text": "내가 방어도를 얻으면, 마나를 모두 회복합니다."
+    },
+    {
+      "id": "hireek",
+      "name": "히르이크의 서약",
+      "maxHp": 5,
+      "text": "내 카드가 마나 대신 5배의 생명력을 비용으로 사용합니다."
+    },
+    {
+      "id": "janalai",
+      "name": "잔알라이의 의복",
+      "maxHp": 4,
+      "text": "내 카드의 피해량과 회복량이 2 증가합니다."
+    },
+    {
+      "id": "bwonsamdi",
+      "name": "브원삼디의 거래",
+      "maxHp": 8,
+      "text": "내가 생명력을 회복할 때마다 회복하는 대신 상대에게 그만큼의 피해를 줍니다."
+    }
+  ]
+}

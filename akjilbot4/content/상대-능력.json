@@ -1,0 +1,936 @@
+{
+  "schemaVersion": 1,
+  "implementationStatus": "specification-only",
+  "description": "2026-10-03 사용자 상대 설계 원문을 구조화한 개발 자료. effectId는 설계 식별자이며 전투 엔진의 실행 핸들러 구현을 뜻하지 않습니다.",
+  "abilities": {
+    "cannon_minion": {
+      "name": "공성",
+      "kind": "passive",
+      "cost": null,
+      "text": "매 턴의 엔드 페이즈시에 상대에게 피해를 1 줍니다.",
+      "effectId": "end_opponent_damage",
+      "parameters": {
+        "phase": "END",
+        "damage": 1
+      },
+      "notes": []
+    },
+    "little_hatchling": {
+      "name": "아기 숨결",
+      "kind": "active",
+      "cost": 1,
+      "usesPerTurn": 1,
+      "text": "상대에게 피해를 2 줍니다.",
+      "effectId": "opponent_damage",
+      "parameters": {
+        "damage": 2
+      },
+      "notes": []
+    },
+    "aviana": {
+      "name": "그하니르",
+      "kind": "active",
+      "cost": 1,
+      "usesPerTurn": 1,
+      "text": "체력을 4 회복합니다.",
+      "effectId": "heal_self",
+      "parameters": {
+        "amount": 4
+      },
+      "notes": []
+    },
+    "black_knight": {
+      "name": "처형",
+      "kind": "active",
+      "cost": 1,
+      "usesPerTurn": 1,
+      "text": "상대가 낸 카드 중 하나를 카운터합니다.",
+      "effectId": "counter_one_opponent_submission",
+      "parameters": {
+        "targetZone": "currentMainPhaseSubmission",
+        "count": 1,
+        "targetPolicy": null
+      },
+      "notes": [
+        "플레이어 제출을 본 뒤 영웅 능력 사용 여부를 바꾸면 안 됩니다. 대상 선정 방식은 별도 확정이 필요합니다."
+      ]
+    },
+    "patchwerk": {
+      "name": "더 놀아줘!",
+      "kind": "active",
+      "cost": 2,
+      "usesPerTurn": 1,
+      "text": "내 현재 체력과 최대 체력을 두 배로 만듭니다. 네 턴 뒤에 다시 사용할 수 있습니다.",
+      "effectId": "double_health_with_cooldown",
+      "parameters": {
+        "currentHpMultiplier": 2,
+        "maxHpMultiplier": 2,
+        "cooldownTurns": 4
+      },
+      "notes": [
+        "사용 턴이 t이면 t+4부터 재사용 가능합니다. 두 메인 페이즈는 같은 턴으로 계산합니다."
+      ]
+    },
+    "antonidas": {
+      "name": "설계",
+      "kind": "passive",
+      "cost": null,
+      "text": "매 턴의 엔드 페이즈시마다 화염 카드를 뽑습니다.",
+      "effectId": "phase_draw_element",
+      "parameters": {
+        "phase": "END",
+        "element": "FIRE",
+        "count": 1,
+        "source": "ownDrawPile"
+      },
+      "notes": []
+    },
+    "brightwing": {
+      "name": "친구 만들기!",
+      "kind": "active",
+      "cost": 1,
+      "usesPerTurn": 1,
+      "text": "비용이 (3) 이하인 무작위 카드를 사용합니다.",
+      "effectId": "cast_random_general_card",
+      "parameters": {
+        "maxCost": 3,
+        "count": 1,
+        "pool": "unupgradedGeneralCards",
+        "freeCast": true,
+        "countAsCardUse": false
+      },
+      "notes": [
+        "보물·토큰·전용 카드·강화본은 기본 무작위 풀에서 제외됩니다. 자동 사용 카드의 상성 판정 규칙은 기존 미정 항목입니다."
+      ]
+    },
+    "teemo": {
+      "name": "유독성 함정",
+      "kind": "active",
+      "cost": 1,
+      "usesPerTurn": 1,
+      "text": "상대의 덱에 '버섯 함정'이 3장 이하라면, 상대의 덱에 '버섯 함정'을 3장 섞어 넣습니다.",
+      "effectId": "shuffle_generated_cards_into_opponent_deck",
+      "parameters": {
+        "cardId": "poisonous_mushroom",
+        "count": 3,
+        "targetZone": "opponentDrawPile",
+        "maximumExistingCount": 3
+      },
+      "notes": [
+        "발동 조건은 상대 덱의 버섯 함정이 3장 이하인지 확인합니다. 조건을 만족하면 항상 3장을 추가하며, 레스트의 함정은 세지 않습니다."
+      ]
+    },
+    "ivern": {
+      "name": "수풀 가꾸기",
+      "kind": "passive",
+      "cost": null,
+      "text": "매 턴의 엔드 페이즈시에, 서로의 손에서 자연 카드가 아닌 카드 1장을 덱에 섞어 넣고 자연 카드를 1장 뽑습니다.",
+      "effectId": "end_replace_one_non_nature_each_hand",
+      "parameters": {
+        "phase": "END",
+        "targets": "both",
+        "returnFilter": {
+          "elementNot": "NATURE"
+        },
+        "returnCountPerSide": 1,
+        "returnDestination": "ownDrawPile",
+        "drawFilter": {
+          "element": "NATURE"
+        },
+        "drawCountPerSide": 1
+      },
+      "notes": [
+        "후속 답변으로 장수가 없으면 1장입니다. 각자의 손에서 비자연 카드 1장만 덱으로 돌리고 자연 카드 1장을 뽑습니다. 대상 선정은 게임의 기본 카드 선택 처리 규칙을 따릅니다."
+      ]
+    },
+    "trap_room": {
+      "name": "경보",
+      "kind": "passive",
+      "cost": null,
+      "text": "매 턴의 스탠바이 페이즈시에, 덱에서 비용이 (3)인 카드를 뽑습니다.",
+      "effectId": "standby_draw_cost",
+      "parameters": {
+        "phase": "STANDBY",
+        "cost": 3,
+        "count": 1,
+        "source": "ownDrawPile"
+      },
+      "notes": []
+    },
+    "yuumi": {
+      "name": "너랑 유미랑!",
+      "kind": "passive",
+      "cost": null,
+      "text": "턴에 처음으로 상대가 체력을 회복하면 카드를 뽑습니다. 그 카드의 비용이 (2) 감소합니다.",
+      "effectId": "draw_on_opponent_heal",
+      "parameters": {
+        "trigger": "opponentHeals",
+        "drawCount": 1,
+        "drawnCardCostReduction": 2,
+        "oncePerTurn": true
+      },
+      "notes": [
+        "실제 회복량이 0보다 클 때만 발동합니다. 메인 페이즈 1·2를 합쳐 턴당 1회이며 드로우할 카드가 없거나 손이 가득 차도 발동 횟수는 소모됩니다."
+      ]
+    },
+    "lich_king": {
+      "name": "스컬지",
+      "kind": "active",
+      "cost": 1,
+      "usesPerTurn": 1,
+      "text": "상대의 레스트에서 카드를 발견하여 내 손으로 가져옵니다.",
+      "effectId": "discover_steal_opponent_rest",
+      "parameters": {
+        "source": "opponentRest",
+        "choices": 3,
+        "destination": "ownHand",
+        "move": true,
+        "copy": false
+      },
+      "notes": [
+        "기존 카드 인스턴스를 옮깁니다. 플레이어 탐험 덱의 영구 제거를 뜻하지 않습니다."
+      ]
+    },
+    "aurelion_sol": {
+      "name": "우주의 균형",
+      "kind": "active",
+      "cost": 1,
+      "usesPerTurn": 1,
+      "text": "이번 게임에서 내 카드들의 피해량과 회복량이 1 증가합니다. 네 턴 뒤에 다시 사용할 수 있습니다.",
+      "effectId": "card_damage_and_healing_bonus",
+      "parameters": {
+        "damageBonus": 1,
+        "healingBonus": 1,
+        "duration": "battle",
+        "applicationMode": "onUse",
+        "stacks": true,
+        "cooldownTurns": 4
+      },
+      "notes": [
+        "후속 답변으로 1마나 사용형, 턴당 1회로 확정했습니다. 사용할 때마다 해당 전투에서 카드 피해량·회복량 +1이 누적됩니다. 영웅 능력 자체의 피해·회복은 ‘내 카드들’에 포함하지 않습니다."
+      ]
+    },
+    "faceless_manipulator": {
+      "name": "요그사론의 심복",
+      "kind": "active",
+      "cost": 0,
+      "usesPerTurn": 1,
+      "text": "상대의 손에 있는 무작위 카드를 상대의 덱에 섞어 넣습니다. 상대가 카드를 뽑습니다.",
+      "effectId": "shuffle_opponent_hand_card_then_draw",
+      "parameters": {
+        "randomHandCards": 1,
+        "destination": "opponentDrawPile",
+        "opponentDraw": 1
+      },
+      "notes": [
+        "덱은 플레이어의 탐험 덱을 카드 인스턴스별로 복제하고, 카드형 보물과 지속 효과형 보물도 복제합니다. 유물이나 플레이어 영웅 능력은 복제한다고 명시되지 않았습니다."
+      ]
+    },
+    "mida": {
+      "name": "성불",
+      "kind": "active",
+      "cost": 1,
+      "usesPerTurn": 1,
+      "text": "상대의 레스트에 있는 무작위 카드 3장을 게임에서 제외합니다.",
+      "effectId": "exclude_random_opponent_rest",
+      "parameters": {
+        "count": 3,
+        "source": "opponentRest",
+        "destination": "opponentExcluded"
+      },
+      "notes": []
+    },
+    "plague_doctor": {
+      "name": "세례",
+      "kind": "active",
+      "cost": 1,
+      "usesPerTurn": 1,
+      "text": "내가 너의 모든 질병을 고쳐 낫게 하리라.",
+      "effectId": "heal_opponent_and_advance_baptism",
+      "parameters": {
+        "actualEffectText": "플레이어의 체력을 모두 회복합니다.",
+        "healTarget": "opponent",
+        "healToFull": true,
+        "forbidConsecutiveTurnUse": true,
+        "cooldownTurns": 2,
+        "quoteSequence": "doctorQuotes",
+        "nicknamePlaceholder": "(플레이어 닉네임)",
+        "transformationAtUseCount": 12,
+        "transformation": {
+          "name": "백야",
+          "currentHp": 100,
+          "maxHp": 100,
+          "upgradeZones": [
+            "hand",
+            "deck",
+            "rest"
+          ],
+          "upgradeExclusiveCards": false,
+          "heroPower": {
+            "name": "하얀 밤",
+            "kind": "passive",
+            "cost": null,
+            "text": "메인 페이즈의 제한 시간이 15초로 감소합니다.",
+            "effectId": "main_phase_time_limit",
+            "parameters": {
+              "phases": [
+                "MAIN1",
+                "MAIN2"
+              ],
+              "limitMs": 15000,
+              "onTimeout": "passCurrentMainPhase",
+              "timeoutSubmission": {
+                "cards": [],
+                "heroPower": false
+              },
+              "offlineTimerPolicy": null
+            }
+          }
+        }
+      },
+      "notes": [
+        "특수 대사는 세례 사용 횟수 순서대로 출력합니다. 원문의 ‘백야는 전 턴에 영웅 능력을 사용하지 않은 경우에만 사용’은 사용형 세례의 연속 턴 사용 제한으로 해석했습니다.",
+        "모든 전용 카드는 강화 불가라는 공통 규칙에 따라 변신 시 예고는 강화하지 않는 것으로 정리했습니다. 제외 영역은 강화 대상이 아닙니다.",
+        "변신 후에도 같은 전투입니다. 체력·최대 체력·이름·영웅 능력·카드 강화 외의 상태를 초기화한다고 명시되지 않았습니다."
+      ]
+    },
+    "yogg_saron": {
+      "name": "광기",
+      "kind": "passive",
+      "cost": null,
+      "text": "매 턴의 엔드 페이즈시에, 서로의 레스트에 있는 무작위 카드를 게임에서 제외합니다.",
+      "effectId": "end_exclude_random_from_each_rest",
+      "parameters": {
+        "phase": "END",
+        "targets": "both",
+        "countPerSide": 1,
+        "source": "rest",
+        "destination": "excluded"
+      },
+      "notes": [
+        "각자의 레스트에서 1장씩 제외하는 것으로 정리했습니다."
+      ]
+    },
+    "extreme_troll": {
+      "name": "빌드업",
+      "kind": "active",
+      "cost": 1,
+      "usesPerTurn": 1,
+      "text": "냉기 카드를 뽑습니다. 상대의 덱에서 무작위 전기 카드를 레스트로 보냅니다.",
+      "effectId": "draw_ice_and_discard_opponent_lightning",
+      "parameters": {
+        "ownDraw": {
+          "source": "ownDrawPile",
+          "element": "ICE",
+          "count": 1
+        },
+        "opponentMove": {
+          "source": "opponentDrawPile",
+          "element": "LIGHTNING",
+          "count": 1,
+          "random": true,
+          "destination": "opponentRest"
+        },
+        "battleStart": {
+          "target": "player",
+          "cardId": "deactivation",
+          "count": 3,
+          "additionalToOpeningHand": true,
+          "handLimitResolution": "withinGlobalLimit",
+          "openingHandCount": 4,
+          "globalHandLimit": 8,
+          "handCountAfterGrant": 7
+        }
+      },
+      "notes": [
+        "후속 답변으로 모든 전투의 손패 상한이 8장으로 변경되었습니다. 기본 시작 손패 4장에 비활성화 3장을 추가해 총 7장을 정상 보유합니다.",
+        "덱의 ‘밴 해머’ 2장은 전용 카드 밴 해머+++ 2장을 뜻하는 것으로 정리했습니다."
+      ]
+    },
+    "pikachu": {
+      "name": "100만볼트",
+      "kind": "active",
+      "cost": 1,
+      "text": "서로의 손에 있는 전기 카드의 수만큼 상대에게 피해를 줍니다.",
+      "effectId": "pikachu",
+      "parameters": {},
+      "notes": []
+    },
+    "fiora": {
+      "name": "결투",
+      "kind": "passive",
+      "cost": null,
+      "text": "내가 상대 카드를 카운터하거나 상대가 메인 페이즈 1에 카드를 내지 않을 때마다 상대에게 피해를 5 줍니다.",
+      "effectId": "fiora",
+      "parameters": {
+        "counterDamage": 5,
+        "emptyMain1Damage": 5
+      },
+      "notes": [
+        "카운터한 상대 카드 한 장당 피해를 5 줍니다. 같은 제출 묶음에서 동일 상대 카드를 여러 카드로 카운터해도 한 번만 셉니다."
+      ]
+    },
+    "piranha_plant": {
+      "name": "삼키기",
+      "kind": "passive",
+      "cost": null,
+      "text": "내가 상대 카드를 카운터할 때마다 그 카드를 게임에서 제외합니다.",
+      "effectId": "piranha_plant",
+      "parameters": {},
+      "notes": []
+    },
+    "ivysaur": {
+      "name": "맹독채찍",
+      "kind": "active",
+      "cost": 1,
+      "text": "상대에게 중독을 2 부여합니다. 이미 중독 상태라면, 대신 상대에게 부여된 중독을 모두 소모하고 중독 피해를 즉시 입힙니다.",
+      "effectId": "ivysaur",
+      "parameters": {},
+      "notes": []
+    },
+    "hanar": {
+      "name": "세공",
+      "kind": "passive",
+      "cost": null,
+      "text": "메인 페이즈 1에 내 발견 카드들의 비용이 (1) 감소합니다.",
+      "effectId": "hanar",
+      "parameters": {},
+      "notes": []
+    },
+    "super_minion": {
+      "name": "억제기",
+      "kind": "passive",
+      "cost": null,
+      "text": "전투 중에 처음으로 체력이 절반 이하로 떨어지면 그 피해를 막고, 내 손, 덱, 레스트에 있는 모든 강화되지 않은 카드를 강화합니다.",
+      "effectId": "super_minion",
+      "parameters": {
+        "preventTriggeringDamage": true,
+        "oncePerBattle": true
+      },
+      "notes": []
+    },
+    "boo": {
+      "name": "유령 걸음",
+      "kind": "active",
+      "cost": 1,
+      "text": "이번 페이즈에 피해를 받은 만큼 상대에게도 피해를 줍니다.",
+      "effectId": "boo",
+      "parameters": {
+        "duration": "currentPhase"
+      },
+      "notes": []
+    },
+    "meltranix": {
+      "name": "자백",
+      "kind": "passive",
+      "cost": null,
+      "text": "상대가 손에서 첫 번째와 마지막에 있는 카드만 낼 수 있습니다.",
+      "effectId": "meltranix",
+      "parameters": {
+        "removable": false
+      },
+      "notes": [
+        "영웅 능력에 의한 손패 제한은 디버프 제거로 해제되지 않으며 전이로 상대에게 옮길 수 없습니다."
+      ]
+    }
+  },
+  "exclusiveCards": [
+    {
+      "id": "ban_hammer_triple",
+      "name": "밴 해머+++",
+      "element": "ICE",
+      "cost": 1,
+      "text": "상대에게 경고를 부여합니다. 경고가 3에 도달하면, 상대는 게임에서 추방됩니다. 이 카드는 게임에서 제외되는 대신 레스트로 이동합니다.",
+      "upgradeable": false,
+      "exclusive": true,
+      "flags": {
+        "redirectExclusionToRest": true,
+        "literalPlusInName": true
+      },
+      "effectId": "give_warning_and_expulsion",
+      "parameters": {
+        "warningTarget": "opponent",
+        "warningsAdded": 1,
+        "expelAt": 3,
+        "warningDuration": "battle",
+        "specialDefeatResolution": null
+      }
+    },
+    {
+      "id": "deactivation",
+      "name": "비활성화",
+      "element": "LIGHTNING",
+      "cost": 2,
+      "text": "나에게 부여된 경고를 모두 없앱니다.",
+      "upgradeable": false,
+      "exclusive": true,
+      "flags": {},
+      "effectId": "clear_own_warnings",
+      "parameters": {
+        "target": "self",
+        "warningsAfter": 0
+      }
+    },
+    {
+      "id": "prophecy",
+      "name": "예고",
+      "element": "HOLY",
+      "cost": 1,
+      "text": "상대가 낸 모든 카드를 카운터합니다.",
+      "upgradeable": false,
+      "exclusive": true,
+      "flags": {},
+      "effectId": "counter_all_opponent_submission",
+      "parameters": {
+        "targetZone": "currentMainPhaseSubmission"
+      }
+    },
+    {
+      "id": "path_to_salvation",
+      "name": "구원의 길",
+      "element": "HOLY",
+      "cost": 1,
+      "text": "선천성. 일회용. 50턴 후의 엔드 페이즈시에 게임에서 승리합니다. 누구든지 신성 카드를 낼 때마다 남은 턴이 1 추가로 감소합니다.",
+      "upgradeable": false,
+      "exclusive": true,
+      "flags": {
+        "innate": true,
+        "excludeOnUse": true
+      },
+      "effectId": "delayed_holy_victory",
+      "parameters": {
+        "baseRemainingTurns": 50,
+        "winPhase": "END",
+        "acceleratingElement": "HOLY",
+        "cardUsers": "both",
+        "activationTiming": "firstSuccessfulUse",
+        "countSelfUse": true,
+        "countFreeCasts": false,
+        "countCounteredCasts": true,
+        "acceleratingUseType": "manualCardUse",
+        "repeatedUseBehavior": "keepExistingCountdown",
+        "repeatedSuccessfulManualUseReduction": 1,
+        "initialActivationDecreasesCountdown": false,
+        "reductionPerTurn": 1,
+        "reductionPhase": "END",
+        "additionalReductionPerHolyCard": 1
+      },
+      "notes": [
+        "매 엔드 페이즈마다 기본 1턴에 양쪽이 직접 낸 신성 카드 장수를 더해 감소합니다. 카운터당한 직접 사용도 포함하고 자동 시전은 제외합니다. 남은 턴이 0 이하가 되면 엔드 페이즈에 승리합니다."
+      ]
+    },
+    {
+      "id": "crystal_ball",
+      "name": "수정구",
+      "element": "NEUTRAL",
+      "cost": 0,
+      "text": "이 카드는 매 턴의 스탠바이 페이즈시마다 무작위 카드로 바뀝니다.",
+      "upgradeable": true,
+      "exclusive": true,
+      "flags": {
+        "restoreOriginalOnRest": true
+      },
+      "effectId": "standby_transform_random_card",
+      "parameters": {
+        "phase": "STANDBY",
+        "pool": "unupgradedGeneralCards",
+        "transformZones": [
+          "hand"
+        ],
+        "replaceFields": [
+          "name",
+          "element",
+          "cost",
+          "text",
+          "effects"
+        ],
+        "restoreCardId": "crystal_ball",
+        "restoreWhen": "usedCardMovesToRest"
+      },
+      "displayElement": "🌌",
+      "upgrade": {
+        "name": "수정구+",
+        "cost": 0,
+        "text": "이 카드는 매 턴의 스탠바이 페이즈시마다 강화된 무작위 카드로 바뀝니다."
+      }
+    },
+    {
+      "id": "ominous_presence",
+      "name": "불길한 존재감",
+      "element": "NEUTRAL",
+      "cost": 1,
+      "text": "방어도를 10 얻고 카드를 2장 뽑습니다.",
+      "upgradeable": false,
+      "exclusive": true,
+      "flags": {},
+      "effectId": "gain_armor_and_draw",
+      "parameters": {
+        "armor": 10,
+        "draw": 2,
+        "usedBy": [
+          "aurelion_sol",
+          "lich_king"
+        ]
+      }
+    },
+    {
+      "id": "final_chapter",
+      "name": "대단원",
+      "element": "HOLY",
+      "cost": 2,
+      "text": "다음 3턴의 스탠바이 페이즈시마다 상대에게 피해를 6 주고 체력을 6 회복합니다.",
+      "upgradeable": false,
+      "exclusive": true,
+      "flags": {},
+      "effectId": "scheduled_standby_damage_and_heal",
+      "parameters": {
+        "phase": "STANDBY",
+        "firstTurnOffset": 1,
+        "turns": 3,
+        "amount": 6,
+        "damage": 6,
+        "heal": 6
+      }
+    },
+    {
+      "id": "bramble_root",
+      "name": "덩굴뿌리",
+      "element": "NATURE",
+      "cost": 1,
+      "text": "방어도를 5 얻고 카드를 뽑습니다.",
+      "upgradeable": false,
+      "exclusive": true,
+      "flags": {},
+      "effectId": "gain_armor_and_draw",
+      "parameters": {
+        "armor": 5,
+        "draw": 1
+      }
+    },
+    {
+      "id": "poisonous_mushroom",
+      "name": "버섯 함정",
+      "element": "NEUTRAL",
+      "cost": 1,
+      "text": "뽑을 때 시전. 내 영웅에게 중독을 2 부여하고 카드를 뽑습니다.",
+      "upgradeable": false,
+      "exclusive": true,
+      "flags": {
+        "castWhenDrawn": true
+      },
+      "effectId": "poison_self_and_draw",
+      "parameters": {
+        "draw": 1,
+        "automaticCast": {
+          "sourceZone": "deck",
+          "anyDrawEffect": true,
+          "manaCost": 0,
+          "resolutionZone": "resolving",
+          "resolutionOrder": [
+            "poisonSelf",
+            "resolveNestedDraw",
+            "moveToRest"
+          ],
+          "afterResolution": "rest",
+          "refillWhileResolving": false,
+          "persistResolutionStack": true,
+          "enterHandByOtherMeansTriggers": false
+        },
+        "manualCastAllowed": true,
+        "manualManaCost": 1,
+        "poison": 2,
+        "poisonTarget": "self"
+      },
+      "notes": [
+        "뽑힌 버섯 함정은 해결 영역에서 자기 중독와 후속 드로우를 모두 처리한 뒤 레스트로 이동합니다. 해결 중인 버섯 함정은 리필 대상이 아니므로 버섯 함정만 남아 있어도 같은 연쇄에서 계속 재드로우되지 않습니다.",
+        "효과 해결 순서와 해결 중인 카드 영역은 전투 상태에 저장합니다. 기존의 페이즈 양쪽 효과 처리 후 사망 판정을 유지합니다."
+      ]
+    },
+    {
+      "id": "poison_powder",
+      "name": "독가루",
+      "element": "NATURE",
+      "cost": 0,
+      "text": "이번 턴의 엔드 페이즈시에, 상대에게 이번 턴에 상대가 뽑은 카드의 수만큼 중독을 부여합니다.",
+      "exclusive": true,
+      "upgradeable": false,
+      "effectId": "poison_powder",
+      "parameters": {},
+      "notes": []
+    },
+    {
+      "id": "hanar_truth",
+      "name": "진실",
+      "element": "ICE",
+      "cost": 1,
+      "text": "이 카드의 효과는 상대가 마지막으로 뽑은 카드의 효과가 됩니다.",
+      "exclusive": true,
+      "upgradeable": false,
+      "effectId": "hanar_truth",
+      "parameters": {},
+      "notes": []
+    },
+    {
+      "id": "hanar_lie",
+      "name": "거짓",
+      "element": "LIGHTNING",
+      "cost": 1,
+      "text": "상대가 낸 무작위 카드를 카운터합니다. 치명타: 무작위 발견 카드를 내 손으로 가져옵니다.",
+      "exclusive": true,
+      "upgradeable": false,
+      "effectId": "hanar_lie",
+      "parameters": {},
+      "notes": []
+    },
+    {
+      "id": "pointing",
+      "name": "지목",
+      "element": "NEUTRAL",
+      "cost": 0,
+      "text": "상대의 손에서 첫 번째에 있는 카드를 상대의 덱에 섞어 넣습니다. 서로 카드를 1장 뽑습니다.",
+      "exclusive": true,
+      "upgradeable": false,
+      "effectId": "pointing",
+      "parameters": {},
+      "notes": []
+    },
+    {
+      "id": "boo_scare",
+      "name": "놀래키기",
+      "element": "NEUTRAL",
+      "cost": 1,
+      "text": "뽑을 때 시전. 카드를 뽑고, 상대 손에 있는 무작위 카드 하나를 레스트로 보냅니다.",
+      "upgradeable": false,
+      "exclusive": true,
+      "flags": {
+        "castOnDraw": true
+      },
+      "effectId": "boo_scare",
+      "parameters": {
+        "usedBy": [
+          "boo"
+        ]
+      }
+    },
+    {
+      "id": "salvation_prayer",
+      "name": "구원의 기도",
+      "element": "HOLY",
+      "cost": 0,
+      "text": "서로 체력을 5 회복합니다.",
+      "upgradeable": false,
+      "exclusive": true,
+      "flags": {},
+      "effectId": "heal_both",
+      "parameters": {
+        "amount": 5,
+        "usedBy": [
+          "yuumi"
+        ]
+      }
+    },
+    {
+      "id": "fiora_weakness_nature",
+      "name": "약점 포착",
+      "element": "NATURE",
+      "cost": 1,
+      "text": "압도. 내 덱에서 '약점 포착'을 뽑습니다. 치명타: 다음 2턴의 스탠바이 페이즈시에 체력을 5 회복합니다.",
+      "exclusive": true,
+      "upgradeable": false,
+      "effectId": "fiora_weakness_nature",
+      "parameters": {},
+      "notes": []
+    },
+    {
+      "id": "fiora_weakness_ice",
+      "name": "약점 포착",
+      "element": "ICE",
+      "cost": 1,
+      "text": "압도. 내 덱에서 '약점 포착'을 뽑습니다. 치명타: 상대의 손에서 카드를 발견하여 레스트로 보냅니다.",
+      "exclusive": true,
+      "upgradeable": false,
+      "effectId": "fiora_weakness_ice",
+      "parameters": {},
+      "notes": []
+    },
+    {
+      "id": "fiora_weakness_lightning",
+      "name": "약점 포착",
+      "element": "LIGHTNING",
+      "cost": 1,
+      "text": "압도. 내 덱에서 '약점 포착'을 뽑습니다. 치명타: 상대의 레스트에서 카드를 발견하여 내 손으로 가져옵니다.",
+      "exclusive": true,
+      "upgradeable": false,
+      "effectId": "fiora_weakness_lightning",
+      "parameters": {},
+      "notes": []
+    },
+    {
+      "id": "fiora_weakness_fire",
+      "name": "약점 포착",
+      "element": "FIRE",
+      "cost": 1,
+      "text": "압도. 내 덱에서 '약점 포착'을 뽑습니다. 치명타: 상대에게 피해를 8 줍니다.",
+      "exclusive": true,
+      "upgradeable": false,
+      "effectId": "fiora_weakness_fire",
+      "parameters": {},
+      "notes": []
+    },
+    {
+      "id": "fiora_grand_duel",
+      "name": "대결투",
+      "element": "HOLY",
+      "cost": 2,
+      "text": "압도, 일회용. 내 레스트에 있는 '약점 포착'을 모두 내 손으로 가져옵니다. 내 덱에 4속성의 '약점 포착'을 섞어 넣습니다.",
+      "exclusive": true,
+      "upgradeable": false,
+      "effectId": "fiora_grand_duel",
+      "parameters": {},
+      "notes": []
+    },
+    {
+      "id": "boo_ghost_raider",
+      "name": "유령 강탈자",
+      "element": "NEUTRAL",
+      "cost": 0,
+      "text": "상대에게 이번 턴에 사용된 카드의 숫자당 4의 피해를 줍니다.",
+      "exclusive": true,
+      "upgradeable": false,
+      "effectId": "boo_ghost_raider",
+      "parameters": {
+        "countDirectCardsOnly": true,
+        "bothSides": true,
+        "aiMinimumDamage": 12
+      },
+      "notes": [
+        "양쪽의 직접 사용 카드만 세며, 이 카드와 같은 제출의 직접 사용 카드도 포함합니다. 자동 시전과 영웅 능력은 제외합니다."
+      ]
+    }
+  ],
+  "doctorQuotes": [
+    "너는 (플레이어 닉네임) 사도다. 내가 이 반석 위에 내 교회를 세울 터인즉, 죽음의 힘도 감히 그것을 누르지 못할 것이다.",
+    "저희에게 일러 주십시오. 그런 일이 언제 일어나겠습니까?",
+    "우리가 불을 명하여 하늘로부터 내려 저들을 멸하라 하기를 원하시나이까",
+    "처음 있던 것들이 다 지나갔음이라.",
+    "아버지를 우리에게 보여 주옵소서, 그리하면 족하겠나이다.",
+    "그가 이르시되 나를 따르라 하시니 일어나 따르리라.",
+    "대적들이 한 길로 너를 치러 오지만, 일곱 길로 흩어져 도망하리라",
+    "(플레이어 닉네임) 사도가 다른 제자들에게 말하되 우리도 함께 죽으러 가자 하니라.",
+    "보라, 내가 만물을 새롭게 하노라.",
+    "힘으로도, 권력으로도 되지 아니하고 오직 나의 영으로 이루어지리라.",
+    "이 후로는 누구든지 나를 괴롭히게 하지 말라, 내가 내 몸에 그의 흔적을 지니고 있노라.",
+    "내가 너희 열둘을 택하지 아니하였느냐, 그러나 너희 중의 한 사람은 마귀니라 하시니."
+  ],
+  "resolvedDecisions": [
+    {
+      "id": "deactivation_opening_overflow",
+      "subject": "개십악질 시작 손패",
+      "decision": "모든 전투의 손패 상한은 8장입니다. 기본 시작 손패 4장과 비활성화 3장, 총 7장을 정상 보유합니다.",
+      "affected": [
+        "extreme_troll",
+        "deactivation"
+      ],
+      "status": "resolved-by-user"
+    },
+    {
+      "id": "white_night_timeout",
+      "subject": "백야 15초 제한",
+      "decision": "15초 동안 제출하지 않으면 해당 메인 페이즈에 플레이어가 카드를 내지 않은 것으로 취급하고 다음 페이즈로 진행합니다.",
+      "interpretation": "영웅 능력도 제출하지 않은 빈 행동으로 처리합니다. 봇 종료 시간의 취급은 별도 미정입니다.",
+      "affected": [
+        "plague_doctor"
+      ],
+      "status": "resolved-by-user"
+    },
+    {
+      "id": "cosmic_balance_activation",
+      "subject": "우주의 균형 사용 방식",
+      "decision": "1마나 사용형, 턴당 1회입니다. 사용할 때마다 이번 전투의 내 카드 피해량과 회복량 +1이 누적됩니다.",
+      "affected": [
+        "aurelion_sol"
+      ],
+      "status": "resolved-by-user"
+    },
+    {
+      "id": "ivern_draw_count",
+      "subject": "수풀 가꾸기 교체 장수",
+      "decision": "장수 언급이 없으면 1장입니다. 서로 손패의 비자연 카드 1장만 덱에 섞고 자연 카드 1장을 뽑습니다.",
+      "affected": [
+        "ivern"
+      ],
+      "status": "resolved-by-user"
+    },
+    {
+      "id": "crystal_transform_zones",
+      "subject": "수정구 변신 범위",
+      "decision": "매 스탠바이 페이즈에 손패에 있는 수정구만 변신합니다.",
+      "affected": [
+        "crystal_ball"
+      ],
+      "status": "resolved-by-user"
+    },
+    {
+      "id": "salvation_countdown",
+      "subject": "구원의 길 작동과 누적",
+      "decision": "선천성. 일회용. 50턴 후의 엔드 페이즈시에 게임에서 승리합니다. 누구든지 신성 카드를 낼 때마다 남은 턴이 1 추가로 감소합니다.",
+      "interpretation": "매 엔드 페이즈에 기본 1턴과 양쪽의 직접 사용 신성 카드 장수만큼 추가 감소합니다. 턴당 추가 감소 상한은 없고, 카운터당한 직접 사용은 포함하며 자동 시전은 제외합니다. 최초 사용 카드도 집계하고 재사용으로 카운트를 초기화하지 않습니다.",
+      "affected": [
+        "path_to_salvation"
+      ],
+      "status": "resolved-by-user"
+    },
+    {
+      "id": "filtered_draw_empty",
+      "subject": "조건부 드로우의 후보 부재",
+      "decision": "덱은 현재 뽑을 카드 더미입니다. 더미에 카드가 남아 있지만 조건에 맞는 카드가 없으면 뽑지 않습니다. 더미 전체가 비었을 때만 기존 규칙대로 레스트를 리필한 뒤 조건을 적용합니다.",
+      "affected": [
+        "extreme_troll",
+        "antonidas",
+        "ivern",
+        "trap_room"
+      ],
+      "status": "resolved-from-existing-rules"
+    },
+    {
+      "id": "mushroom_draw_loop",
+      "subject": "독버섯 연쇄 해결과 레스트 이동",
+      "decision": "사용 카드는 효과 해결 후 레스트로 이동한다는 기존 순서를 적용합니다. 자동 시전된 독버섯을 해결 영역에 두고 자기 피해와 후속 드로우를 모두 해결한 뒤 레스트로 옮깁니다. 해결 중인 카드는 리필 대상이 아니므로 독버섯만 남은 연쇄도 유한하게 끝납니다.",
+      "implementationRequirement": "해결 중인 카드 영역과 중첩 드로우 해결 스택을 저장하여 재시작 후 같은 순서로 이어가야 합니다. 사망은 기존 규칙대로 양쪽 페이즈 효과 처리 후 판정합니다.",
+      "affected": [
+        "poisonous_mushroom"
+      ],
+      "status": "resolved-from-existing-rules"
+    }
+  ],
+  "unresolved": [
+    {
+      "id": "white_night_offline_timer",
+      "subject": "백야 제한 시간과 봇 종료",
+      "question": "봇이 꺼져 있던 시간도 15초 제한에 포함하나요, 재개 시 응답 시간을 보장하나요?",
+      "affected": [
+        "plague_doctor"
+      ],
+      "status": "unresolved"
+    },
+    {
+      "id": "special_victory_phase_tie",
+      "subject": "특수 승리와 사망의 충돌",
+      "question": "같은 페이즈에 경고 3회 또는 구원의 길 승리와 체력 0이 함께 발생하면 어떤 판정을 우선하나요?",
+      "affected": [
+        "ban_hammer_triple",
+        "path_to_salvation"
+      ],
+      "status": "unresolved"
+    },
+    {
+      "id": "black_knight_target",
+      "subject": "처형 대상",
+      "question": "처형은 상대의 이번 제출 중 무작위 카드 1장을 카운터하나요, 다른 기준으로 고르나요?",
+      "affected": [
+        "black_knight"
+      ],
+      "status": "unresolved"
+    }
+  ]
+}
