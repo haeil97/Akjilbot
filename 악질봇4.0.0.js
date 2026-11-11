@@ -2974,8 +2974,7 @@ A4.content = {
       {
         "id": "nautilus",
         "name": "심해의 타이탄 노틸러스",
-        "enabled": false,
-        "incompleteReason": "시작 덱 미정",
+        "enabled": true,
         "power": {
           "id": "anchor_pull",
           "name": "닻줄 견인",
@@ -2987,7 +2986,18 @@ A4.content = {
           "rule": "anchor_pull"
         },
         "startingTreasureId": "bilgewater_tribute",
-        "cards": [],
+        "cards": [
+          "starter_strike",
+          "starter_strike",
+          "starter_strike",
+          "nautilus_drop",
+          "nautilus_drop",
+          "nautilus_buried",
+          "nautilus_buried",
+          "nautilus_buried",
+          "nautilus_surprise",
+          "nautilus_surprise"
+        ],
         "classPool": [
           "nautilus_anchor",
           "nautilus_stolen",

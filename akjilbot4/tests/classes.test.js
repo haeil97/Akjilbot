@@ -15,10 +15,19 @@ function harness(){const files={},c=A.copy(A.catalog),io={list:()=>Object.keys(f
  function open(){store=A.Store.create(io);store.load(A.newState(42));app=A.App.create(store,c);}open();
  return {c,get store(){return store;},get app(){return app;},send(text){return app.handle({text,identity:'class-user',name:'테스터',room:'개발123',now:now++,eventId:'class-event-'+(++event)});},user(){const s=store.getState();return s.users[s.identities['identity:class-user']];},reopen(){store.close();open();}};
 }
-test('all six classes are registered, five complete starters have ten cards and Nautilus is locked',()=>{
- assert.equal(A.catalog.heroes.length,6);assert.deepEqual(A.catalog.heroes.filter(h=>h.enabled!==false).map(h=>h.cards.length),[10,10,10,10,10]);
+test('all six classes are selectable with ten-card starting decks',()=>{
+ assert.equal(A.catalog.heroes.length,6);assert.deepEqual(A.catalog.heroes.filter(h=>h.enabled!==false).map(h=>h.cards.length),[10,10,10,10,10,10]);
  const h=harness(),screen=h.send('+탐험');for(const hero of h.c.heroes)assert.ok(screen.includes(hero.name));
- const saved=h.store.getState();assert.throws(()=>h.send('6'),/시작 덱 미정/);assert.deepEqual(h.store.getState(),saved);
+ h.send('6');assert.equal(h.user().run.hero.id,'nautilus');
+ assert.deepEqual(h.user().run.deck.map(x=>x.cardId),[
+  'class:starter_strike','class:starter_strike','class:starter_strike',
+  'class:nautilus_drop','class:nautilus_drop',
+  'class:nautilus_buried','class:nautilus_buried','class:nautilus_buried',
+  'class:nautilus_surprise','class:nautilus_surprise'
+ ]);
+ assert.equal(h.c.cards['class:nautilus_drop'].cost,0);assert.equal(h.c.cards['class:nautilus_drop'].upgrade.cost,0);
+ h.send('y');assert.equal(h.user().run.battle.player.heroId,'nautilus');
+ assert.equal(h.user().run.battle.player.startingTreasureId,'bilgewater_tribute');
  for(const id of ['guff','silent','celeste','thekal'])assert.ok(h.c.startingTreasures[h.c.heroes.find(h=>h.id===id).startingTreasureId]);
 });
 test('hero selection uses exact new starting decks and abilities without putting starter treasures into reward slots',()=>{
