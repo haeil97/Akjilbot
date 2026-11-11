@@ -100,6 +100,7 @@ A4.AIEvaluation=(function(){
       }else if(rule==='겨울의 뿔피리')projected.mana=Math.max(projected.mana,Math.min(number(projected.maxMana),projected.mana+m.mana));
       else if(m.mana)projected.mana=Math.min(5,projected.mana+m.mana);
       if(kind&&!redundant)projected.status.cards.effects.push({kind:kind,from:b.turn,until:until,amount:1});
+      if(m.fatigueDamage){var nextFoe={};Object.keys(opp).forEach(function(k){nextFoe[k]=opp[k];});nextFoe.fatigueExtra=(opp.fatigueExtra||0)+1;opp=nextFoe;}
       projected.hp=Math.min(number(projected.maxHp),number(projected.hp)+m.heal+cycleHeal);
       // Track occupied draw slots without inventing or inspecting hidden card identities.
       for(var i=0;i<Math.floor(m.draw)&&projected.hand.length<limit(projected);i++)projected.hand.push({cardId:'ai-projected-draw',uid:'ai-projected-'+metrics.length+'-'+i});
@@ -534,7 +535,7 @@ A4.AIEvaluation=(function(){
     if(owns(opp,'first_aid_kit'))v-=Math.min(3,wounded(opp))*0.9;
 
     // Approaching fatigue makes real health more valuable than shields.
-    if(b.turn>=17){var fatigue=b.turn<19?1:1+(b.turn+1-20);v+=(Math.min(number(own.hp),fatigue*3)-Math.min(number(opp.hp),fatigue*3))*0.5;}
+    if(b.turn>=17){var fatigue=b.turn<19?1:1+(b.turn+1-20);v+=(Math.min(number(own.hp),fatigue*3)-Math.min(number(opp.hp),fatigue*3))*0.5+(number(opp.fatigueExtra)-number(own.fatigueExtra))*1.5;}
     return isFinite(v)?v:0;
   }
   function predict(b,c){

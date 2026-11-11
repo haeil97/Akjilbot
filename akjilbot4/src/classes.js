@@ -60,7 +60,7 @@ A4.Classes=(function(){
   case 'chooseShrine':summon(ctx,s,t.choice.id);ctx.runChange({type:'setShrine',side:s,shrineId:t.choice.id});break;
   case 'loa_call':(f.shrines||[]).forEach(function(a){if(a.hp<=0&&a.reviveTurn>b.turn)a.reviveTurn--;});break;
   case 'bloodcraft':if((f.bloodstones||0)>=5)return true;n=bloodPrice(f,t.bloodCostScale);if(st.nextBloodPayment==='opponent'){foe.hp-=n;if(n)ctx.note('text',o,0,{text:foe.name+'의 체력을 혈석 제작 비용으로 '+n+' 소모했다.'});}else if(st.nextBloodPayment!=='free'){if(f.hp<=n)return true;f.hp-=n;}delete st.nextBloodPayment;f.bloodstones=Math.min(5,(f.bloodstones||0)+1);ctx.runChange({type:'bloodstones',side:s,amount:f.bloodstones});break;
-  case 'crescendo':ctx.heal(s,up?8:5);ctx.damage(s,o,Math.max(1,A4.Battle.fatigue(b.turn+1)),{ignoreArmor:true,unblockable:true,noBonus:true,card:null});break;
+  case 'crescendo':ctx.heal(s,up?8:5);ctx.fatigue(s,o,true);break;
   case 'saturation':ctx.draw(s,up?3:2);break;
   case 'bloodRitual':st.nextBloodPayment=up?'opponent':'free';break;
   case 'anchor_pull':if(f.deck.length)ctx.discover(s,f.deck.slice(),task(s,'anchorChoice'),{sourceZone:'deck'});break;
@@ -156,7 +156,7 @@ A4.Classes=(function(){
   case 'phytoncide':m.draw=own.maxMana;break;case 'growth':m.value=own.maxMana<5?6:0;break;case 'entangle':m.control=up?4:3;break;
   case 'seedbomb':m.damage=(opp.status||{}).poison?(up?16:8):(up?10:5);break;case 'focus':m.value=2;break;
   case 'invocation':m.value=(own.shrines||[]).length*(up?4:2);break;case 'acolyte':m.damage=alive(own).reduce(function(sum,a){return sum+a.hp+(up?6:3);},0);break;
-  case 'crescendo':m.heal=up?8:5;m.damage=Math.max(1,A4.Battle.fatigue(b.turn+1));m.fatigueDamage=true;break;
+  case 'crescendo':m.heal=up?8:5;m.damage=A4.Battle.fatigueDamage(b.turn+1,opp);m.fatigueDamage=true;m.value+=1;break;
   case 'saturation':m.draw=up?3:2;break;
   case 'bloodRitual':m.value=st.nextBloodPayment?0:(own.runWins||0)*2*(up?2:1)+1;break;
   case 'bloodcraft':var payment=bloodPrice(own),wanted=(own.hand||[]).some(function(x){return c.cards[x.cardId]&&c.cards[x.cardId].bloodCost!==undefined;});m.value=(wanted?5:2)-((st.nextBloodPayment==='free'||st.nextBloodPayment==='opponent')?0:payment*(own.hp<15?1.7:0.8));if(st.nextBloodPayment==='opponent'){m.value+=payment*1.3;if(payment>=opp.hp&&payment>0)m.value+=50;}break;

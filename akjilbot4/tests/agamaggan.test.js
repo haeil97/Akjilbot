@@ -25,7 +25,7 @@ test('Crescendo uses current natural fatigue with minimum one, ignores armor and
  for(const [turn,damage] of [[0,1],[18,1],[19,1],[20,2],[24,6]])for(const up of [false,true]){
   const f=setup();f.b.turn=turn;f.b.player.hp=50;f.b.player.status.classes={powerBonus:3};f.b.enemy.shield=50;f.b.enemy.status.cards.effects=[{kind:'immune'},{kind:'damageCap',amount:1}];f.play('class:agamaggan_crescendo',up);
   assert.equal(f.b.enemy.hp,100-damage);assert.equal(f.b.enemy.shield,50);assert.equal(f.b.player.hp,50+(up?8:5)+3);
-  const m=A.AIEvaluation.evaluateCard(A.Battle.describeCard(f.card('class:agamaggan_crescendo',up),f.c),f.b.player,f.b.enemy,f.b,f.c);assert.equal(m.damage,damage);
+  const m=A.AIEvaluation.evaluateCard(A.Battle.describeCard(f.card('class:agamaggan_crescendo',up),f.c),f.b.player,f.b.enemy,f.b,f.c);assert.equal(m.damage,damage+1);
  }
 });
 test('countered blood cards still spend their stones and return to rest without applying their effects',()=>{
@@ -82,4 +82,20 @@ test('Agamaggan AI completes real battles with blood payments and repeated save 
   }
   assert.ok(b.outcome==='victory'||b.outcome==='defeat',enemyId+' battle stalled');
  }
+});
+
+test('Crescendo advances only the target fatigue and later natural ticks keep both time progression and extra fatigue',()=>{
+ const f=setup();f.b.enemy.shield=50;f.play('class:agamaggan_crescendo');assert.equal(f.b.enemy.hp,99);assert.equal(f.b.enemy.fatigueExtra,1);assert.equal(f.b.player.fatigueExtra,0);
+ f.play('class:agamaggan_crescendo',true);assert.equal(f.b.enemy.hp,97);assert.equal(f.b.enemy.fatigueExtra,2);f.reload();assert.equal(f.b.enemy.fatigueExtra,2);
+ f.b.turn=18;f.job({kind:'phase',op:'fatigue'});assert.equal(f.b.enemy.hp,97);f.b.turn=19;f.job({kind:'phase',op:'fatigue'});assert.equal(f.b.enemy.hp,94);assert.equal(f.b.player.hp,99);assert.equal(f.b.enemy.shield,50);
+ f.b.turn=20;f.job({kind:'phase',op:'fatigue'});assert.equal(f.b.enemy.hp,90);assert.equal(f.b.player.hp,97);assert.equal(f.b.enemy.fatigueExtra,2);
+ const snapshot=A.AI.publicSnapshot(f.b,f.c);assert.equal(snapshot.enemy.fatigueExtra,2);assert.equal(snapshot.player.fatigueExtra,0);
+});
+test('fatigue progression survives in both directions, is absent from old saves by default, and resets in a new battle',()=>{
+ const f=setup();delete f.b.enemy.fatigueExtra;assert.equal(A.Battle.fatigueDamage(20,f.b.enemy),1);f.ctx().fatigue('enemy','player',true);assert.equal(f.b.player.fatigueExtra,1);assert.equal(f.b.enemy.fatigueExtra,undefined);
+ f.play('class:agamaggan_crescendo');assert.equal(f.b.enemy.fatigueExtra,1);const fresh=setup();assert.equal(fresh.b.player.fatigueExtra,0);assert.equal(fresh.b.enemy.fatigueExtra,0);
+});
+test('countered Crescendo never advances fatigue and AI batch estimates consecutive applications without mutating the source',()=>{
+ const f=setup(),x=f.card('class:agamaggan_crescendo'),z=f.card('class:starter_guard');f.b.player.hand=[x];f.b.player.bloodstones=1;f.b.enemy.hand=[z];f.b.enemyPlan=[z.uid];A.Battle.submit(f.b,[x.uid],f.c,()=>.3);assert.equal(f.b.enemy.fatigueExtra,0);
+ const own=A.copy(f.b.player),foe=A.copy(f.b.enemy),cards=[f.card('class:agamaggan_crescendo'),f.card('class:agamaggan_crescendo')];own.hand=cards;const result=A.AIEvaluation.evaluateBatch(cards.map(card=>({card,def:A.Battle.describeCard(card,f.c),paidCost:1})),own,foe,f.b,f.c,0);assert.deepEqual(result.metrics.map(m=>m.damage),[1,2]);assert.equal(foe.fatigueExtra,0);
 });

@@ -64,7 +64,7 @@ A4.validateState = function (state) {
       var v3=r.battle.rulesVersion===3;
       ok((v3||r.battle.rulesVersion===2) && (v3?['STANDBY','MAIN1','MAIN2','END']:['MAIN1','MAIN2']).indexOf(r.battle.phase)>=0,'전투 규칙 버전·페이즈');
       [r.battle.player,r.battle.enemy].forEach(function (f,sideIndex) {
-        var cards={};if(f&&f.daggers!==undefined)ok(A4.integer(f.daggers,0)&&f.daggers<=5,'단검');
+        var cards={};if(f&&f.fatigueExtra!==undefined)ok(A4.integer(f.fatigueExtra,0),'추가 탈진 피해');if(f&&f.daggers!==undefined)ok(A4.integer(f.daggers,0)&&f.daggers<=5,'단검');
         ok(f && A4.integer(f.hp,r.battle.resolution?-9007199254740991:1) && A4.integer(f.maxHp,1) && f.hp <= f.maxHp && A4.integer(f.mana,0) && A4.integer(f.maxMana,v3?0:1) && f.mana <= 5 && f.maxMana <= 5,'전투 체력·마나');
         ok(A4.integer(f.heroPowerUsedTurn,-1) && A4.integer(f.playedThisTurn,0),'영웅 능력·카드 사용 기록');
         (v3?['deck','hand','rest','excluded','inFlight']:['deck','hand','rest','excluded']).forEach(function (zone) {

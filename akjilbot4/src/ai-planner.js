@@ -35,7 +35,7 @@ A4.AI = (function(){
     return out;
   }
   function publicSnapshot(b,c){
-    var p=b.player,player={},fields=['name','heroName','heroId','startingTreasureId','shrineId','runWins','bloodstones','daggers','bossId','hp','maxHp','baseMaxHp','shield','mana','maxMana','manaGrowth','overloadNext','overloadLocked','heroPowerUsedTurn','heroPowerReadyTurn','playedThisTurn','damageTakenThisTurn','damageTakenLastTurn','drawnCountThisTurn'];
+    var p=b.player,player={},fields=['name','heroName','heroId','startingTreasureId','shrineId','runWins','fatigueExtra','bloodstones','daggers','bossId','hp','maxHp','baseMaxHp','shield','mana','maxMana','manaGrowth','overloadNext','overloadLocked','heroPowerUsedTurn','heroPowerReadyTurn','playedThisTurn','damageTakenThisTurn','damageTakenLastTurn','drawnCountThisTurn'];
     fields.forEach(function(k){if(p[k]!==undefined)player[k]=p[k];});
     if(p.runeSerial!==undefined)player.runeSerial=p.runeSerial;player.runes=copy(p.runes||[]);player.shrines=copy(p.shrines||[]);player.heroPower=copy(p.heroPower);player.status=A4.Battle.redactTrapChoices(publicStatus(p.status||{}),'player','enemy');player.passives=copy(p.passives||[]);player.treasureIds=copy(p.treasureIds||[]);
     player.handCount=p.hand.length;player.deckCount=p.deck.length;player.restCount=p.rest.length;player.excludedCount=p.excluded.length;

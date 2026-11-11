@@ -19,7 +19,7 @@ A4.AIChoices=(function(){
   }
   function publicFighter(f){
     var out={hand:[],deck:[],rest:[],excluded:[],inFlight:[]};
-    ['heroId','bloodstones','daggers','name','hp','maxHp','shield','mana','maxMana','manaGrowth','overloadNext','overloadLocked','heroPower','heroPowerUsedTurn','heroPowerReadyTurn','playedThisTurn','damageTakenThisTurn','bossId','passives','treasureIds','limitedUsed','usedThisTurn','lastTurnCards'].forEach(function(k){if(f[k]!==undefined)out[k]=copy(f[k]);});
+    ['heroId','fatigueExtra','bloodstones','daggers','name','hp','maxHp','shield','mana','maxMana','manaGrowth','overloadNext','overloadLocked','heroPower','heroPowerUsedTurn','heroPowerReadyTurn','playedThisTurn','damageTakenThisTurn','bossId','passives','treasureIds','limitedUsed','usedThisTurn','lastTurnCards'].forEach(function(k){if(f[k]!==undefined)out[k]=copy(f[k]);});
     ['hand','deck','rest','excluded'].forEach(function(k){out[k+'Count']=count(f,k);});
     out.runes=copy(f.runes||[]);out.status=publicStatus(f.status);return out;
   }

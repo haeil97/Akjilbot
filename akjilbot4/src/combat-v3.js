@@ -43,7 +43,7 @@ A4.Battle = (function () {
     var f={name:spec.name,baseMaxHp:spec.maxHp,maxHp:spec.maxHp,hp:spec.maxHp,shield:0,mana:2,maxMana:2,manaGrowth:0,overloadNext:0,
       hand:[],deck:clone(spec.deck||[]),rest:[],excluded:[],inFlight:[],runes:[],passives:clone(spec.passives||[]),treasureIds:clone(spec.treasureIds||[]),
       heroName:spec.heroName||spec.name,heroPower:clone(spec.heroPower||null),heroPowerUsedTurn:-1,heroPowerReadyTurn:0,
-      status:{cardLocks:[],foresightTurns:[]},playedThisTurn:0,usedThisTurn:[],lastTurnCards:[],damageTakenThisTurn:0,limitedUsed:{},bossId:spec.bossId||null,heroId:spec.heroId||null,startingTreasureId:spec.startingTreasureId||null,shrineId:spec.shrineId||null,shrines:[],bloodstones:spec.bloodstones||0,runWins:spec.runWins||0};
+      status:{cardLocks:[],foresightTurns:[]},playedThisTurn:0,usedThisTurn:[],lastTurnCards:[],damageTakenThisTurn:0,limitedUsed:{},bossId:spec.bossId||null,heroId:spec.heroId||null,startingTreasureId:spec.startingTreasureId||null,shrineId:spec.shrineId||null,shrines:[],bloodstones:spec.bloodstones||0,fatigueExtra:0,runWins:spec.runWins||0};
     f.passives.forEach(function(p){if(p.type==='maxHp'){f.maxHp+=p.amount;f.hp+=p.amount;}if(p.type==='startingShield')f.shield+=p.amount;});
     if(spec.hp!==undefined){A4.assert(A4.integer(spec.hp,1),'시작 체력이 올바르지 않습니다.');f.hp=Math.min(f.maxHp,spec.hp);}
     shuffle(f.deck,rng); return f;
@@ -153,6 +153,7 @@ A4.Battle = (function () {
       ctx.emit('damage',{side:s,sourceSide:source,amount:damage,hpDamage:hpDamage,card:card||null,unblockable:data.unblockable,reactionDepth:reactionDepth,reactiveAllowed:reactionDepth===0||(b.player.hp>0&&b.enemy.hp>0)});
       if(damage||damage!==Math.max(0,n)){ctx.log(f.name+' 피해 '+damage+(blocked?' (방어도 '+blocked+')':''));ctx.note('damage',s,damage,{blocked:blocked,modified:damage!==Math.max(0,n),source:card?{side:source,label:label(ctx.def(card))}:task.displaySource});}return damage;
     };
+    ctx.fatigue=function(source,target,advance){var amount=Math.max(1,1+(b.turn+1-20))+(b[target].fatigueExtra||0);var dealt=ctx.damage(source,target,amount,{ignoreArmor:true,unblockable:true,noBonus:true,card:null});if(advance&&dealt>0)b[target].fatigueExtra=(b[target].fatigueExtra||0)+1;return dealt;};
     ctx.heal=function(s,n,options){
       options=options||{};var f=b[s],card=options.card===undefined?task.card:options.card;
       var data=ctx.modify('heal',{side:s,card:card||null,value:Math.max(0,n),noBonus:!!options.noBonus});ctx.modify('healFinal',data);var requested=Math.max(0,Math.floor(data.value)),amount=Math.max(0,Math.min(requested,f.maxHp-f.hp));
@@ -221,7 +222,7 @@ A4.Battle = (function () {
     });
     return status;
   }
-  function publicFighter(f){return {name:f.name,hp:f.hp,maxHp:f.maxHp,shield:f.shield,mana:f.mana,maxMana:f.maxMana,handCount:f.hand.length,deckCount:f.deck.length,restCount:f.rest.length,excludedCount:f.excluded.length,runes:clone(f.runes||[]),heroPower:clone(f.heroPower),heroPowerUsedTurn:f.heroPowerUsedTurn,playedThisTurn:f.playedThisTurn};}
+  function publicFighter(f){return {name:f.name,hp:f.hp,maxHp:f.maxHp,shield:f.shield,mana:f.mana,maxMana:f.maxMana,handCount:f.hand.length,deckCount:f.deck.length,restCount:f.rest.length,excludedCount:f.excluded.length,fatigueExtra:f.fatigueExtra||0,runes:clone(f.runes||[]),heroPower:clone(f.heroPower),heroPowerUsedTurn:f.heroPowerUsedTurn,playedThisTurn:f.playedThisTurn};}
   function basicScore(def,own,opp){
     var a=def.ai||{},d=a.damage||0,h=a.heal||0,draw=a.draw||0,shield=a.shield||0,v=a.value||0,control=a.control||0;
     (def.effects||[]).forEach(function(e){if(e.type==='damage')d+=e.amount||0;if(e.type==='randomDamage')d+=((e.min||0)+(e.max||0))/2;if(e.type==='heal')h+=e.amount||0;if(e.type==='draw')draw+=e.amount||0;if(e.type==='shield')shield+=e.amount||0;if(e.type==='overload')v-=(e.amount||0)*0.65;if(e.type==='scheduledDamage')d+=(e.amount||0)*(e.turns||1)*0.6;if(e.type==='lockCards')control+=3;});
@@ -292,7 +293,7 @@ A4.Battle = (function () {
   function legacyPlan(b,c,rng,observed){
     /* Deliberately reconstruct a redacted battle before evaluating candidates.
        Adding hidden state to an AI score is impossible through this context. */
-    var publicOpponent=publicFighter(b.player),redacted={rulesVersion:3,turn:b.turn,phase:b.phase,enemy:clone(b.enemy),history:clone(b.history),scheduled:[],lastLog:[],runChanges:[],generatedCounter:0};redacted.player={name:publicOpponent.name,hp:publicOpponent.hp,maxHp:publicOpponent.maxHp,shield:publicOpponent.shield,mana:publicOpponent.mana,maxMana:publicOpponent.maxMana,hand:[],deck:[],rest:[],excluded:[],inFlight:[],runes:clone(b.player.runes||[]),handCount:publicOpponent.handCount,deckCount:publicOpponent.deckCount,restCount:publicOpponent.restCount,passives:[],status:{cardLocks:[],foresightTurns:[]},playedThisTurn:publicOpponent.playedThisTurn,heroPower:publicOpponent.heroPower,usedThisTurn:[],lastTurnCards:[]};
+    var publicOpponent=publicFighter(b.player),redacted={rulesVersion:3,turn:b.turn,phase:b.phase,enemy:clone(b.enemy),history:clone(b.history),scheduled:[],lastLog:[],runChanges:[],generatedCounter:0};redacted.player={name:publicOpponent.name,hp:publicOpponent.hp,maxHp:publicOpponent.maxHp,shield:publicOpponent.shield,mana:publicOpponent.mana,maxMana:publicOpponent.maxMana,hand:[],deck:[],rest:[],excluded:[],inFlight:[],runes:clone(b.player.runes||[]),handCount:publicOpponent.handCount,deckCount:publicOpponent.deckCount,restCount:publicOpponent.restCount,passives:[],status:{cardLocks:[],foresightTurns:[]},playedThisTurn:publicOpponent.playedThisTurn,heroPower:publicOpponent.heroPower,fatigueExtra:publicOpponent.fatigueExtra,usedThisTurn:[],lastTurnCards:[]};
     redacted.player.status.poison=(b.player.status||{}).poison||0;
     redacted.player.status.cosmicBonus=(b.player.status||{}).cosmicBonus||0;
     redacted.player.status.cardLocks=clone((b.player.status||{}).cardLocks||[]);
@@ -480,7 +481,7 @@ A4.Battle = (function () {
         scheduled(ctx,'STANDBY');ctx.emit('standby',{});ctx.enqueue({kind:'phase',op:'fatigue'});return;
       }
       if(t.op==='fatigue'){
-        if(b.turn+1>=20)SIDES.forEach(function(side){ctx.damage(other(side),side,1+(b.turn+1-20),{ignoreArmor:true,unblockable:true,noBonus:true,card:null});});
+        if(b.turn+1>=20)SIDES.forEach(function(side){ctx.fatigue(other(side),side,false);});
         ctx.emit('beforeDeath',{phase:'STANDBY'});ctx.enqueue({kind:'phase',op:'death',next:'main1'});return;
       }
     }
@@ -552,7 +553,7 @@ A4.Battle = (function () {
   function validateCard(card,c){var d=describe(card,c);A4.assert(A4.integer(d.cost,0)&&d.cost<=5,'카드 비용이 올바르지 않습니다.');A4.assert(d.rule||Array.isArray(d.effects),'카드 효과가 없습니다.');if(d.rule){var m=d.module==='expansion'?A4.Expansion:d.module==='classes'?A4.Classes:d.module==='treasures'?A4.TreasureRules:d.module==='boss'?A4.BossRules:A4.CardRules;if(m&&m.supports)A4.assert(m.supports(d.rule),'효과 구현이 없습니다: '+d.rule);}}
   function validatePower(power){A4.assert(power&&power.id&&power.name,'영웅 능력 정의가 필요합니다.');A4.assert(power.kind==='active'||power.kind==='passive','영웅 능력 유형이 올바르지 않습니다.');}
   function canSubmit(b,s,c,card){try{if(b.pendingChoice||b.resolution||b.outcome!=='ongoing'||['MAIN1','MAIN2'].indexOf(b.phase)<0)return false;validateSubmission(context(b,c,function(){return 0.5;},{side:s},[]),s,card?[card.uid]:[],!card);return true;}catch(error){return false;}}
-  return {create:create,submit:submit,choose:choose,publicView:view,syncPassives:sync,describeCard:describe,canSubmit:canSubmit,validateSubmission:validateSubmission,legacyPlan:legacyPlan,choiceOptions:choiceOptions,cardAllowed:function(b,s,c,card){return usable(context(b,c,function(){return 0.5;},{side:s},[]),s,card).allowed;},planEnemy:function(b,c,rng){return plan(b,c,rng).uids;},plan:plan,maximumMana:function(turn){return Math.min(5,2+Math.floor(turn/5));},fatigue:function(turn){return turn<20?0:1+(turn-20);},validateCard:validateCard,validatePassives:function(p){A4.assert(Array.isArray(p),'지속 효과 목록이 필요합니다.');},validateHeroPower:validatePower,context:context,process:process,redactTrapChoices:redactTrapChoices,handLimit:function(b,s,c){return context(b,c,function(){return 0.5;},{side:s},[]).limit(s);},cardCost:function(b,s,card,c){return context(b,c,function(){return 0.5;},{side:s},[]).cost(s,card);},powerCost:function(b,s,c){return context(b,c,function(){return 0.5;},{side:s},[]).powerCost(s);}};
+  return {create:create,submit:submit,choose:choose,publicView:view,syncPassives:sync,describeCard:describe,canSubmit:canSubmit,validateSubmission:validateSubmission,legacyPlan:legacyPlan,choiceOptions:choiceOptions,cardAllowed:function(b,s,c,card){return usable(context(b,c,function(){return 0.5;},{side:s},[]),s,card).allowed;},planEnemy:function(b,c,rng){return plan(b,c,rng).uids;},plan:plan,maximumMana:function(turn){return Math.min(5,2+Math.floor(turn/5));},fatigue:function(turn){return turn<20?0:1+(turn-20);},fatigueDamage:function(turn,f){return Math.max(1,1+(turn-20))+(f&&f.fatigueExtra||0);},validateCard:validateCard,validatePassives:function(p){A4.assert(Array.isArray(p),'지속 효과 목록이 필요합니다.');},validateHeroPower:validatePower,context:context,process:process,redactTrapChoices:redactTrapChoices,handLimit:function(b,s,c){return context(b,c,function(){return 0.5;},{side:s},[]).limit(s);},cardCost:function(b,s,card,c){return context(b,c,function(){return 0.5;},{side:s},[]).cost(s,card);},powerCost:function(b,s,c){return context(b,c,function(){return 0.5;},{side:s},[]).powerCost(s);}};
 }());
 (function(){
   var legacy=A4.Combat;
