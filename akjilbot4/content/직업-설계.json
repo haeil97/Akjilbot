@@ -163,8 +163,7 @@
     {
       "id": "agamaggan",
       "name": "위대한 멧돼지 아감마간",
-      "enabled": false,
-      "incompleteReason": "시작 덱 미정",
+      "enabled": true,
       "power": {
         "id": "bloodcraft",
         "name": "혈석 제작",
@@ -176,7 +175,18 @@
         "rule": "bloodcraft"
       },
       "startingTreasureId": "great_blood",
-      "cards": [],
+      "cards": [
+        "agamaggan_crescendo",
+        "agamaggan_crescendo",
+        "starter_guard",
+        "starter_guard",
+        "starter_guard",
+        "agamaggan_saturation",
+        "agamaggan_saturation",
+        "agamaggan_saturation",
+        "agamaggan_blood_ritual",
+        "agamaggan_blood_ritual"
+      ],
       "classPool": [
         "agamaggan_mimic",
         "agamaggan_frost",
@@ -795,6 +805,48 @@
       "upgrade": {
         "cost": 0,
         "text": "내 손에 있는 카드를 모두 버립니다. 버린 수만큼 카드를 뽑습니다."
+      }
+    },
+    {
+      "id": "agamaggan_crescendo",
+      "name": "크레센도",
+      "element": "FIRE",
+      "cost": 1,
+      "bloodCost": 1,
+      "text": "체력을 5 회복합니다. 상대에게 탈진 피해를 줍니다.",
+      "action": "crescendo",
+      "upgrade": {
+        "cost": 1,
+        "text": "체력을 8 회복합니다. 상대에게 탈진 피해를 줍니다."
+      }
+    },
+    {
+      "id": "agamaggan_saturation",
+      "name": "포화",
+      "element": "ICE",
+      "cost": 1,
+      "bloodCost": 1,
+      "text": "카드를 2장 뽑습니다.",
+      "action": "saturation",
+      "upgrade": {
+        "cost": 1,
+        "text": "카드를 3장 뽑습니다."
+      }
+    },
+    {
+      "id": "agamaggan_blood_ritual",
+      "name": "혈석 의식",
+      "element": "LIGHTNING",
+      "cost": 1,
+      "text": "해방: 이 카드가 손에 있을 때 영웅 능력을 1회 사용해야 합니다. 내 다음 영웅 능력이 체력을 소모하지 않습니다.",
+      "action": "bloodRitual",
+      "liberation": {
+        "type": "heroPowerUsed",
+        "amount": 1
+      },
+      "upgrade": {
+        "cost": 1,
+        "text": "해방: 이 카드가 손에 있을 때 영웅 능력을 1회 사용해야 합니다. 내 다음 영웅 능력이 대신 상대의 체력을 비용으로 사용합니다."
       }
     }
   ],

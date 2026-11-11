@@ -15,10 +15,10 @@ function harness(){const files={},c=A.copy(A.catalog),io={list:()=>Object.keys(f
  function open(){store=A.Store.create(io);store.load(A.newState(42));app=A.App.create(store,c);}open();
  return {c,get store(){return store;},get app(){return app;},send(text){return app.handle({text,identity:'class-user',name:'테스터',room:'개발123',now:now++,eventId:'class-event-'+(++event)});},user(){const s=store.getState();return s.users[s.identities['identity:class-user']];},reopen(){store.close();open();}};
 }
-test('all six classes are registered, four complete starters have ten cards and two unfinished starters are locked',()=>{
- assert.equal(A.catalog.heroes.length,6);assert.deepEqual(A.catalog.heroes.filter(h=>h.enabled!==false).map(h=>h.cards.length),[10,10,10,10]);
+test('all six classes are registered, five complete starters have ten cards and Nautilus is locked',()=>{
+ assert.equal(A.catalog.heroes.length,6);assert.deepEqual(A.catalog.heroes.filter(h=>h.enabled!==false).map(h=>h.cards.length),[10,10,10,10,10]);
  const h=harness(),screen=h.send('+탐험');for(const hero of h.c.heroes)assert.ok(screen.includes(hero.name));
- const saved=h.store.getState();assert.throws(()=>h.send('5'),/시작 덱 미정/);assert.deepEqual(h.store.getState(),saved);assert.throws(()=>h.send('6'),/시작 덱 미정/);
+ const saved=h.store.getState();assert.throws(()=>h.send('6'),/시작 덱 미정/);assert.deepEqual(h.store.getState(),saved);
  for(const id of ['guff','silent','celeste','thekal'])assert.ok(h.c.startingTreasures[h.c.heroes.find(h=>h.id===id).startingTreasureId]);
 });
 test('hero selection uses exact new starting decks and abilities without putting starter treasures into reward slots',()=>{
@@ -67,7 +67,7 @@ test('all nine shrine abilities are executable: overload immunity, copy, Holy ge
  const power=fixture('thekal','janalai');power.play('class:starter_strike');assert.equal(power.b.enemy.hp,192);
  const heal=fixture('thekal','bwonsamdi');heal.b.player.hp=100;heal.job({kind:'effect',side:'player',effect:{type:'heal',amount:5}});assert.equal(heal.b.player.hp,100);assert.equal(heal.b.enemy.hp,195);
 });
-test('locked Agamaggan bloodcraft creates one stone up to five, sacrifices twice run wins and never auto-refills',()=>{
+test('Agamaggan bloodcraft creates one stone up to five, sacrifices twice run wins and never auto-refills',()=>{
  const {b,job}=fixture('agamaggan');b.player.runWins=3;b.player.bloodstones=4;job({kind:'power',module:'classes',side:'player',power:b.player.heroPower});assert.equal(b.player.hp,194);assert.equal(b.player.bloodstones,5);
  b.turn++;job({kind:'event',event:{type:'standby'}});assert.equal(b.player.bloodstones,5);
 });

@@ -60,6 +60,7 @@ A4.BattleUI = (function () {
     if(opposingPower&&opposingPower.id==='meltranix'&&opposingPower.kind==='passive')add('자백','손패의 첫 번째와 마지막 카드만 낼 수 있다.');
     else if(s.confession&&(s.confession.until===undefined||s.confession.until>=b.turn))add('자백','손패의 첫 번째와 마지막 카드만 낼 수 있다.',s.confession);
     (f.shrines||[]).forEach(function(a){lines.push('• [🕯] '+a.name+': ❤️ '+a.hp+'/'+a.maxHp+(a.hp<=0?' (부활까지 '+Math.max(0,a.reviveTurn-b.turn)+'턴)':''));});
+    if(s.classes&&s.classes.nextBloodPayment)add('혈석 의식',s.classes.nextBloodPayment==='opponent'?'다음 영웅 능력이 상대의 체력을 비용으로 사용한다.':'다음 영웅 능력이 체력을 소모하지 않는다.');
     if(s.classes&&s.classes.powerBonus)add('위력','카드 피해량·회복량 +'+s.classes.powerBonus);
     if(s.execution)add('처형',String(s.execution));
     if(s.poison)add('중독',String(s.poison));
@@ -171,7 +172,7 @@ A4.BattleUI = (function () {
     else {
       var p=b.player.heroPower;
       lines.push('0. '+(p?name({name:p.name,displayElement:'🛟'},c)+' | '+(p.kind==='active'?'💧'+ctx.powerCost('player'):'⏳️'):'영웅 능력 없음')+(p&&p.kind==='active'&&ctx.modify('powerUsable',{side:'player',power:p,allowed:b.player.heroPowerUsedTurn!==b.turn&&(b.player.heroPowerReadyTurn||0)<=b.turn}).allowed?'':' ❌️'));
-      b.player.hand.forEach(function(x,i){lines.push((i+1)+'. '+name((function(){var d=ctx.def(x);if(x.originalCardId==='crystal_ball')d.displayElement='🌌'+(d.displayElement||icons[d.element]||'🌊');return d;})(),c)+' | '+(A4.Classes&&A4.Classes.alive(b.player,'hireek').length?'❤️'+ctx.cost('player',x)*5:'💧'+ctx.cost('player',x))+(A4.Battle.cardAllowed(b,'player',c,x)?'':' ❌️'));});
+      b.player.hand.forEach(function(x,i){lines.push((i+1)+'. '+name((function(){var d=ctx.def(x);if(x.originalCardId==='crystal_ball')d.displayElement='🌌'+(d.displayElement||icons[d.element]||'🌊');return d;})(),c)+' | '+(ctx.def(x).bloodCost!==undefined?'🩸'+ctx.cost('player',x):A4.Classes&&A4.Classes.alive(b.player,'hireek').length?'❤️'+ctx.cost('player',x)*5:'💧'+ctx.cost('player',x))+(A4.Battle.cardAllowed(b,'player',c,x)?'':' ❌️'));});
       var v=A4.Battle.publicView(b);if(v.foreseenCards)lines.push('👁 상대의 예정 카드: '+(v.foreseenCards.map(function(x){return name(A4.Battle.describeCard(x,c),c);}).join(', ')||'쉬기'));if(v.enemyReacting)lines.push('👁 상대가 예지 중입니다.');
     }
     if(!b.pendingChoice)lines.push('s / p / gg');

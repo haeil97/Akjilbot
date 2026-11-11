@@ -75,7 +75,7 @@ A4.AI = (function(){
   function candidates(b,c,side,count){
     checkDeadline();
     var f=b[side],foe=b[side==='enemy'?'player':'enemy'],ctx=A4.Battle.context(b,c,function(){return 0.5;},{side:side},[]),available=[],power=false,pcost=0,pvalue=0,pbonus=0;
-    f.hand.forEach(function(x){if(A4.Battle.cardAllowed(b,side,c,x)){var d=ctx.def(x);if(d.rule==='불안정한 원소'&&f.hand.length>1)return;if(d.rule==='poison_powder'&&f.heroPower&&f.heroPower.id==='ivysaur'&&(foe.drawnCountThisTurn||0)<2)return;var evaluation=meta(d,f,foe,b,c);if(evaluation.cleanseAllowed===false||evaluation.prayerAllowed===false)return;available.push({card:x,def:d,first:ctx.cost(side,x,true),cost:ctx.cost(side,x,false),m:evaluation});}});
+    f.hand.forEach(function(x){if(A4.Battle.cardAllowed(b,side,c,x)){var d=ctx.def(x);if(d.rule==='불안정한 원소'&&f.hand.length>1)return;if(d.rule==='poison_powder'&&f.heroPower&&f.heroPower.id==='ivysaur'&&(foe.drawnCountThisTurn||0)<2)return;var evaluation=meta(d,f,foe,b,c);if(evaluation.cleanseAllowed===false||evaluation.prayerAllowed===false)return;available.push({card:x,def:d,first:ctx.cost(side,x,true),cost:ctx.cost(side,x,false),blood:d.bloodCost!==undefined,m:evaluation});}});
     // Hand limits bound the normal enumeration to 1024 subsets.
     var healthCards=!!(A4.Classes&&A4.Classes.alive(f,'hireek').length),spendable=healthCards?Math.floor((f.hp-1)/5):f.mana;
     if(available.length>10)available=available.sort(function(a,z){return z.m.score-a.m.score;}).slice(0,10);
@@ -89,9 +89,9 @@ A4.AI = (function(){
     function consider(selected,usePower,variant){
       if(selected.length>1&&A4.TreasureRules.owns(f,'velvet_choker'))return;
       checkDeadline();
-      var cost=usePower?pcost:0,value=usePower?pvalue:0,seen={},ids=[],valid=true,prayerOwn=f,prayerFoe=foe;
+      var cost=usePower?pcost:0,bloodCost=0,value=usePower?pvalue:0,seen={},ids=[],valid=true,prayerOwn=f,prayerFoe=foe;
       if(f.heroPower&&f.heroPower.id==='yuumi'){prayerOwn=copy(f);prayerFoe=copy(foe);}
-      selected.forEach(function(x,i){cost+=i===0&&f.playedThisTurn===0?x.first:x.cost;});
+      selected.forEach(function(x,i){var paid=i===0&&f.playedThisTurn===0?x.first:x.cost;if(x.blood)bloodCost+=paid;else cost+=paid;});if(bloodCost>(f.bloodstones||0))return;
       var lifeCost=healthCards?(cost-(usePower?pcost:0))*5:0;
       if(healthCards?(lifeCost>=f.hp||usePower&&pcost>f.mana):cost>f.mana)return;
       var batchKey=selected.map(function(x){return x.card.uid;}).join(',')+'|'+cost;
@@ -114,7 +114,7 @@ A4.AI = (function(){
       if(usePower&&f.heroPower&&f.heroPower.id==='pikachu')value-=selected.filter(function(x){return x.def.element==='LIGHTNING';}).length*1.25;
       if(b.phase==='MAIN1')value+=batch.mana*0.5;
       value-=cost*0.12;
-      if(side==='enemy'&&b.phase==='MAIN2')value+=Math.min(1,selected.reduce(function(sum,x,i){return sum+(batch.metrics[i].score>0?(i===0&&f.playedThisTurn===0?x.first:x.cost):0);},0)*0.35);
+      if(side==='enemy'&&b.phase==='MAIN2')value+=Math.min(1,selected.reduce(function(sum,x,i){return sum+(batch.metrics[i].score>0&&!x.blood?(i===0&&f.playedThisTurn===0?x.first:x.cost):0);},0)*0.35);
       if(usePower&&selected.length<f.hand.length)value+=pbonus;
       if(side==='enemy'&&f.hand.length<=handCap-3&&!f.hand.some(function(x){return c.cards[x.cardId]&&c.cards[x.cardId].rule==='신의 권능: 징벌';})){
         var spentElements={},savedCardCount=0;selected.forEach(function(x,i){var paid=i===0&&f.playedThisTurn===0?x.first:x.cost;if(paid>0||x.def.temporary||x.card.temporaryUntil!==undefined&&x.card.temporaryUntil<=b.turn)return;savedCardCount++;spentElements[x.def.element]=(spentElements[x.def.element]||0)+1;if(spentElements[x.def.element]>1)value-=5;});
@@ -122,11 +122,11 @@ A4.AI = (function(){
       }
       var openingValue=0,earlyDraw=0,reservesPlay=false;
       if(side==='enemy'&&b.phase==='MAIN1'){
-        reservesPlay=ids.length>0&&(available.some(function(x){return ids.indexOf(x.card.uid)<0&&!x.def.main1Only&&x.m.score>0&&x.cost<=batch.mana&&!(x.def.limited&&seen[x.card.cardId]);})||power&&!usePower&&pvalue>0&&pcost<=batch.mana);
+        reservesPlay=ids.length>0&&(available.some(function(x){return ids.indexOf(x.card.uid)<0&&!x.def.main1Only&&x.m.score>0&&(x.blood?x.cost<=(f.bloodstones||0)-bloodCost:x.cost<=batch.mana)&&!(x.def.limited&&seen[x.card.cardId]);})||power&&!usePower&&pvalue>0&&pcost<=batch.mana);
         // Reward the option to react, not unused cards that cannot be played.
         if(reservesPlay){
-          var reserveMana=batch.mana,reserveCount=0;
-          reserveOrder.forEach(function(x){if(ids.indexOf(x.card.uid)<0&&!x.def.main1Only&&x.m.score>0&&x.cost<=reserveMana&&!(x.def.limited&&seen[x.card.cardId])){reserveCount++;reserveMana-=x.cost;}});
+          var reserveMana=batch.mana,reserveBlood=(f.bloodstones||0)-bloodCost,reserveCount=0;
+          reserveOrder.forEach(function(x){if(ids.indexOf(x.card.uid)<0&&!x.def.main1Only&&x.m.score>0&&(x.blood?x.cost<=reserveBlood:x.cost<=reserveMana)&&!(x.def.limited&&seen[x.card.cardId])){reserveCount++;if(x.blood)reserveBlood-=x.cost;else reserveMana-=x.cost;}});
           // Similar outcomes should naturally spend something in each phase.
           // Prefer a balanced opening over a token card followed by a large dump.
           openingValue+=1.1;
@@ -146,14 +146,14 @@ A4.AI = (function(){
     // spaces remain exact. Larger spaces use a cheap shortlist plus all pairs
     // and three-card engine combinations, preserving non-additive synergies.
     var ordered=available.slice().sort(function(a,z){return (a.m.priority||0)-(z.m.priority||0);}),sets=[];
-    function collect(start,selected,cost,value){
+    function collect(start,selected,cost,value,bloodCost){bloodCost=bloodCost||0;
       checkDeadline();
       sets.push({selected:selected.slice(),cost:cost,value:value});
       for(var i=start;i<ordered.length;i++){
         var x=ordered[i],paid=selected.length===0&&f.playedThisTurn===0?x.first:x.cost;
-        if(cost+paid>spendable)continue;
+        if(x.blood?bloodCost+paid>(f.bloodstones||0):cost+paid>spendable)continue;
         if((x.def.limited||x.def.rule==='금단의 불꽃')&&selected.some(function(y){return y.card.cardId===x.card.cardId;}))continue;
-        selected.push(x);collect(i+1,selected,cost+paid,value+x.m.score);selected.pop();
+        selected.push(x);collect(i+1,selected,cost+(x.blood?0:paid),value+x.m.score,bloodCost+(x.blood?paid:0));selected.pop();
       }
     }
     // Establish useful legal fallbacks before the more expensive batch search.
@@ -182,12 +182,12 @@ A4.AI = (function(){
       var nextView={player:foe,enemy:f,turn:b.turn,phase:'MAIN2',history:b.history||[]},nextModel=A4.AIEvaluation.predict(nextView,c);
       var partial=ranked.filter(function(a){return (a.uids.length>0||a.heroPower)&&(a.uids.length<available.length||power&&!a.heroPower);});
       partial.forEach(function(a){
-        var mana=Math.max(0,f.mana-(a.heroPower?pcost:0)),future=0,left=available.filter(function(x){return a.uids.indexOf(x.card.uid)<0;});
-        a.uids.forEach(function(id){var x=available.filter(function(x){return x.card.uid===id;})[0];mana-=x.cost;});
+        var mana=Math.max(0,f.mana-(a.heroPower?pcost:0)),future=0,blood=f.bloodstones||0,left=available.filter(function(x){return a.uids.indexOf(x.card.uid)<0;});
+        a.uids.forEach(function(id){var x=available.filter(function(x){return x.card.uid===id;})[0];if(x.blood)blood-=x.cost;else mana-=x.cost;});
         left.sort(function(x,z){return z.m.score/Math.max(1,z.cost)-x.m.score/Math.max(1,x.cost);});
-        left.forEach(function(x){if(x.def.main1Only||x.cost>mana)return;
+        left.forEach(function(x){if(x.def.main1Only||(x.blood?x.cost>blood:x.cost>mana))return;
           var risk=0;Object.keys(COUNTERS).forEach(function(el){if(COUNTERS[el]===x.def.element||(x.def.unstable&&el===x.def.element))risk+=nextModel.elements[el]||0;});
-          future+=Math.max(0,x.m.score)*(1-risk*(1-nextModel.passChance)*0.7);mana-=x.cost;
+          future+=Math.max(0,x.m.score)*(1-risk*(1-nextModel.passChance)*0.7);if(x.blood)blood-=x.cost;else mana-=x.cost;
         });
         if(power&&!a.heroPower&&pcost<=mana)future+=Math.max(0,pvalue);
         a.partitionScore=a.score+future;a.phaseSplit=a.reservesPlay||a.earlyDraw>0;
@@ -301,7 +301,7 @@ A4.AI = (function(){
       }
       if(snapshot.phase==='MAIN2'&&after&&after.outcome==='ongoing'){
         var usefulPaid=0;
-        snapshot.enemy.hand.forEach(function(x){var i=action.uids.indexOf(x.uid);if(i>=0&&rootMetric(x).score>0)usefulPaid+=counterContext.cost('enemy',x,i===0&&snapshot.enemy.playedThisTurn===0);});
+        snapshot.enemy.hand.forEach(function(x){var i=action.uids.indexOf(x.uid);if(i>=0&&counterContext.def(x).bloodCost===undefined&&rootMetric(x).score>0)usefulPaid+=counterContext.cost('enemy',x,i===0&&snapshot.enemy.playedThisTurn===0);});
         priority+=Math.min(1,usefulPaid*0.35);
       }
       snapshot.enemy.hand.forEach(function(x){if(action.uids.indexOf(x.uid)>=0){var def=counterContext.def(x),evaluation=rootMetric(x);priority+=(evaluation.cleanseBonus||0)+(evaluation.prayerBonus||0)-(evaluation.fullHealthPenalty||0);

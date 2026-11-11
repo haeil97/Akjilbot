@@ -2932,8 +2932,7 @@ A4.content = {
       {
         "id": "agamaggan",
         "name": "위대한 멧돼지 아감마간",
-        "enabled": false,
-        "incompleteReason": "시작 덱 미정",
+        "enabled": true,
         "power": {
           "id": "bloodcraft",
           "name": "혈석 제작",
@@ -2945,7 +2944,18 @@ A4.content = {
           "rule": "bloodcraft"
         },
         "startingTreasureId": "great_blood",
-        "cards": [],
+        "cards": [
+          "agamaggan_crescendo",
+          "agamaggan_crescendo",
+          "starter_guard",
+          "starter_guard",
+          "starter_guard",
+          "agamaggan_saturation",
+          "agamaggan_saturation",
+          "agamaggan_saturation",
+          "agamaggan_blood_ritual",
+          "agamaggan_blood_ritual"
+        ],
         "classPool": [
           "agamaggan_mimic",
           "agamaggan_frost",
@@ -3564,6 +3574,48 @@ A4.content = {
         "upgrade": {
           "cost": 0,
           "text": "내 손에 있는 카드를 모두 버립니다. 버린 수만큼 카드를 뽑습니다."
+        }
+      },
+      {
+        "id": "agamaggan_crescendo",
+        "name": "크레센도",
+        "element": "FIRE",
+        "cost": 1,
+        "bloodCost": 1,
+        "text": "체력을 5 회복합니다. 상대에게 탈진 피해를 줍니다.",
+        "action": "crescendo",
+        "upgrade": {
+          "cost": 1,
+          "text": "체력을 8 회복합니다. 상대에게 탈진 피해를 줍니다."
+        }
+      },
+      {
+        "id": "agamaggan_saturation",
+        "name": "포화",
+        "element": "ICE",
+        "cost": 1,
+        "bloodCost": 1,
+        "text": "카드를 2장 뽑습니다.",
+        "action": "saturation",
+        "upgrade": {
+          "cost": 1,
+          "text": "카드를 3장 뽑습니다."
+        }
+      },
+      {
+        "id": "agamaggan_blood_ritual",
+        "name": "혈석 의식",
+        "element": "LIGHTNING",
+        "cost": 1,
+        "text": "해방: 이 카드가 손에 있을 때 영웅 능력을 1회 사용해야 합니다. 내 다음 영웅 능력이 체력을 소모하지 않습니다.",
+        "action": "bloodRitual",
+        "liberation": {
+          "type": "heroPowerUsed",
+          "amount": 1
+        },
+        "upgrade": {
+          "cost": 1,
+          "text": "해방: 이 카드가 손에 있을 때 영웅 능력을 1회 사용해야 합니다. 내 다음 영웅 능력이 대신 상대의 체력을 비용으로 사용합니다."
         }
       }
     ],
@@ -8040,7 +8092,7 @@ A4.BossRules=(function(){
  
 A4.Keywords=(function(){
   'use strict';
-  var descriptions={rune:'룬: 발동하면 레스트로 이동하지 않고 효과가 유지됩니다. 캐릭터마다 하나만 유지하며, 다른 룬이 발동하면 기존 룬을 레스트로 보냅니다. 새 룬이 카운터당하면 기존 룬을 유지합니다.',power:'위력: 내 카드의 피해량과 회복량을 고정된 수치만큼 증가시킵니다.',bloodstone:'혈석: 아감마간의 고유 자원입니다. 최대 5개까지 보유하며 스탠바이 페이즈에 회복되지 않고 누적됩니다.',dagger:'단검: 각 단검은 소모되면 피해를 4 주며 최대 5개까지 보유할 수 있습니다.',sunrise:'해오름: 메인 페이즈 1에 추가 효과가 발동합니다.',dusk:'어스름: 메인 페이즈 2에 추가 효과가 발동합니다.',disarm:'무장해제: 이 캐릭터는 방어도를 획득할 수 없습니다.',degrade:'열화: 강화된 카드가 강화되기 전으로 되돌아갑니다.',dredge:'인양: 내 덱 맨 밑에 있는 카드 3장을 미리 봅니다. 1장을 선택해 덱 맨 위에 놓습니다.',unstable:'불안정: 이 카드는 같은 속성의 카드에도 카운터당합니다.',volatile:'휘발성: 이 카드가 손에 있으면 엔드 페이즈시에 게임에서 제외됩니다.',vulnerable:'취약: 이 캐릭터는 피해를 받을 때 50%의 피해를 추가로 입습니다. 소수점은 버립니다.',weakened:'약화: 이 캐릭터는 가하는 피해량이 25% 감소합니다. 소수점은 버립니다.',shock:'감전: 상대의 손에서 최대 마나 이하 비용인 사용 가능한 무작위 카드들을 다음 턴의 엔드 페이즈시까지 사용할 수 없게 만듭니다.',sinking:'침몰: 내 덱에 남은 카드가 0장이 된 적이 있으면, 추가 효과가 발동합니다.',discardBottom:'폐기: 내 덱 맨 아래에서 카드 X장을 레스트로 보냅니다.',execution:'처형: 매 턴의 스탠바이 페이즈시에, 대상의 체력이 처형 중첩보다 낮으면 처형합니다. 처형되지 않으면 처형 중첩이 1 감소합니다.',liberation:'해방: 이 카드는 조건을 만족하기 전까지 사용할 수 없습니다.',orbit:'궤도: 이 카드가 손에 있을 때, 다른 카드를 일정 수만큼 사용했으면 추가 효과가 발동합니다.',awakening:'각성: 내 최대 마나가 5에 도달한 적이 있으면, 추가 효과가 발동합니다.'};
+  var descriptions={rune:'룬: 발동하면 레스트로 이동하지 않고 효과가 유지됩니다. 캐릭터마다 하나만 유지하며, 다른 룬이 발동하면 기존 룬을 레스트로 보냅니다. 새 룬이 카운터당하면 기존 룬을 유지합니다.',power:'위력: 내 카드의 피해량과 회복량을 고정된 수치만큼 증가시킵니다.',bloodstone:'혈석: 아감마간의 고유 자원입니다. 최대 5개까지 보유하며 스탠바이 페이즈에 회복되지 않고 누적됩니다.',dagger:'단검: 각 단검은 소모되면 피해를 4 주며 최대 5개까지 보유할 수 있습니다.',sunrise:'해오름: 메인 페이즈 1에 추가 효과가 발동합니다.',dusk:'어스름: 메인 페이즈 2에 추가 효과가 발동합니다.',disarm:'무장해제: 이 캐릭터는 방어도를 획득할 수 없습니다.',degrade:'열화: 강화된 카드가 강화되기 전으로 되돌아갑니다.',dredge:'인양: 내 덱 맨 밑에 있는 카드 3장을 미리 봅니다. 1장을 선택해 덱 맨 위에 놓습니다.',unstable:'불안정: 이 카드는 같은 속성의 카드에도 카운터당합니다.',volatile:'휘발성: 이 카드가 손에 있으면 엔드 페이즈시에 게임에서 제외됩니다.',vulnerable:'취약: 이 캐릭터는 피해를 받을 때 50%의 피해를 추가로 입습니다. 소수점은 버립니다.',weakened:'약화: 이 캐릭터는 가하는 피해량이 25% 감소합니다. 소수점은 버립니다.',shock:'감전: 상대의 손에서 최대 마나 이하 비용인 사용 가능한 무작위 카드들을 다음 턴의 엔드 페이즈시까지 사용할 수 없게 만듭니다.',sinking:'침몰: 내 덱에 남은 카드가 0장이 된 적이 있으면, 추가 효과가 발동합니다.',discardBottom:'폐기: 내 덱 맨 아래에서 카드 X장을 레스트로 보냅니다.',execution:'처형: 매 턴의 스탠바이 페이즈시에, 대상의 체력이 처형 중첩보다 낮으면 처형합니다. 처형되지 않으면 처형 중첩이 1 감소합니다.',liberation:'해방: 이 카드는 조건을 만족하기 전까지 사용할 수 없습니다. 손에 있는 동안 조건을 충족하면 해방되며 레스트로 이동하면 초기화됩니다.',orbit:'궤도: 이 카드가 손에 있을 때, 다른 카드를 일정 수만큼 사용했으면 추가 효과가 발동합니다.',awakening:'각성: 내 최대 마나가 5에 도달한 적이 있으면, 추가 효과가 발동합니다.'};
   function observe(f){if(A4.TreasureRules&&A4.TreasureRules.owns(f,'icarus_wings')){f.maxMana=3;f.mana=Math.min(5,f.mana);}f.status=f.status||{};if(!f.deck.length)f.status.deckEmptied=true;if(f.maxMana>=5)f.status.awakened=true;}
   function effects(f){f.status.cards=f.status.cards||{effects:[]};return f.status.cards.effects||(f.status.cards.effects=[]);}
   function active(f,kind,b){return ((f.status.cards||{}).effects||[]).some(function(e){return e.kind===kind&&(e.from===undefined||e.from<=b.turn)&&(e.until===undefined||e.until>=b.turn);});}
@@ -8057,6 +8109,7 @@ A4.Keywords=(function(){
     if(test.any)return test.any.some(function(x){return condition(ctx,side,card,x);});
     return false;
   }
+  function liberated(ctx,side,card,test){if(card.liberationReady)return true;if(test&&(test.type==='heroPowerUsed'||test.type==='played'))return false;if(condition(ctx,side,card,test)){card.liberationReady=true;return true;}return false;}
   function enqueue(ctx,side,list,card){(list||[]).forEach(function(e){ctx.enqueue({kind:'effect',side:side,card:card||null,effect:ctx.copy(e)});});}
   function effect(ctx,t){
     var e=t.effect,side=t.side,other=side==='player'?'enemy':'player',target=e.target==='self'?side:other,f=ctx.fighter(target),b=ctx.battle,n=Math.max(0,Math.floor(e.amount||0)),card;
@@ -8086,7 +8139,7 @@ A4.Keywords=(function(){
   function modify(ctx,what,data){
     if(what==='cardUsable'){
       if(data.card.shockedUntil!==undefined&&data.card.shockedUntil>=ctx.battle.turn){data.allowed=false;data.reason='감전으로 사용할 수 없는 카드입니다.';}
-      if(data.def.liberation&&!condition(ctx,data.side,data.card,data.def.liberation)){data.allowed=false;data.reason='해방 조건을 만족하지 않았습니다.';}
+      if(data.def.liberation&&!liberated(ctx,data.side,data.card,data.def.liberation)){data.allowed=false;data.reason='해방 조건을 만족하지 않았습니다.';}
     }
   }
   function hook(ctx,e){
@@ -8097,6 +8150,7 @@ A4.Keywords=(function(){
         if(f.hp<f.status.execution){f.hp=0;ctx.note('text',side,0,{text:f.name+' 처형.'});}
         else f.status.execution--;
       }
+      if((e.type==='cardUsed'||e.type==='powerUsed')&&e.side===side){f.hand.forEach(function(x){var d=ctx.def(x),rule=d.liberation;if(!rule||x.liberationReady||e.card&&e.card.uid===x.uid)return;if(rule.type==='heroPowerUsed'&&e.type==='powerUsed'||rule.type==='played'&&e.type==='cardUsed'&&!e.free){x.liberationProgress=(x.liberationProgress||0)+1;if(x.liberationProgress>=(rule.amount||1))x.liberationReady=true;}});}
       if(e.type==='cardUsed'&&e.side===side){f.hand.forEach(function(x){if(e.card&&e.card.uid===x.uid)return;var d=ctx.def(x),orbit=d.orbit;if(!orbit||x.orbitTriggered)return;x.orbitCount=(x.orbitCount||0)+1;if(x.orbitCount>=orbit.count){x.orbitTriggered=true;enqueue(ctx,side,orbit.effects,x);}});}
       if(e.type==='afterEnd'){
         f.status.cards=f.status.cards||{effects:[]};f.status.cards.effects=effects(f).filter(function(x){return ['disarm','vulnerable','weakened'].indexOf(x.kind)<0||x.until===undefined||x.until>b.turn;});
@@ -8104,7 +8158,7 @@ A4.Keywords=(function(){
       }
     });
   }
-  return {run:function(ctx,t){if(t.module!=='keywords'||t.op!=='dredge')return false;var card=ctx.remove(t.side,t.choice.uid);if(card)ctx.fighter(t.side).deck.unshift(card);return true;},descriptions:descriptions,observe:observe,active:active,condition:condition,effect:effect,modify:modify,hook:hook};
+  return {run:function(ctx,t){if(t.module!=='keywords'||t.op!=='dredge')return false;var card=ctx.remove(t.side,t.choice.uid);if(card)ctx.fighter(t.side).deck.unshift(card);return true;},descriptions:descriptions,observe:observe,active:active,condition:condition,liberated:liberated,effect:effect,modify:modify,hook:hook};
 }());
 
 // ---- src/classes.js ----
@@ -8169,7 +8223,10 @@ A4.Classes=(function(){
   case 'acolyte':alive(f).forEach(function(a){ctx.damage(s,o,(up?6:3)+a.hp);});break;
   case 'chooseShrine':summon(ctx,s,t.choice.id);ctx.runChange({type:'setShrine',side:s,shrineId:t.choice.id});break;
   case 'loa_call':(f.shrines||[]).forEach(function(a){if(a.hp<=0&&a.reviveTurn>b.turn)a.reviveTurn--;});break;
-  case 'bloodcraft':n=Math.floor((f.runWins||0)*2*(t.bloodCostScale===undefined?1:t.bloodCostScale));f.hp-=n;f.bloodstones=Math.min(5,(f.bloodstones||0)+1);ctx.runChange({type:'bloodstones',side:s,amount:f.bloodstones});break;
+  case 'bloodcraft':if((f.bloodstones||0)>=5)return true;n=bloodPrice(f,t.bloodCostScale);if(st.nextBloodPayment==='opponent'){foe.hp-=n;if(n)ctx.note('text',o,0,{text:foe.name+'의 체력을 혈석 제작 비용으로 '+n+' 소모했다.'});}else if(st.nextBloodPayment!=='free'){if(f.hp<=n)return true;f.hp-=n;}delete st.nextBloodPayment;f.bloodstones=Math.min(5,(f.bloodstones||0)+1);ctx.runChange({type:'bloodstones',side:s,amount:f.bloodstones});break;
+  case 'crescendo':ctx.heal(s,up?8:5);ctx.damage(s,o,Math.max(1,A4.Battle.fatigue(b.turn+1)),{ignoreArmor:true,unblockable:true,noBonus:true,card:null});break;
+  case 'saturation':ctx.draw(s,up?3:2);break;
+  case 'bloodRitual':st.nextBloodPayment=up?'opponent':'free';break;
   case 'anchor_pull':if(f.deck.length)ctx.discover(s,f.deck.slice(),task(s,'anchorChoice'),{sourceZone:'deck'});break;
   case 'anchorChoice':ctx.choose(s,[{id:'top',name:'덱 맨 위'},{id:'bottom',name:'덱 맨 밑'}],task(s,'anchorPosition',{card:t.choice}));break;
   case 'anchorPosition':x=ctx.remove(s,t.card.uid);if(x){if(t.choice.id==='top')f.deck.unshift(x);else f.deck.push(x);}break;
@@ -8202,6 +8259,8 @@ A4.Classes=(function(){
  }
  function exchange(ctx,s,a,z){var o=ctx.other(s),left=ctx.remove(s,a.uid),right=ctx.remove(o,z.uid);if(left)ctx.add(o,left,'hand');if(right)ctx.add(s,right,'hand');}
  function absorb(ctx,s,amount){var f=ctx.fighter(s);alive(f).forEach(function(a){var lost=Math.min(a.hp,amount);a.hp-=lost;amount-=lost;if(lost&&a.hp<=0){a.reviveTurn=ctx.battle.turn+(has(f,'loa_covenant')?2:3);ctx.enqueue(task(s,'shrineDestroyed'));}});return amount;}
+ function bloodPrice(f,scale){return Math.floor((f.runWins||0)*2*(scale===undefined?1:scale));}
+ function bloodUsable(f,scale,available){return (available===undefined?(f.bloodstones||0):available)<5&&((state(f).nextBloodPayment==='free'||state(f).nextBloodPayment==='opponent')||f.hp>bloodPrice(f,scale));}
  function modify(ctx,what,d){var f=d.side?ctx.fighter(d.side):null,st=f?state(f):null;
   if(what==='harmfulEffect'&&has(f,'purification_well')&&(st.purified||0)<2){st.purified=(st.purified||0)+1;d.cancel=true;ctx.note('text',d.side,0,{text:f.name+'의 [🎖️] 정화의 원천이 해로운 효과를 무시했다. ('+st.purified+'/2)'});}
   if(what==='overload'&&alive(f,'kragwa').length)d.value=0;
@@ -8209,7 +8268,7 @@ A4.Classes=(function(){
   if(what==='drawAllowed'&&st.noDrawTurn===ctx.battle.turn)d.allowed=false;
   if(what==='basicDraw'&&st.noDrawTurn===ctx.battle.turn)d.replace=true;
   if(what==='powerUsable'&&d.power&&d.power.id==='loa_call'&&!(f.shrines||[]).some(function(a){return a.hp<=0;}))d.allowed=false;
-  if(what==='powerUsable'&&d.power&&d.power.id==='bloodcraft'&&((f.bloodstones||0)>=5||f.hp<=(f.runWins||0)*2))d.allowed=false;
+  if(what==='powerUsable'&&d.power&&d.power.id==='bloodcraft'&&!bloodUsable(f,undefined,d.bloodAvailable))d.allowed=false;
   if(what==='damage'&&d.card&&!d.noBonus){var own=ctx.fighter(d.sourceSide);d.value+=(state(own).powerBonus||0)+alive(own,'janalai').length*2;}
   if(what==='heal'&&d.card)d.value+=(st.powerBonus||0)+alive(f,'janalai').length*2;
   if(what==='healFinal'&&alive(f,'bwonsamdi').length&&d.value>0){ctx.damage(d.side,ctx.other(d.side),d.value,{card:null,noBonus:true});d.value=0;}
@@ -8229,7 +8288,8 @@ A4.Classes=(function(){
       if(a.id==='gral')copyHand(ctx,s,ctx.pick(ctx.fighter(o).deck),1);
     }});
    }
-   if(e.type==='beforeMain'&&e.phase==='MAIN1'&&has(f,'boar_altar')&&f.heroPower&&f.heroPower.id==='bloodcraft'&&st.boarTurn!==turn&&(f.bloodstones||0)<5&&f.hp>(f.runWins||0)){st.boarTurn=turn;ctx.enqueue({kind:'power',module:'classes',side:s,power:ctx.copy(f.heroPower),bloodCostScale:0.5});}
+   if(e.type==='beforeMain'&&e.phase==='MAIN1'&&has(f,'boar_altar')&&f.heroPower&&f.heroPower.id==='bloodcraft'&&st.boarTurn!==turn&&bloodUsable(f,0.5)){st.boarTurn=turn;ctx.enqueue({kind:'power',module:'classes',side:s,power:ctx.copy(f.heroPower),bloodCostScale:0.5});}
+   if(e.type==='powerUsed'&&e.side===s&&e.power&&e.power.id!=='bloodcraft')delete st.nextBloodPayment;
    if(e.type==='shieldGained'&&e.side===s&&e.amount>0&&alive(f,'gonk').length)ctx.mana(s,f.maxMana,true);
    if(e.type==='cardUsed'&&e.side===s){
     if(has(f,'pandaria_codex')&&(e.card.cardId==='crystal_ball'||e.card.originalCardId==='crystal_ball')){st.crystals=(st.crystals||0)+1;if(st.crystals%5===0)st.powerBonus=(st.powerBonus||0)+1;}
@@ -8250,7 +8310,7 @@ A4.Classes=(function(){
    if(has(f,'bilgewater_tribute')&&f.status.deckEmptied&&!st.tribute){st.tribute=true;getTreasure(ctx,s,false);}
   });
  }
- function evaluate(d,m,own,opp,b,c){var ref=definitions[d.rule]||{},up=!!d.upgraded,action=ref.action,st=(own.status||{}).classes||{};
+ function evaluate(d,m,own,opp,b,c){var ref=definitions[d.rule]||{},up=!!d.upgraded,action=d.rule==='bloodcraft'?'bloodcraft':ref.action,st=(own.status||{}).classes||{};
   if(ref.delegate){var standard=A4.Opponents.reference(ref.delegate);if(standard){var base=A4.Battle.describeCard({cardId:standard.id,upgraded:up},c),score=A4.AIEvaluation.evaluateCard(base,own,opp,b,c);Object.keys(m).forEach(function(k){if(score[k]!==undefined)m[k]=score[k];});}return;}
   switch(action){
   case 'strike':m.damage=up?9:6;break;case 'guard':m.shield=up?8:5;break;case 'link':m.draw=up?3:2;break;
@@ -8260,6 +8320,10 @@ A4.Classes=(function(){
   case 'phytoncide':m.draw=own.maxMana;break;case 'growth':m.value=own.maxMana<5?6:0;break;case 'entangle':m.control=up?4:3;break;
   case 'seedbomb':m.damage=(opp.status||{}).poison?(up?16:8):(up?10:5);break;case 'focus':m.value=2;break;
   case 'invocation':m.value=(own.shrines||[]).length*(up?4:2);break;case 'acolyte':m.damage=alive(own).reduce(function(sum,a){return sum+a.hp+(up?6:3);},0);break;
+  case 'crescendo':m.heal=up?8:5;m.damage=Math.max(1,A4.Battle.fatigue(b.turn+1));m.fatigueDamage=true;break;
+  case 'saturation':m.draw=up?3:2;break;
+  case 'bloodRitual':m.value=st.nextBloodPayment?0:(own.runWins||0)*2*(up?2:1)+1;break;
+  case 'bloodcraft':var payment=bloodPrice(own),wanted=(own.hand||[]).some(function(x){return c.cards[x.cardId]&&c.cards[x.cardId].bloodCost!==undefined;});m.value=(wanted?5:2)-((st.nextBloodPayment==='free'||st.nextBloodPayment==='opponent')?0:payment*(own.hp<15?1.7:0.8));if(st.nextBloodPayment==='opponent'){m.value+=payment*1.3;if(payment>=opp.hp&&payment>0)m.value+=50;}break;
   case 'mimic':m.draw=own.hand.length>1?(up?2:1):0;break;case 'zeroDraw':m.draw=4;break;case 'discard':m.value=1;break;
   case 'buried':m.draw=up?2:1;m.shield=up?10:5;break;case 'restSurprise':m.damage=up?16:10;m.draw=2;break;
   case 'restPlasma':m.draw=3;m.control=up?4:2;break;case 'restCannon':m.damage=up?10:6;m.control=2;break;
@@ -8473,7 +8537,7 @@ A4.Battle = (function () {
     var base=catalog.cards[c.cardId]; A4.assert(base,'알 수 없는 카드: '+c.cardId);
     var d=clone(base),k;
     if(c.upgraded&&base.upgrade){for(k in base.upgrade)if(A4.has(base.upgrade,k))d[k]=clone(base.upgrade[k]); d.name=base.name+'+';}
-    ['rune','runeEffects','runeTriggers','cost','element','excludeOnUse','temporary','unplayable','overpower','volatile','liberation','orbit','unstable','limited','innate','rule','module'].forEach(function(key){if(c[key]!==undefined)d[key]=c[key];});
+    ['bloodCost','rune','runeEffects','runeTriggers','cost','element','excludeOnUse','temporary','unplayable','overpower','volatile','liberation','orbit','unstable','limited','innate','rule','module'].forEach(function(key){if(c[key]!==undefined)d[key]=c[key];});
     if(c.costDelta)d.cost=Math.max(c.costFloor||0,d.cost+c.costDelta);
     d.overpower=!!d.overpower||/(?:^|[.,]\s*)압도(?:[.,:\s]|$)/.test(d.text||'');
     d.unstable=!!d.unstable||/(?:^|[.,]\s*)불안정(?:[.,:\s]|$)/.test(d.text||'');
@@ -8539,6 +8603,7 @@ A4.Battle = (function () {
       if(zone==='excluded')zone=ctx.modify('move',{side:s,card:card,from:options.from||null,to:zone,overflow:overflow}).to;
       if(zone==='hand'&&(ctx.def(card).temporary||card.temporaryUntil!==undefined||A4.TreasureRules&&A4.TreasureRules.owns&&A4.TreasureRules.owns(b[s],'time_potion')))card.temporaryUntil=Math.max(card.temporaryUntil||0,b.turn+(b.phase==='END'?1:0));
       if(zone==='rest'||zone==='excluded'||(zone==='deck'&&(options.from==='hand'||options.from==='inFlight')))clearCostReduction(card,c);
+      if(zone==='rest'){delete card.liberationReady;delete card.liberationProgress;}
       if(zone==='hand'&&options.from!=='hand'){delete card.orbitCount;delete card.orbitTriggered;}
       if(zone==='runes'){(b[s].runes||[]).slice().forEach(function(old){if(old.uid!==card.uid)ctx.move(s,old.uid,'rest');});if(!card.activeRuneDef)card.activeRuneDef=clone(ctx.def(card));}if(!b[s][zone])b[s][zone]=[];b[s][zone].push(card);if(A4.Keywords)A4.Keywords.observe(b[s]);
       if(task.displaySource&&!options.silent&&!overflow&&zone==='hand')ctx.note('gainCard',s,1);
@@ -8556,6 +8621,7 @@ A4.Battle = (function () {
       options=options||{};var card={uid:'b'+(++b.generatedCounter),cardId:id,upgraded:!!options.upgraded},k;
       A4.assert(c.cards[id],'생성 카드가 없습니다: '+id);
       for(k in options)if(A4.has(options,k)&&['zone','uid','cardId','runUid','runCardUid','treasureSlot'].indexOf(k)<0)card[k]=clone(options[k]);
+      if(ctx.def(card).liberation){delete card.liberationReady;delete card.liberationProgress;}
       if(ctx.def(card).temporary&&card.temporaryUntil===undefined)card.temporaryUntil=b.turn+(b.phase==='END'?1:0);
       return ctx.add(s,card,options.zone||'hand');
     };
@@ -8617,7 +8683,7 @@ A4.Battle = (function () {
     ctx.schedule=function(turn,phase,t){b.scheduled.push({turn:turn,phase:phase,task:inherit(clone(t))});};
     ctx.canAutoCast=function(card){
       var d=ctx.def(card),rule=d.rule||d.name;
-      if(d.liberation&&A4.Keywords&&!A4.Keywords.condition(ctx,ctx.side,card,d.liberation))return false;
+      if(d.liberation&&A4.Keywords&&!A4.Keywords.liberated(ctx,ctx.side,card,d.liberation))return false;
       return !d.unplayable&&['운명','필연','되감기'].indexOf(rule)<0&&!(rule==='전선'&&d.upgraded);
     };
     ctx.cast=function(s,card,options){
@@ -8648,6 +8714,7 @@ A4.Battle = (function () {
       if(change.type==='addCard'){var added=clone(change.card||{cardId:change.cardId,upgraded:!!change.upgraded});added.originUid=added.uid;added.uid='r'+(++b.generatedCounter);spec.deck.push(added);}
       if(change.type==='removeCard')spec.deck=spec.deck.filter(function(x){return x.uid!==(change.runUid||change.uid)&&x.originUid!==change.uid;});
       if(change.type==='upgradeCard')spec.deck.forEach(function(x){if(x.uid===(change.runUid||change.uid)||x.originUid===change.uid)x.upgraded=true;});
+      if(change.type==='bloodstones')spec.bloodstones=change.amount;
       if(change.type==='setShrine')spec.shrineId=change.shrineId;
       if(change.type==='setHeroPower')spec.heroPower=clone(change.power);
       if(change.type==='addTreasure'&&treasure){spec.treasureIds=spec.treasureIds||[];spec.treasureIds.push(id);if(treasure.kind==='card')spec.deck.push({uid:'r'+(++b.generatedCounter),originUid:change.cardUid,cardId:treasure.cardId,upgraded:false});else spec.passives=(spec.passives||[]).concat(clone(treasure.effects));}
@@ -8960,11 +9027,11 @@ A4.Battle = (function () {
     process(b,c,rng);return b;
   }
   function validateSubmission(ctx,s,uids,usePower){
-    var f=ctx.battle[s],cards=[],seen={},limited={},cost=0;var submission=ctx.modify('submission',{side:s,uids:uids,allowed:true});A4.assert(submission.allowed,submission.reason||'제출할 수 없는 행동입니다.');
-    uids.forEach(function(uid){A4.assert(!seen[uid],'같은 카드를 중복 제출할 수 없습니다.');seen[uid]=true;var card=f.hand.filter(function(x){return x.uid===uid;})[0];A4.assert(card,'손에 없는 카드입니다.');var u=usable(ctx,s,card);A4.assert(u.allowed,u.reason);var d=ctx.def(card);if(d.limited){A4.assert(!limited[card.cardId],'제한 카드는 한 턴에 한 장만 사용할 수 있습니다.');limited[card.cardId]=true;}var paidCost=ctx.cost(s,card,cards.length===0&&f.playedThisTurn===0),observed=ctx.battle._aiObservedCosts;if(ctx.battle._aiSimulation&&s==='player'&&ctx.battle._aiObservedCostTurn===ctx.battle.turn&&ctx.battle._aiObservedCostPhase===ctx.battle.phase&&observed&&observed[card.uid]!==undefined)paidCost=observed[card.uid];cost+=paidCost;cards.push({card:card,def:d,paidCost:paidCost,countered:false,didCounter:false,targets:[],side:s});});
-    if(usePower){var power=f.heroPower;A4.assert(power&&power.kind==='active','사용형 영웅 능력이 없습니다.');var allowed=f.heroPowerUsedTurn!==ctx.battle.turn&&(f.heroPowerReadyTurn||0)<=ctx.battle.turn;var data=ctx.modify('powerUsable',{side:s,power:power,allowed:allowed});A4.assert(data.allowed,'이번 턴에는 영웅 능력을 사용할 수 없습니다.');cost+=ctx.powerCost(s,power);}
-    var hpCost=0;if(A4.Classes&&A4.Classes.alive(f,'hireek').length){hpCost=cards.reduce(function(sum,x){return sum+x.paidCost*5;},0);cost-=hpCost/5;A4.assert(hpCost<f.hp,'카드 비용으로 지불할 체력이 부족합니다.');}
-    A4.assert(cost<=f.mana,'마나가 부족합니다.');return {cards:cards,cost:cost,hpCost:hpCost,power:!!usePower};
+    var f=ctx.battle[s],cards=[],seen={},limited={},cost=0,bloodCost=0;var submission=ctx.modify('submission',{side:s,uids:uids,allowed:true});A4.assert(submission.allowed,submission.reason||'제출할 수 없는 행동입니다.');
+    uids.forEach(function(uid){A4.assert(!seen[uid],'같은 카드를 중복 제출할 수 없습니다.');seen[uid]=true;var card=f.hand.filter(function(x){return x.uid===uid;})[0];A4.assert(card,'손에 없는 카드입니다.');var u=usable(ctx,s,card);A4.assert(u.allowed,u.reason);var d=ctx.def(card);if(d.limited){A4.assert(!limited[card.cardId],'제한 카드는 한 턴에 한 장만 사용할 수 있습니다.');limited[card.cardId]=true;}var paidCost=ctx.cost(s,card,cards.length===0&&f.playedThisTurn===0),observed=ctx.battle._aiObservedCosts;if(ctx.battle._aiSimulation&&s==='player'&&ctx.battle._aiObservedCostTurn===ctx.battle.turn&&ctx.battle._aiObservedCostPhase===ctx.battle.phase&&observed&&observed[card.uid]!==undefined)paidCost=observed[card.uid];if(d.bloodCost!==undefined)bloodCost+=paidCost;else cost+=paidCost;cards.push({card:card,def:d,paidCost:paidCost,bloodPaid:d.bloodCost!==undefined?paidCost:0,countered:false,didCounter:false,targets:[],side:s});});
+    if(usePower){var power=f.heroPower;A4.assert(power&&power.kind==='active','사용형 영웅 능력이 없습니다.');var allowed=f.heroPowerUsedTurn!==ctx.battle.turn&&(f.heroPowerReadyTurn||0)<=ctx.battle.turn;var data=ctx.modify('powerUsable',{side:s,power:power,allowed:allowed,bloodAvailable:(f.bloodstones||0)-bloodCost});A4.assert(data.allowed,'이번 턴에는 영웅 능력을 사용할 수 없습니다.');cost+=ctx.powerCost(s,power);}
+    var hpCost=0;if(A4.Classes&&A4.Classes.alive(f,'hireek').length){hpCost=cards.reduce(function(sum,x){return sum+(x.def.bloodCost===undefined?x.paidCost*5:0);},0);cost-=hpCost/5;A4.assert(hpCost<f.hp,'카드 비용으로 지불할 체력이 부족합니다.');}
+    A4.assert(cost<=f.mana,'마나가 부족합니다.');A4.assert(bloodCost<=(f.bloodstones||0),'혈석이 부족합니다.');return {cards:cards,cost:cost,hpCost:hpCost,bloodCost:bloodCost,power:!!usePower};
   }
   function submit(b,uids,c,rng,options){
     options=options||{};A4.assert(b.outcome==='ongoing'&&!b.pendingChoice&&!b.resolution,'현재 제출할 수 없습니다.');A4.assert(b.phase==='MAIN1'||b.phase==='MAIN2','메인 페이즈가 아닙니다.');
@@ -8974,7 +9041,7 @@ A4.Battle = (function () {
     b.lastLog=[];b.report={turn:b.turn,phase:b.phase,serial:b.phaseSerial,submitted:true,nodes:[],logs:[]};b.resolution={queue:[],entries:groups,phase:b.phase};
     SIDES.forEach(function(s){var chosen=s==='player'?p:e;if(chosen.power){var pn=node(b,s,b[s].heroPower,null);pn.power=true;}chosen.cards.forEach(function(entry){entry.displayId=node(b,s,entry.def,entry.card).id;});});
     SIDES.forEach(function(s){var chosen=s==='player'?p:e,names=chosen.cards.map(function(x){return x.def.name;});if(chosen.power)names.push('능력: '+b[s].heroPower.name);ctx.log(b[s].name+' 제출 — '+(names.join(', ')||'쉬기'));});
-    SIDES.forEach(function(s){var plan=s==='player'?p:e,f=b[s];f.mana-=plan.cost;f.hp-=plan.hpCost||0;if(plan.power){f.heroPowerUsedTurn=b.turn;if(f.heroPower.cooldown)f.heroPowerReadyTurn=b.turn+f.heroPower.cooldown;}plan.cards.forEach(function(entry){ctx.move(s,entry.card.uid,'inFlight');f.playedThisTurn++;if(entry.def.limited)f.limitedUsed[entry.card.cardId]=b.turn;f.usedThisTurn.push({cardId:entry.card.cardId,uid:entry.card.uid,upgraded:entry.card.upgraded,element:entry.def.element,card:clone(entry.card),turn:b.turn,phase:b.phase});});});
+    SIDES.forEach(function(s){var plan=s==='player'?p:e,f=b[s];f.mana-=plan.cost;f.hp-=plan.hpCost||0;if(plan.bloodCost){f.bloodstones-=plan.bloodCost;ctx.runChange({type:'bloodstones',side:s,amount:f.bloodstones});}if(plan.power){f.heroPowerUsedTurn=b.turn;if(f.heroPower.cooldown)f.heroPowerReadyTurn=b.turn+f.heroPower.cooldown;}plan.cards.forEach(function(entry){ctx.move(s,entry.card.uid,'inFlight');f.playedThisTurn++;if(entry.def.limited)f.limitedUsed[entry.card.cardId]=b.turn;f.usedThisTurn.push({cardId:entry.card.cardId,uid:entry.card.uid,upgraded:entry.card.upgraded,element:entry.def.element,card:clone(entry.card),turn:b.turn,phase:b.phase});});});
     p.cards.forEach(function(a){e.cards.forEach(function(z){if(a.def.element!=='CURSE'&&z.def.element!=='CURSE'&&(COUNTERS[a.def.element]===z.def.element||((a.def.overpower||z.def.unstable)&&a.def.element===z.def.element))){z.countered=true;a.didCounter=true;a.targets.push(clone(z.card));}if(a.def.element!=='CURSE'&&z.def.element!=='CURSE'&&(COUNTERS[z.def.element]===a.def.element||((z.def.overpower||a.def.unstable)&&a.def.element===z.def.element))){a.countered=true;z.didCounter=true;z.targets.push(clone(a.card));}});});
     SIDES.forEach(function(s){groups[s].forEach(function(entry){entry.elementCountered=entry.countered;});});
     ctx.modify('beforeCardCounterPower',{entries:groups,powers:{player:p.power,enemy:e.power}});
@@ -8983,7 +9050,7 @@ A4.Battle = (function () {
     ctx.modify('afterCounter',{entries:groups,powers:{player:p.power,enemy:e.power}});
     SIDES.forEach(function(s){groups[s].forEach(function(entry){b.report.nodes[entry.displayId].countered=entry.countered;});});
     var queue=b.resolution.queue;initialTasks.forEach(function(t){queue.push(t);});
-    SIDES.forEach(function(s){groups[s].forEach(function(entry,index){queue.push({kind:'event',side:s,event:{type:'cardUsed',side:s,card:clone(entry.card),def:clone(entry.def),paidCost:entry.paidCost,manaPaid:(s==='player'?p:e).hpCost?0:entry.paidCost,free:false,countered:entry.countered,critical:entry.didCounter,ordinal:b[s].playedThisTurn-groups[s].length+index+1}});if(entry.didCounter)queue.push({kind:'event',side:s,event:{type:'counter',side:s,card:clone(entry.card),targets:clone(entry.targets)}});});});
+    SIDES.forEach(function(s){groups[s].forEach(function(entry,index){queue.push({kind:'event',side:s,event:{type:'cardUsed',side:s,card:clone(entry.card),def:clone(entry.def),paidCost:entry.paidCost,manaPaid:entry.def.bloodCost!==undefined||(s==='player'?p:e).hpCost?0:entry.paidCost,bloodPaid:entry.bloodPaid||0,free:false,countered:entry.countered,critical:entry.didCounter,ordinal:b[s].playedThisTurn-groups[s].length+index+1}});if(entry.didCounter)queue.push({kind:'event',side:s,event:{type:'counter',side:s,card:clone(entry.card),targets:clone(entry.targets)}});});});
     SIDES.forEach(function(s){var pl=s==='player'?p:e;if(pl.power)queue.push({kind:'power',module:b[s].heroPower.module||'boss',side:s,power:clone(b[s].heroPower)});groups[s].forEach(function(entry){if(!entry.countered){queue.push(cardTask(entry,entry.reflectedBy||s,!!entry.reflectedBy));queue.push({kind:'event',side:s,event:{type:'cardResolved',side:s,card:clone(entry.card),def:clone(entry.def),free:false,countered:false,critical:entry.didCounter}});}else b.lastLog.push(entry.def.name+' 카운터');});});
     SIDES.forEach(function(s){groups[s].forEach(function(entry){queue.push({kind:'finalizeCard',side:s,card:clone(entry.card),countered:entry.countered});});});
     b.history.push({turn:b.turn,phase:b.phase,player:p.cards.map(function(x){return {cardId:x.card.cardId,upgraded:!!x.card.upgraded,element:x.def.element,countered:x.countered};}),enemy:e.cards.map(function(x){return {cardId:x.card.cardId,upgraded:!!x.card.upgraded,element:x.def.element,countered:x.countered};})});
@@ -9369,7 +9436,7 @@ A4.AIEvaluation=(function(){
     }
      
      
-    n=Math.max(1,m.hits||1);m.damage=damageAfter(own,opp,def,m.damage/n,b,{noBonus:!!def.kind||!!m.poisonDetonation,power:!!def.kind})*n;
+    n=Math.max(1,m.hits||1);if(!m.fatigueDamage)m.damage=damageAfter(own,opp,def,m.damage/n,b,{noBonus:!!def.kind||!!m.poisonDetonation,power:!!def.kind})*n;
     if(r==='금단의 불꽃'&&!m.damage&&damageBonus(own,def)>0)m.damage=damageAfter(own,opp,def,damageBonus(own,def),b,{noBonus:true});
     m.selfDamage=damageAfter(own,own,def,m.selfDamage,b,{noBonus:!!def.kind,power:!!def.kind});
     if(effects(own,'disarm',b).length)m.shield=0;
@@ -9393,7 +9460,7 @@ A4.AIEvaluation=(function(){
      
     m.cardSavingBonus=def.kind==='active'&&m.score>0&&h>0?(b.turn<=2?1.2:0.6)*(h<=limit(own)-3?1:0.35):0;
 
-    if(m.damage>=number(opp.hp)+number(opp.shield)&&m.damage>0)m.score+=45;
+    if(m.damage>=number(opp.hp)+(m.fatigueDamage?0:number(opp.shield))&&m.damage>0)m.score+=45;
     if(m.selfDamage>=number(own.hp)+number(own.shield)&&m.selfDamage>0)m.score-=75;
     if(m.heal||m.shield)m.priority=-4;
     if(m.draw)m.priority=2;
@@ -9684,9 +9751,9 @@ A4.AIChoices=(function(){
     d.cost=cost;
     var value=metric(d,own,opp,b,c),missing=Math.max(0,own.maxHp-own.hp),nextMana=Math.max(0,Math.min(5,own.maxMana)-(own.overloadNext||0));
     if(!free){
-      var reachable=Math.max(own.mana,nextMana),turns=Math.max(0,cost-reachable);
+      var availableResource=d.bloodCost!==undefined?(own.bloodstones||0):own.mana,reachable=d.bloodCost!==undefined?availableResource:Math.max(own.mana,nextMana),turns=Math.max(0,cost-reachable);
       value=value/(1+turns*0.65)-cost*0.3;
-      if(cost<=own.mana&&b.phase==='MAIN1')value+=1.6;
+      if(cost<=availableResource&&b.phase==='MAIN1')value+=1.6;
       if(d.temporary&&b.phase==='MAIN2')value*=0.1;
       if(d.unplayable&&!d.rule)value-=8;
       if(option.availableFrom>b.turn)value*=0.6;
@@ -9915,7 +9982,7 @@ A4.AI = (function(){
   function candidates(b,c,side,count){
     checkDeadline();
     var f=b[side],foe=b[side==='enemy'?'player':'enemy'],ctx=A4.Battle.context(b,c,function(){return 0.5;},{side:side},[]),available=[],power=false,pcost=0,pvalue=0,pbonus=0;
-    f.hand.forEach(function(x){if(A4.Battle.cardAllowed(b,side,c,x)){var d=ctx.def(x);if(d.rule==='불안정한 원소'&&f.hand.length>1)return;if(d.rule==='poison_powder'&&f.heroPower&&f.heroPower.id==='ivysaur'&&(foe.drawnCountThisTurn||0)<2)return;var evaluation=meta(d,f,foe,b,c);if(evaluation.cleanseAllowed===false||evaluation.prayerAllowed===false)return;available.push({card:x,def:d,first:ctx.cost(side,x,true),cost:ctx.cost(side,x,false),m:evaluation});}});
+    f.hand.forEach(function(x){if(A4.Battle.cardAllowed(b,side,c,x)){var d=ctx.def(x);if(d.rule==='불안정한 원소'&&f.hand.length>1)return;if(d.rule==='poison_powder'&&f.heroPower&&f.heroPower.id==='ivysaur'&&(foe.drawnCountThisTurn||0)<2)return;var evaluation=meta(d,f,foe,b,c);if(evaluation.cleanseAllowed===false||evaluation.prayerAllowed===false)return;available.push({card:x,def:d,first:ctx.cost(side,x,true),cost:ctx.cost(side,x,false),blood:d.bloodCost!==undefined,m:evaluation});}});
      
     var healthCards=!!(A4.Classes&&A4.Classes.alive(f,'hireek').length),spendable=healthCards?Math.floor((f.hp-1)/5):f.mana;
     if(available.length>10)available=available.sort(function(a,z){return z.m.score-a.m.score;}).slice(0,10);
@@ -9929,9 +9996,9 @@ A4.AI = (function(){
     function consider(selected,usePower,variant){
       if(selected.length>1&&A4.TreasureRules.owns(f,'velvet_choker'))return;
       checkDeadline();
-      var cost=usePower?pcost:0,value=usePower?pvalue:0,seen={},ids=[],valid=true,prayerOwn=f,prayerFoe=foe;
+      var cost=usePower?pcost:0,bloodCost=0,value=usePower?pvalue:0,seen={},ids=[],valid=true,prayerOwn=f,prayerFoe=foe;
       if(f.heroPower&&f.heroPower.id==='yuumi'){prayerOwn=copy(f);prayerFoe=copy(foe);}
-      selected.forEach(function(x,i){cost+=i===0&&f.playedThisTurn===0?x.first:x.cost;});
+      selected.forEach(function(x,i){var paid=i===0&&f.playedThisTurn===0?x.first:x.cost;if(x.blood)bloodCost+=paid;else cost+=paid;});if(bloodCost>(f.bloodstones||0))return;
       var lifeCost=healthCards?(cost-(usePower?pcost:0))*5:0;
       if(healthCards?(lifeCost>=f.hp||usePower&&pcost>f.mana):cost>f.mana)return;
       var batchKey=selected.map(function(x){return x.card.uid;}).join(',')+'|'+cost;
@@ -9954,7 +10021,7 @@ A4.AI = (function(){
       if(usePower&&f.heroPower&&f.heroPower.id==='pikachu')value-=selected.filter(function(x){return x.def.element==='LIGHTNING';}).length*1.25;
       if(b.phase==='MAIN1')value+=batch.mana*0.5;
       value-=cost*0.12;
-      if(side==='enemy'&&b.phase==='MAIN2')value+=Math.min(1,selected.reduce(function(sum,x,i){return sum+(batch.metrics[i].score>0?(i===0&&f.playedThisTurn===0?x.first:x.cost):0);},0)*0.35);
+      if(side==='enemy'&&b.phase==='MAIN2')value+=Math.min(1,selected.reduce(function(sum,x,i){return sum+(batch.metrics[i].score>0&&!x.blood?(i===0&&f.playedThisTurn===0?x.first:x.cost):0);},0)*0.35);
       if(usePower&&selected.length<f.hand.length)value+=pbonus;
       if(side==='enemy'&&f.hand.length<=handCap-3&&!f.hand.some(function(x){return c.cards[x.cardId]&&c.cards[x.cardId].rule==='신의 권능: 징벌';})){
         var spentElements={},savedCardCount=0;selected.forEach(function(x,i){var paid=i===0&&f.playedThisTurn===0?x.first:x.cost;if(paid>0||x.def.temporary||x.card.temporaryUntil!==undefined&&x.card.temporaryUntil<=b.turn)return;savedCardCount++;spentElements[x.def.element]=(spentElements[x.def.element]||0)+1;if(spentElements[x.def.element]>1)value-=5;});
@@ -9962,11 +10029,11 @@ A4.AI = (function(){
       }
       var openingValue=0,earlyDraw=0,reservesPlay=false;
       if(side==='enemy'&&b.phase==='MAIN1'){
-        reservesPlay=ids.length>0&&(available.some(function(x){return ids.indexOf(x.card.uid)<0&&!x.def.main1Only&&x.m.score>0&&x.cost<=batch.mana&&!(x.def.limited&&seen[x.card.cardId]);})||power&&!usePower&&pvalue>0&&pcost<=batch.mana);
+        reservesPlay=ids.length>0&&(available.some(function(x){return ids.indexOf(x.card.uid)<0&&!x.def.main1Only&&x.m.score>0&&(x.blood?x.cost<=(f.bloodstones||0)-bloodCost:x.cost<=batch.mana)&&!(x.def.limited&&seen[x.card.cardId]);})||power&&!usePower&&pvalue>0&&pcost<=batch.mana);
          
         if(reservesPlay){
-          var reserveMana=batch.mana,reserveCount=0;
-          reserveOrder.forEach(function(x){if(ids.indexOf(x.card.uid)<0&&!x.def.main1Only&&x.m.score>0&&x.cost<=reserveMana&&!(x.def.limited&&seen[x.card.cardId])){reserveCount++;reserveMana-=x.cost;}});
+          var reserveMana=batch.mana,reserveBlood=(f.bloodstones||0)-bloodCost,reserveCount=0;
+          reserveOrder.forEach(function(x){if(ids.indexOf(x.card.uid)<0&&!x.def.main1Only&&x.m.score>0&&(x.blood?x.cost<=reserveBlood:x.cost<=reserveMana)&&!(x.def.limited&&seen[x.card.cardId])){reserveCount++;if(x.blood)reserveBlood-=x.cost;else reserveMana-=x.cost;}});
            
            
           openingValue+=1.1;
@@ -9986,14 +10053,14 @@ A4.AI = (function(){
      
      
     var ordered=available.slice().sort(function(a,z){return (a.m.priority||0)-(z.m.priority||0);}),sets=[];
-    function collect(start,selected,cost,value){
+    function collect(start,selected,cost,value,bloodCost){bloodCost=bloodCost||0;
       checkDeadline();
       sets.push({selected:selected.slice(),cost:cost,value:value});
       for(var i=start;i<ordered.length;i++){
         var x=ordered[i],paid=selected.length===0&&f.playedThisTurn===0?x.first:x.cost;
-        if(cost+paid>spendable)continue;
+        if(x.blood?bloodCost+paid>(f.bloodstones||0):cost+paid>spendable)continue;
         if((x.def.limited||x.def.rule==='금단의 불꽃')&&selected.some(function(y){return y.card.cardId===x.card.cardId;}))continue;
-        selected.push(x);collect(i+1,selected,cost+paid,value+x.m.score);selected.pop();
+        selected.push(x);collect(i+1,selected,cost+(x.blood?0:paid),value+x.m.score,bloodCost+(x.blood?paid:0));selected.pop();
       }
     }
      
@@ -10022,12 +10089,12 @@ A4.AI = (function(){
       var nextView={player:foe,enemy:f,turn:b.turn,phase:'MAIN2',history:b.history||[]},nextModel=A4.AIEvaluation.predict(nextView,c);
       var partial=ranked.filter(function(a){return (a.uids.length>0||a.heroPower)&&(a.uids.length<available.length||power&&!a.heroPower);});
       partial.forEach(function(a){
-        var mana=Math.max(0,f.mana-(a.heroPower?pcost:0)),future=0,left=available.filter(function(x){return a.uids.indexOf(x.card.uid)<0;});
-        a.uids.forEach(function(id){var x=available.filter(function(x){return x.card.uid===id;})[0];mana-=x.cost;});
+        var mana=Math.max(0,f.mana-(a.heroPower?pcost:0)),future=0,blood=f.bloodstones||0,left=available.filter(function(x){return a.uids.indexOf(x.card.uid)<0;});
+        a.uids.forEach(function(id){var x=available.filter(function(x){return x.card.uid===id;})[0];if(x.blood)blood-=x.cost;else mana-=x.cost;});
         left.sort(function(x,z){return z.m.score/Math.max(1,z.cost)-x.m.score/Math.max(1,x.cost);});
-        left.forEach(function(x){if(x.def.main1Only||x.cost>mana)return;
+        left.forEach(function(x){if(x.def.main1Only||(x.blood?x.cost>blood:x.cost>mana))return;
           var risk=0;Object.keys(COUNTERS).forEach(function(el){if(COUNTERS[el]===x.def.element||(x.def.unstable&&el===x.def.element))risk+=nextModel.elements[el]||0;});
-          future+=Math.max(0,x.m.score)*(1-risk*(1-nextModel.passChance)*0.7);mana-=x.cost;
+          future+=Math.max(0,x.m.score)*(1-risk*(1-nextModel.passChance)*0.7);if(x.blood)blood-=x.cost;else mana-=x.cost;
         });
         if(power&&!a.heroPower&&pcost<=mana)future+=Math.max(0,pvalue);
         a.partitionScore=a.score+future;a.phaseSplit=a.reservesPlay||a.earlyDraw>0;
@@ -10141,7 +10208,7 @@ A4.AI = (function(){
       }
       if(snapshot.phase==='MAIN2'&&after&&after.outcome==='ongoing'){
         var usefulPaid=0;
-        snapshot.enemy.hand.forEach(function(x){var i=action.uids.indexOf(x.uid);if(i>=0&&rootMetric(x).score>0)usefulPaid+=counterContext.cost('enemy',x,i===0&&snapshot.enemy.playedThisTurn===0);});
+        snapshot.enemy.hand.forEach(function(x){var i=action.uids.indexOf(x.uid);if(i>=0&&counterContext.def(x).bloodCost===undefined&&rootMetric(x).score>0)usefulPaid+=counterContext.cost('enemy',x,i===0&&snapshot.enemy.playedThisTurn===0);});
         priority+=Math.min(1,usefulPaid*0.35);
       }
       snapshot.enemy.hand.forEach(function(x){if(action.uids.indexOf(x.uid)>=0){var def=counterContext.def(x),evaluation=rootMetric(x);priority+=(evaluation.cleanseBonus||0)+(evaluation.prayerBonus||0)-(evaluation.fullHealthPenalty||0);
@@ -11007,6 +11074,7 @@ A4.BattleUI = (function () {
     if(opposingPower&&opposingPower.id==='meltranix'&&opposingPower.kind==='passive')add('자백','손패의 첫 번째와 마지막 카드만 낼 수 있다.');
     else if(s.confession&&(s.confession.until===undefined||s.confession.until>=b.turn))add('자백','손패의 첫 번째와 마지막 카드만 낼 수 있다.',s.confession);
     (f.shrines||[]).forEach(function(a){lines.push('• [🕯] '+a.name+': ❤️ '+a.hp+'/'+a.maxHp+(a.hp<=0?' (부활까지 '+Math.max(0,a.reviveTurn-b.turn)+'턴)':''));});
+    if(s.classes&&s.classes.nextBloodPayment)add('혈석 의식',s.classes.nextBloodPayment==='opponent'?'다음 영웅 능력이 상대의 체력을 비용으로 사용한다.':'다음 영웅 능력이 체력을 소모하지 않는다.');
     if(s.classes&&s.classes.powerBonus)add('위력','카드 피해량·회복량 +'+s.classes.powerBonus);
     if(s.execution)add('처형',String(s.execution));
     if(s.poison)add('중독',String(s.poison));
@@ -11118,7 +11186,7 @@ A4.BattleUI = (function () {
     else {
       var p=b.player.heroPower;
       lines.push('0. '+(p?name({name:p.name,displayElement:'🛟'},c)+' | '+(p.kind==='active'?'💧'+ctx.powerCost('player'):'⏳️'):'영웅 능력 없음')+(p&&p.kind==='active'&&ctx.modify('powerUsable',{side:'player',power:p,allowed:b.player.heroPowerUsedTurn!==b.turn&&(b.player.heroPowerReadyTurn||0)<=b.turn}).allowed?'':' ❌️'));
-      b.player.hand.forEach(function(x,i){lines.push((i+1)+'. '+name((function(){var d=ctx.def(x);if(x.originalCardId==='crystal_ball')d.displayElement='🌌'+(d.displayElement||icons[d.element]||'🌊');return d;})(),c)+' | '+(A4.Classes&&A4.Classes.alive(b.player,'hireek').length?'❤️'+ctx.cost('player',x)*5:'💧'+ctx.cost('player',x))+(A4.Battle.cardAllowed(b,'player',c,x)?'':' ❌️'));});
+      b.player.hand.forEach(function(x,i){lines.push((i+1)+'. '+name((function(){var d=ctx.def(x);if(x.originalCardId==='crystal_ball')d.displayElement='🌌'+(d.displayElement||icons[d.element]||'🌊');return d;})(),c)+' | '+(ctx.def(x).bloodCost!==undefined?'🩸'+ctx.cost('player',x):A4.Classes&&A4.Classes.alive(b.player,'hireek').length?'❤️'+ctx.cost('player',x)*5:'💧'+ctx.cost('player',x))+(A4.Battle.cardAllowed(b,'player',c,x)?'':' ❌️'));});
       var v=A4.Battle.publicView(b);if(v.foreseenCards)lines.push('👁 상대의 예정 카드: '+(v.foreseenCards.map(function(x){return name(A4.Battle.describeCard(x,c),c);}).join(', ')||'쉬기'));if(v.enemyReacting)lines.push('👁 상대가 예지 중입니다.');
     }
     if(!b.pendingChoice)lines.push('s / p / gg');
@@ -11144,7 +11212,7 @@ A4.UI = (function () {
     if(def.rune&&icon.indexOf('💎')<0)icon+='💎';
     var cost=battle&&battle.rulesVersion===3?A4.Battle.cardCost(battle,'player',instance,catalog):def.cost;
     var healthPayment=battle&&A4.Classes&&A4.Classes.alive(battle.player,'hireek').length>0;
-    return '['+icon+'] '+def.name + (instance.upgraded && def.name.slice(-1) !== '+' ? '+' : '') + ' | '+(healthPayment?'❤️'+cost*5:'💧'+cost)+(brief?'':' — '+(description || effects(def.effects)));
+    return '['+icon+'] '+def.name + (instance.upgraded && def.name.slice(-1) !== '+' ? '+' : '') + ' | '+(def.bloodCost!==undefined?'🩸'+cost:healthPayment?'❤️'+cost*5:'💧'+cost)+(brief?'':' — '+(description || effects(def.effects)));
   }
   function deckCard(run, uid) { return run.deck.filter(function (c) { return c.uid === uid; })[0]; }
   function treasure(id,catalog) {
@@ -11357,7 +11425,7 @@ A4.UI = (function () {
     return lines.join('\n');
   }
   function rules(){
-    return "⚔️ 탐험 규칙 ⚔️\n"+new Array(1001).join("\u200b")+"\n\n"+"+탐험: 탐험을 새로 시작하거나 진행 중인 탐험을 계속합니다.\n\n가. 카드의 구역\n카드는 덱, 손패, 레스트, 제외 4개의 구역에 놓일 수 있습니다.\n\n1. 덱\n덱에 있는 카드는 스탠바이 페이즈나 카드를 뽑는 효과에 의해 손으로 들어올 수 있습니다.\n\n2. 손패\n손패에 있는 카드는 메인 페이즈 1, 2에 낼 수 있습니다. 카드를 내면 발동 여부와 관계없이 레스트로 이동합니다.\n\n3. 레스트\n사용된 카드와 일부 능력에 의해 레스트에 보관된 카드들은 덱에 뽑을 카드가 없으면 덱으로 모두 이동합니다.\n\n4. 제외\n게임에서 제외된 카드는 게임으로 돌아오지 않습니다.\n\n\n나. 턴의 구조\n\n게임이 시작되면 덱에서 무작위로 4장의 손패를 뽑습니다.\n양쪽 모두 현재 마나 2, 최대 마나 2로 시작합니다.\n턴은 다음과 같은 4개의 페이즈로 구분됩니다.\n\n1. 스탠바이 페이즈\n스탠바이 페이즈에는 각 플레이어가 카드를 1장씩 뽑습니다.\n이때 5턴마다의 스탠바이 페이즈에는 최대 마나가 1 증가하며,\n매 스탠바이 페이즈시에 마나가 모두 회복됩니다.\n\n20턴부터 스탠바이 페이즈시마다 각 플레이어는 탈진 피해를 받습니다. 탈진 피해는 1부터 시작하며 보호막을 무시하고 매 턴마다 1씩 증가합니다.\n\n2. 메인 페이즈 1\n메인 페이즈 1에는 카드를 낼 수 있습니다.\n\n3. 메인 페이즈 2\n메인 페이즈 2에는 카드를 낼 수 있습니다.\n\n4. 엔드 페이즈\n엔드 페이즈는 턴이 마무리되는 페이즈입니다. 손에 있는 일시적인 카드가 레스트로 이동하고, 엔드 페이즈시에 발동하는 효과들이 발동합니다. 엔드 페이즈가 끝날 때 양쪽의 방어도가 모두 사라집니다.\n\n\n다. 카드의 상성\n속성은 화염🔥, 자연🍃, 전기⚡️, 냉기❄️ , 신성🕊️ 5가지가 있습니다.\n기본 4속성은 ❄️ → 🔥 → 🍃 → ⚡️ → ❄️의 상성 관계를 가집니다.\n같은 페이즈시에 상대와 낸 카드가 상성 관계가 있으면 지는 상성의 카드들은 모두 카운터되어 효과가 발동하지 않고 레스트로 이동합니다.\n\n\n라. 키워드\n일부 카드들은 키워드를 가지고 있습니다. 각 키워드는 다음을 의미합니다.\n\n치명타: 이 카드가 상대의 카드를 카운터하면 추가 효과가 발동합니다.\n발견: 제시되는 3개의 선택지 중 하나를 선택합니다.\n압도: 이 카드는 같은 속성의 카드도 카운터합니다.\n불안정: 이 카드는 같은 속성의 카드에도 카운터당합니다.\n선천성: 이 카드는 시작하는 손패에 항상 있습니다.\n\n일시적: 이 카드는 엔드 페이즈시에 레스트로 이동합니다.\n일회용: 이 카드는 효과가 발동하면 레스트로 이동하는 대신 게임에서 제외됩니다. 카운터당하면 레스트로 이동합니다.\n과부하: 다음 턴에 획득하는 마나가 감소합니다.\n제한: 이 카드명의 카드는 1턴에 1번만 사용할 수 있습니다.\n사용불가: 이 카드는 사용할 수 없습니다.\n중독: 중독이 부여된 캐릭터는 매 스탠바이 페이즈시마다 중독만큼 피해를 받고, 중독이 1 감소합니다.\n무장해제: 이 캐릭터는 방어도를 획득할 수 없습니다.\n열화: 강화된 카드가 강화되기 전으로 되돌아갑니다.\n인양: 내 덱 맨 밑에 있는 카드 3장을 미리 봅니다. 1장을 선택해 덱 맨 위에 놓습니다.\n휘발성: 이 카드가 손에 있으면 엔드 페이즈시에 게임에서 제외됩니다.\n취약: 이 캐릭터는 피해를 받을 때 50%의 피해를 추가로 입습니다. 소수점은 버립니다.\n약화: 이 캐릭터는 가하는 피해량이 25% 감소합니다. 소수점은 버립니다.\n감전: 상대의 손에서 최대 마나 이하 비용인 사용 가능한 무작위 카드 n장을 다음 턴의 엔드 페이즈시까지 사용할 수 없게 만듭니다.\n침몰: 내 덱에 남은 카드가 0장이 된 적이 있으면, 추가 효과가 발동합니다.\n폐기: 내 덱 맨 아래에서 카드 X장을 레스트로 보냅니다.\n처형: 매 턴의 스탠바이 페이즈시에, 대상의 체력이 처형 중첩보다 낮으면 처형합니다. 처형되지 않으면 처형 중첩이 1 감소합니다.\n해방: 이 카드는 조건을 만족하기 전까지 사용할 수 없습니다.\n궤도: 이 카드가 손에 있을 때, 다른 카드를 일정 수만큼 사용했으면 추가 효과가 발동합니다.\n각성: 내 최대 마나가 5에 도달한 적이 있으면, 추가 효과가 발동합니다.\n\n\n마. 전투 후 진행\n전투가 끝나면 직업 카드 3장으로 된 묶음 3개 중 하나를 선택하여 덱에 추가합니다. 기본 골드 4~6을 얻으며, 체력이 낮으면 최대 5골드를 추가로 얻습니다.\n휴식은 체력을 10 회복합니다. 제련은 강화할 수 있는 카드 최대 3장 중 하나를 강화합니다.\n이벤트는 준비 중입니다.\n이후 선술집에서 직업 카드 3장, 공용 카드 2장과 카드 제거를 구매할 수 있습니다. 회복 물약과 강화권도 확률적으로 판매합니다.\n선술집을 나가면 보유한 10골드당 이자 1골드를 얻으며, 이자는 최대 5골드입니다.\n카드 가격은 3~6골드이며, 카드 제거 가격은 첫 전투 후 3골드부터 전투마다 2골드씩 올라갑니다.\n1승 하급 보물, 4승 상급 보물, 6승 보물 교체는 유지됩니다.\n\n저주 카드군 [💔]: 상성 상호작용이 없으며 사용불가, 일시적입니다.\n위력: 내 카드의 피해량과 회복량을 고정된 수치만큼 증가시킵니다.\n혈석: 최대 5개까지 보유하며 스탠바이 페이즈에 회복되지 않고 누적됩니다.\n단검: 최대 5개까지 보유하며 각 단검은 소모되면 피해를 4 줍니다.\n해오름: 메인 페이즈 1에 추가 효과가 발동합니다.\n어스름: 메인 페이즈 2에 추가 효과가 발동합니다.\n룬 [💎]: 발동하면 레스트로 가지 않고 효과가 유지됩니다. 캐릭터마다 1개만 유지하며 다른 룬이 발동하면 기존 룬을 레스트로 보내고 효과를 종료합니다. 새 룬이 카운터당하면 기존 룬을 유지합니다.";
+    return "⚔️ 탐험 규칙 ⚔️\n"+new Array(1001).join("\u200b")+"\n\n"+"+탐험: 탐험을 새로 시작하거나 진행 중인 탐험을 계속합니다.\n\n가. 카드의 구역\n카드는 덱, 손패, 레스트, 제외 4개의 구역에 놓일 수 있습니다.\n\n1. 덱\n덱에 있는 카드는 스탠바이 페이즈나 카드를 뽑는 효과에 의해 손으로 들어올 수 있습니다.\n\n2. 손패\n손패에 있는 카드는 메인 페이즈 1, 2에 낼 수 있습니다. 카드를 내면 발동 여부와 관계없이 레스트로 이동합니다.\n\n3. 레스트\n사용된 카드와 일부 능력에 의해 레스트에 보관된 카드들은 덱에 뽑을 카드가 없으면 덱으로 모두 이동합니다.\n\n4. 제외\n게임에서 제외된 카드는 게임으로 돌아오지 않습니다.\n\n\n나. 턴의 구조\n\n게임이 시작되면 덱에서 무작위로 4장의 손패를 뽑습니다.\n양쪽 모두 현재 마나 2, 최대 마나 2로 시작합니다.\n턴은 다음과 같은 4개의 페이즈로 구분됩니다.\n\n1. 스탠바이 페이즈\n스탠바이 페이즈에는 각 플레이어가 카드를 1장씩 뽑습니다.\n이때 5턴마다의 스탠바이 페이즈에는 최대 마나가 1 증가하며,\n매 스탠바이 페이즈시에 마나가 모두 회복됩니다.\n\n20턴부터 스탠바이 페이즈시마다 각 플레이어는 탈진 피해를 받습니다. 탈진 피해는 1부터 시작하며 보호막을 무시하고 매 턴마다 1씩 증가합니다.\n\n2. 메인 페이즈 1\n메인 페이즈 1에는 카드를 낼 수 있습니다.\n\n3. 메인 페이즈 2\n메인 페이즈 2에는 카드를 낼 수 있습니다.\n\n4. 엔드 페이즈\n엔드 페이즈는 턴이 마무리되는 페이즈입니다. 손에 있는 일시적인 카드가 레스트로 이동하고, 엔드 페이즈시에 발동하는 효과들이 발동합니다. 엔드 페이즈가 끝날 때 양쪽의 방어도가 모두 사라집니다.\n\n\n다. 카드의 상성\n속성은 화염🔥, 자연🍃, 전기⚡️, 냉기❄️ , 신성🕊️ 5가지가 있습니다.\n기본 4속성은 ❄️ → 🔥 → 🍃 → ⚡️ → ❄️의 상성 관계를 가집니다.\n같은 페이즈시에 상대와 낸 카드가 상성 관계가 있으면 지는 상성의 카드들은 모두 카운터되어 효과가 발동하지 않고 레스트로 이동합니다.\n\n\n라. 키워드\n일부 카드들은 키워드를 가지고 있습니다. 각 키워드는 다음을 의미합니다.\n\n치명타: 이 카드가 상대의 카드를 카운터하면 추가 효과가 발동합니다.\n발견: 제시되는 3개의 선택지 중 하나를 선택합니다.\n압도: 이 카드는 같은 속성의 카드도 카운터합니다.\n불안정: 이 카드는 같은 속성의 카드에도 카운터당합니다.\n선천성: 이 카드는 시작하는 손패에 항상 있습니다.\n\n일시적: 이 카드는 엔드 페이즈시에 레스트로 이동합니다.\n일회용: 이 카드는 효과가 발동하면 레스트로 이동하는 대신 게임에서 제외됩니다. 카운터당하면 레스트로 이동합니다.\n과부하: 다음 턴에 획득하는 마나가 감소합니다.\n제한: 이 카드명의 카드는 1턴에 1번만 사용할 수 있습니다.\n사용불가: 이 카드는 사용할 수 없습니다.\n중독: 중독이 부여된 캐릭터는 매 스탠바이 페이즈시마다 중독만큼 피해를 받고, 중독이 1 감소합니다.\n무장해제: 이 캐릭터는 방어도를 획득할 수 없습니다.\n열화: 강화된 카드가 강화되기 전으로 되돌아갑니다.\n인양: 내 덱 맨 밑에 있는 카드 3장을 미리 봅니다. 1장을 선택해 덱 맨 위에 놓습니다.\n휘발성: 이 카드가 손에 있으면 엔드 페이즈시에 게임에서 제외됩니다.\n취약: 이 캐릭터는 피해를 받을 때 50%의 피해를 추가로 입습니다. 소수점은 버립니다.\n약화: 이 캐릭터는 가하는 피해량이 25% 감소합니다. 소수점은 버립니다.\n감전: 상대의 손에서 최대 마나 이하 비용인 사용 가능한 무작위 카드 n장을 다음 턴의 엔드 페이즈시까지 사용할 수 없게 만듭니다.\n침몰: 내 덱에 남은 카드가 0장이 된 적이 있으면, 추가 효과가 발동합니다.\n폐기: 내 덱 맨 아래에서 카드 X장을 레스트로 보냅니다.\n처형: 매 턴의 스탠바이 페이즈시에, 대상의 체력이 처형 중첩보다 낮으면 처형합니다. 처형되지 않으면 처형 중첩이 1 감소합니다.\n해방: 이 카드는 조건을 만족하기 전까지 사용할 수 없습니다. 손에 있는 동안 조건을 충족하면 해방되며 레스트로 이동하면 초기화됩니다.\n궤도: 이 카드가 손에 있을 때, 다른 카드를 일정 수만큼 사용했으면 추가 효과가 발동합니다.\n각성: 내 최대 마나가 5에 도달한 적이 있으면, 추가 효과가 발동합니다.\n\n\n마. 전투 후 진행\n전투가 끝나면 직업 카드 3장으로 된 묶음 3개 중 하나를 선택하여 덱에 추가합니다. 기본 골드 4~6을 얻으며, 체력이 낮으면 최대 5골드를 추가로 얻습니다.\n휴식은 체력을 10 회복합니다. 제련은 강화할 수 있는 카드 최대 3장 중 하나를 강화합니다.\n이벤트는 준비 중입니다.\n이후 선술집에서 직업 카드 3장, 공용 카드 2장과 카드 제거를 구매할 수 있습니다. 회복 물약과 강화권도 확률적으로 판매합니다.\n선술집을 나가면 보유한 10골드당 이자 1골드를 얻으며, 이자는 최대 5골드입니다.\n카드 가격은 3~6골드이며, 카드 제거 가격은 첫 전투 후 3골드부터 전투마다 2골드씩 올라갑니다.\n1승 하급 보물, 4승 상급 보물, 6승 보물 교체는 유지됩니다.\n\n저주 카드군 [💔]: 상성 상호작용이 없으며 사용불가, 일시적입니다.\n위력: 내 카드의 피해량과 회복량을 고정된 수치만큼 증가시킵니다.\n혈석: 최대 5개까지 보유하며 스탠바이 페이즈에 회복되지 않고 누적됩니다.\n단검: 최대 5개까지 보유하며 각 단검은 소모되면 피해를 4 줍니다.\n해오름: 메인 페이즈 1에 추가 효과가 발동합니다.\n어스름: 메인 페이즈 2에 추가 효과가 발동합니다.\n룬 [💎]: 발동하면 레스트로 가지 않고 효과가 유지됩니다. 캐릭터마다 1개만 유지하며 다른 룬이 발동하면 기존 룬을 레스트로 보내고 효과를 종료합니다. 새 룬이 카운터당하면 기존 룬을 유지합니다.";
   }
   function render(user,result,catalog,now) {
     var text, lines = [], def, rule;

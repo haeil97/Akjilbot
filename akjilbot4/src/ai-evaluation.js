@@ -346,7 +346,7 @@ A4.AIEvaluation=(function(){
     }
     // Respect current public protection and scaling. Multiple-hit lightning applies
     // bonuses/caps per hit, just as the executor does.
-    n=Math.max(1,m.hits||1);m.damage=damageAfter(own,opp,def,m.damage/n,b,{noBonus:!!def.kind||!!m.poisonDetonation,power:!!def.kind})*n;
+    n=Math.max(1,m.hits||1);if(!m.fatigueDamage)m.damage=damageAfter(own,opp,def,m.damage/n,b,{noBonus:!!def.kind||!!m.poisonDetonation,power:!!def.kind})*n;
     if(r==='금단의 불꽃'&&!m.damage&&damageBonus(own,def)>0)m.damage=damageAfter(own,opp,def,damageBonus(own,def),b,{noBonus:true});
     m.selfDamage=damageAfter(own,own,def,m.selfDamage,b,{noBonus:!!def.kind,power:!!def.kind});
     if(effects(own,'disarm',b).length)m.shield=0;
@@ -370,7 +370,7 @@ A4.AIEvaluation=(function(){
     // early, but only when the power has a useful effect and cards to preserve.
     m.cardSavingBonus=def.kind==='active'&&m.score>0&&h>0?(b.turn<=2?1.2:0.6)*(h<=limit(own)-3?1:0.35):0;
 
-    if(m.damage>=number(opp.hp)+number(opp.shield)&&m.damage>0)m.score+=45;
+    if(m.damage>=number(opp.hp)+(m.fatigueDamage?0:number(opp.shield))&&m.damage>0)m.score+=45;
     if(m.selfDamage>=number(own.hp)+number(own.shield)&&m.selfDamage>0)m.score-=75;
     if(m.heal||m.shield)m.priority=-4;
     if(m.draw)m.priority=2;

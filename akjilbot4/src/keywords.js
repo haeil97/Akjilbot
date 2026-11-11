@@ -1,7 +1,7 @@
 /* Shared keyword operations. New cards opt in through effects and metadata. */
 A4.Keywords=(function(){
   'use strict';
-  var descriptions={rune:'룬: 발동하면 레스트로 이동하지 않고 효과가 유지됩니다. 캐릭터마다 하나만 유지하며, 다른 룬이 발동하면 기존 룬을 레스트로 보냅니다. 새 룬이 카운터당하면 기존 룬을 유지합니다.',power:'위력: 내 카드의 피해량과 회복량을 고정된 수치만큼 증가시킵니다.',bloodstone:'혈석: 아감마간의 고유 자원입니다. 최대 5개까지 보유하며 스탠바이 페이즈에 회복되지 않고 누적됩니다.',dagger:'단검: 각 단검은 소모되면 피해를 4 주며 최대 5개까지 보유할 수 있습니다.',sunrise:'해오름: 메인 페이즈 1에 추가 효과가 발동합니다.',dusk:'어스름: 메인 페이즈 2에 추가 효과가 발동합니다.',disarm:'무장해제: 이 캐릭터는 방어도를 획득할 수 없습니다.',degrade:'열화: 강화된 카드가 강화되기 전으로 되돌아갑니다.',dredge:'인양: 내 덱 맨 밑에 있는 카드 3장을 미리 봅니다. 1장을 선택해 덱 맨 위에 놓습니다.',unstable:'불안정: 이 카드는 같은 속성의 카드에도 카운터당합니다.',volatile:'휘발성: 이 카드가 손에 있으면 엔드 페이즈시에 게임에서 제외됩니다.',vulnerable:'취약: 이 캐릭터는 피해를 받을 때 50%의 피해를 추가로 입습니다. 소수점은 버립니다.',weakened:'약화: 이 캐릭터는 가하는 피해량이 25% 감소합니다. 소수점은 버립니다.',shock:'감전: 상대의 손에서 최대 마나 이하 비용인 사용 가능한 무작위 카드들을 다음 턴의 엔드 페이즈시까지 사용할 수 없게 만듭니다.',sinking:'침몰: 내 덱에 남은 카드가 0장이 된 적이 있으면, 추가 효과가 발동합니다.',discardBottom:'폐기: 내 덱 맨 아래에서 카드 X장을 레스트로 보냅니다.',execution:'처형: 매 턴의 스탠바이 페이즈시에, 대상의 체력이 처형 중첩보다 낮으면 처형합니다. 처형되지 않으면 처형 중첩이 1 감소합니다.',liberation:'해방: 이 카드는 조건을 만족하기 전까지 사용할 수 없습니다.',orbit:'궤도: 이 카드가 손에 있을 때, 다른 카드를 일정 수만큼 사용했으면 추가 효과가 발동합니다.',awakening:'각성: 내 최대 마나가 5에 도달한 적이 있으면, 추가 효과가 발동합니다.'};
+  var descriptions={rune:'룬: 발동하면 레스트로 이동하지 않고 효과가 유지됩니다. 캐릭터마다 하나만 유지하며, 다른 룬이 발동하면 기존 룬을 레스트로 보냅니다. 새 룬이 카운터당하면 기존 룬을 유지합니다.',power:'위력: 내 카드의 피해량과 회복량을 고정된 수치만큼 증가시킵니다.',bloodstone:'혈석: 아감마간의 고유 자원입니다. 최대 5개까지 보유하며 스탠바이 페이즈에 회복되지 않고 누적됩니다.',dagger:'단검: 각 단검은 소모되면 피해를 4 주며 최대 5개까지 보유할 수 있습니다.',sunrise:'해오름: 메인 페이즈 1에 추가 효과가 발동합니다.',dusk:'어스름: 메인 페이즈 2에 추가 효과가 발동합니다.',disarm:'무장해제: 이 캐릭터는 방어도를 획득할 수 없습니다.',degrade:'열화: 강화된 카드가 강화되기 전으로 되돌아갑니다.',dredge:'인양: 내 덱 맨 밑에 있는 카드 3장을 미리 봅니다. 1장을 선택해 덱 맨 위에 놓습니다.',unstable:'불안정: 이 카드는 같은 속성의 카드에도 카운터당합니다.',volatile:'휘발성: 이 카드가 손에 있으면 엔드 페이즈시에 게임에서 제외됩니다.',vulnerable:'취약: 이 캐릭터는 피해를 받을 때 50%의 피해를 추가로 입습니다. 소수점은 버립니다.',weakened:'약화: 이 캐릭터는 가하는 피해량이 25% 감소합니다. 소수점은 버립니다.',shock:'감전: 상대의 손에서 최대 마나 이하 비용인 사용 가능한 무작위 카드들을 다음 턴의 엔드 페이즈시까지 사용할 수 없게 만듭니다.',sinking:'침몰: 내 덱에 남은 카드가 0장이 된 적이 있으면, 추가 효과가 발동합니다.',discardBottom:'폐기: 내 덱 맨 아래에서 카드 X장을 레스트로 보냅니다.',execution:'처형: 매 턴의 스탠바이 페이즈시에, 대상의 체력이 처형 중첩보다 낮으면 처형합니다. 처형되지 않으면 처형 중첩이 1 감소합니다.',liberation:'해방: 이 카드는 조건을 만족하기 전까지 사용할 수 없습니다. 손에 있는 동안 조건을 충족하면 해방되며 레스트로 이동하면 초기화됩니다.',orbit:'궤도: 이 카드가 손에 있을 때, 다른 카드를 일정 수만큼 사용했으면 추가 효과가 발동합니다.',awakening:'각성: 내 최대 마나가 5에 도달한 적이 있으면, 추가 효과가 발동합니다.'};
   function observe(f){if(A4.TreasureRules&&A4.TreasureRules.owns(f,'icarus_wings')){f.maxMana=3;f.mana=Math.min(5,f.mana);}f.status=f.status||{};if(!f.deck.length)f.status.deckEmptied=true;if(f.maxMana>=5)f.status.awakened=true;}
   function effects(f){f.status.cards=f.status.cards||{effects:[]};return f.status.cards.effects||(f.status.cards.effects=[]);}
   function active(f,kind,b){return ((f.status.cards||{}).effects||[]).some(function(e){return e.kind===kind&&(e.from===undefined||e.from<=b.turn)&&(e.until===undefined||e.until>=b.turn);});}
@@ -18,6 +18,7 @@ A4.Keywords=(function(){
     if(test.any)return test.any.some(function(x){return condition(ctx,side,card,x);});
     return false;
   }
+  function liberated(ctx,side,card,test){if(card.liberationReady)return true;if(test&&(test.type==='heroPowerUsed'||test.type==='played'))return false;if(condition(ctx,side,card,test)){card.liberationReady=true;return true;}return false;}
   function enqueue(ctx,side,list,card){(list||[]).forEach(function(e){ctx.enqueue({kind:'effect',side:side,card:card||null,effect:ctx.copy(e)});});}
   function effect(ctx,t){
     var e=t.effect,side=t.side,other=side==='player'?'enemy':'player',target=e.target==='self'?side:other,f=ctx.fighter(target),b=ctx.battle,n=Math.max(0,Math.floor(e.amount||0)),card;
@@ -47,7 +48,7 @@ A4.Keywords=(function(){
   function modify(ctx,what,data){
     if(what==='cardUsable'){
       if(data.card.shockedUntil!==undefined&&data.card.shockedUntil>=ctx.battle.turn){data.allowed=false;data.reason='감전으로 사용할 수 없는 카드입니다.';}
-      if(data.def.liberation&&!condition(ctx,data.side,data.card,data.def.liberation)){data.allowed=false;data.reason='해방 조건을 만족하지 않았습니다.';}
+      if(data.def.liberation&&!liberated(ctx,data.side,data.card,data.def.liberation)){data.allowed=false;data.reason='해방 조건을 만족하지 않았습니다.';}
     }
   }
   function hook(ctx,e){
@@ -58,6 +59,7 @@ A4.Keywords=(function(){
         if(f.hp<f.status.execution){f.hp=0;ctx.note('text',side,0,{text:f.name+' 처형.'});}
         else f.status.execution--;
       }
+      if((e.type==='cardUsed'||e.type==='powerUsed')&&e.side===side){f.hand.forEach(function(x){var d=ctx.def(x),rule=d.liberation;if(!rule||x.liberationReady||e.card&&e.card.uid===x.uid)return;if(rule.type==='heroPowerUsed'&&e.type==='powerUsed'||rule.type==='played'&&e.type==='cardUsed'&&!e.free){x.liberationProgress=(x.liberationProgress||0)+1;if(x.liberationProgress>=(rule.amount||1))x.liberationReady=true;}});}
       if(e.type==='cardUsed'&&e.side===side){f.hand.forEach(function(x){if(e.card&&e.card.uid===x.uid)return;var d=ctx.def(x),orbit=d.orbit;if(!orbit||x.orbitTriggered)return;x.orbitCount=(x.orbitCount||0)+1;if(x.orbitCount>=orbit.count){x.orbitTriggered=true;enqueue(ctx,side,orbit.effects,x);}});}
       if(e.type==='afterEnd'){
         f.status.cards=f.status.cards||{effects:[]};f.status.cards.effects=effects(f).filter(function(x){return ['disarm','vulnerable','weakened'].indexOf(x.kind)<0||x.until===undefined||x.until>b.turn;});
@@ -65,5 +67,5 @@ A4.Keywords=(function(){
       }
     });
   }
-  return {run:function(ctx,t){if(t.module!=='keywords'||t.op!=='dredge')return false;var card=ctx.remove(t.side,t.choice.uid);if(card)ctx.fighter(t.side).deck.unshift(card);return true;},descriptions:descriptions,observe:observe,active:active,condition:condition,effect:effect,modify:modify,hook:hook};
+  return {run:function(ctx,t){if(t.module!=='keywords'||t.op!=='dredge')return false;var card=ctx.remove(t.side,t.choice.uid);if(card)ctx.fighter(t.side).deck.unshift(card);return true;},descriptions:descriptions,observe:observe,active:active,condition:condition,liberated:liberated,effect:effect,modify:modify,hook:hook};
 }());

@@ -84,9 +84,9 @@ A4.AIChoices=(function(){
     d.cost=cost;
     var value=metric(d,own,opp,b,c),missing=Math.max(0,own.maxHp-own.hp),nextMana=Math.max(0,Math.min(5,own.maxMana)-(own.overloadNext||0));
     if(!free){
-      var reachable=Math.max(own.mana,nextMana),turns=Math.max(0,cost-reachable);
+      var availableResource=d.bloodCost!==undefined?(own.bloodstones||0):own.mana,reachable=d.bloodCost!==undefined?availableResource:Math.max(own.mana,nextMana),turns=Math.max(0,cost-reachable);
       value=value/(1+turns*0.65)-cost*0.3;
-      if(cost<=own.mana&&b.phase==='MAIN1')value+=1.6;
+      if(cost<=availableResource&&b.phase==='MAIN1')value+=1.6;
       if(d.temporary&&b.phase==='MAIN2')value*=0.1;
       if(d.unplayable&&!d.rule)value-=8;
       if(option.availableFrom>b.turn)value*=0.6;

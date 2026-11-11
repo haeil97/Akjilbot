@@ -18,7 +18,7 @@ This repository contains a Korean KakaoTalk card-battle bot. Communicate with th
 - AI may use public information and sampled unknown hands; never expose the actual hidden opponent hand or deck order. Keep the 5-second planning budget and fallback behavior.
 - The current class document is `akjilbot4/docs/플레이어-직업.md`.
 - Current post-battle flow is documented in `akjilbot4/docs/전투후-선술집-개편.md`. Rune behavior is in `akjilbot4/docs/룬-카드군.md`.
-- Do not invent unfinished card, treasure, or event effects. Agamaggan and Nautilus remain locked until starting decks are provided. No actual rune cards have been specified yet.
+- Do not invent unfinished card, treasure, or event effects. Agamaggan has a completed ten-card starting deck and is selectable. Nautilus remains locked until its starting deck is provided. No actual rune cards have been specified yet.
 - Historical manuscripts may describe old behavior. Prefer current source code and the latest relevant design document, following the user's requested changes.
 
 ## Repository contents
@@ -33,4 +33,3 @@ The user has authorized ongoing synchronization with `haeil97/Akjilbot`, branch 
 - Include the changed source, design/docs/tests, and regenerated distribution file as applicable. Continue excluding secrets, real save data, logs, archives, and obsolete versions.
 - Read the current remote state before writing. Preserve remote changes; never force-push or replace unrelated work.
 - Verify the resulting remote commit or file hashes. Report honestly if synchronization fails or authentication/repository access is unavailable.
-
