@@ -24,3 +24,13 @@ This repository contains a Korean KakaoTalk card-battle bot. Communicate with th
 ## Repository contents
 
 Only upload project source, design docs, tests, build scripts, and the current 4.0.0 bundle. Exclude user save data, backups, tokens, environment secrets, local test logs, archives, and old 2.8.5/3.1.0 distribution files.
+
+## GitHub synchronization
+
+The user has authorized ongoing synchronization with `haeil97/Akjilbot`, branch `main`.
+
+- After each requested code or content change, complete the relevant validation, regenerate the bundle when needed, and update GitHub before reporting completion. This is standing authorization; do not repeatedly request approval for routine synchronization.
+- Include the changed source, design/docs/tests, and regenerated distribution file as applicable. Continue excluding secrets, real save data, logs, archives, and obsolete versions.
+- Read the current remote state before writing. Preserve remote changes; never force-push or replace unrelated work.
+- Verify the resulting remote commit or file hashes. Report honestly if synchronization fails or authentication/repository access is unavailable.
+
