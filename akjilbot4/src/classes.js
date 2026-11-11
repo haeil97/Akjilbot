@@ -49,6 +49,7 @@ A4.Classes=(function(){
   case 'leap':x=options(ctx.catalog,pool(ctx.catalog,f.heroId));if(x.length)ctx.discover(s,x,task(s,'generateChoice'));break;
   case 'generateChoice':if(t.choice)ctx.generate(s,t.choice.cardId,{upgraded:!!t.choice.upgraded});break;
   case 'innervate':ctx.mana(s,up?2:1);break;
+  case 'forbiddenHealing':n=f.mana;f.mana=0;ctx.heal(s,n*(up?6:4));break;
   case 'snack':for(n=1;n<=(up?2:1);n++)ctx.schedule(b.turn+n,'STANDBY',{kind:'effect',side:s,card:t.card,effect:{type:'mana',amount:2}});break;
   case 'phytoncide':ctx.draw(s,f.maxMana);break;
   case 'growth':if(f.maxMana<5){f.manaGrowth++;f.maxMana++;A4.Keywords.observe(f);}break;
@@ -151,6 +152,7 @@ A4.Classes=(function(){
   switch(action){
   case 'strike':m.damage=up?9:6;break;case 'guard':m.shield=up?8:5;break;case 'link':m.draw=up?3:2;break;
   case 'regen':m.heal=(up?4:2)*1.7;break;case 'thunderbolt':m.damage=up?10:8;m.control=up?4:3;break;
+  case 'forbiddenHealing':m.heal=Math.max(0,(own.mana||0)-(own.aiPaidBatch?0:d.cost||0))*(up?6:4);m.priority=9;break;
   case 'neutralize':m.damage=up?4:3;m.control=up?3:2;break;case 'chain':m.damage=up?6:4;m.hits=up?3:2;break;
   case 'leap':m.draw=1;m.value=1;break;case 'innervate':m.mana=up?2:1;break;case 'snack':m.value=up?5:3;break;
   case 'phytoncide':m.draw=own.maxMana;break;case 'growth':m.value=own.maxMana<5?6:0;break;case 'entangle':m.control=up?4:3;break;

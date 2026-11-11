@@ -212,14 +212,14 @@ A4.AIEvaluation=(function(){
     case '왕성한 진균':m.draw=3*(deck?1-zoneCount(own,'deck',c,function(d){return d.element==='FIRE';})/deck:0.7);break;
     case '흡수':m.damage=up?6:4;m.draw=crit*(up?2:1);break;
     case '급속 성장':if(number(own.maxMana)<5)m.value=(5-number(own.maxMana))*1.1+5*timeWeight(b);else m.draw=up?2:1;break;
-    case '치유의 손길':m.heal=up?15:10;break;
+    case '치유의 손길':m.shield=up?15:10;break;
     case '먹음직스러운 덥석멜론':for(i=2;i<=5;i++)if(zoneCount(own,'deck',c,function(d){return d.cost===i;}))m.draw++;break;
-    case '풍요':m.heal=up?14:7;m.draw=2;break;
-    case '굽이치는 파도':m.damage=up?8:5;m.heal=damageAfter(own,opp,def,m.damage,b);break;
-    case '기적같은 성장':m.draw=available;m.heal=available*(up?4:2);break;
+    case '풍요':m.shield=up?14:7;m.draw=2;break;
+    case '굽이치는 파도':m.damage=up?8:5;m.shield=damageAfter(own,opp,def,m.damage,b);break;
+    case '기적같은 성장':m.draw=available;m.shield=available*(up?4:2);break;
     case '자연화':m.control=enemyHand?6:0;m.value-=Math.min(up?1:2,Math.max(0,8-enemyHand))*1.2;break;
     case '폭풍 인도기':m.value=zoneCount(own,'deck',c,function(d,x){return !x.upgraded&&!d.treasure&&!d.exclusive&&!d.token;})*(up?1.5:1.1);break;
-    case '접붙이기':m.heal=enemyRest*(up?1.6:0.8);m.control=enemyRest*0.7;break;
+    case '접붙이기':m.shield=enemyRest*(up?1.6:0.8);m.control=enemyRest*0.7;break;
     case '찌릿!':m.damage=up?5:3;m.draw=zoneCount(own,'hand',c,function(d){return d.element==='LIGHTNING';})>1?1:0;break;
     case '선조의 지혜':m.overload=1;m.draw=up?3:2;break;
     case '부스터 팩':m.draw=3;m.value=up?2:0.7;break;
@@ -244,7 +244,7 @@ A4.AIEvaluation=(function(){
     case '윤회':m.draw=up?2:1;m.value=deck>2?1:0;break;
     case '운명':m.value=5.5;break;
     case '예지':m.draw=zoneCount(own,'deck',c,function(d){return d.cost===3;})?1:0;m.value=m.draw&&up?0.6:0;break;
-    case '안도':if(!number(st.previousDamage)){m.draw=up?2:1;m.heal=4;}break;
+    case '안도':if(!number(st.previousDamage)){m.draw=up?2:1;m.shield=5;}break;
     case '심판':holy=zoneCount(own,'rest',c,function(d){return d.element==='HOLY';});m.damage=holy*(up?3:2);break;
     case '계시':m.control=enemyHand?(up?4:2.5):0;m.draw=enemyHand?0.5:0;break;
     case '배교':m.damage=(up?6:3)+(up?6:3)*crit;break;

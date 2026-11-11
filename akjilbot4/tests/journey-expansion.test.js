@@ -16,7 +16,7 @@ function harness(){const files={},c=A.copy(A.catalog),io={list:()=>Object.keys(f
 }
 function win(h){h.mutate((s,u)=>{const b=u.run.battle;b.player.hand=[{uid:A.id(s,'hit-'),cardId:'class:starter_strike',cost:0}];b.enemy.hp=1;b.enemy.shield=0;b.enemyPlan=[];b.enemyPowerPlan=false;b.enemy.status.inhibitorTriggered=true;});h.send('1');}
 test('new neutral pool is exact, class poison cards no longer appear and new families execute at both ranks',()=>{
- assert.equal(A.catalog.cardPool.length,111);assert.equal(A.catalog.cardPool.includes('general:맹독'),false);assert.ok(A.catalog.cardPool.includes('general:살라드라실'));
+ assert.equal(A.catalog.cardPool.length,108);assert.equal(A.catalog.cardPool.includes('general:맹독'),false);assert.ok(A.catalog.cardPool.includes('general:살라드라실'));
  for(const id of A.catalog.cardPool.filter(id=>A.catalog.cards[id].module==='expansion'))for(const up of [false,true]){
   const f=fixture();f.b.player.hp=20;f.b.player.mana=5;f.b.player.hand=[f.card('class:starter_strike'),f.card('class:starter_guard')];f.b.player.deck=[f.card('class:starter_strike'),f.card('class:starter_link')];
   assert.doesNotThrow(()=>f.play(id,up),id);assert.doesNotThrow(()=>JSON.stringify(f.b));

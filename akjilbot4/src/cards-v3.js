@@ -170,15 +170,15 @@ A4.CardRules = (function () {
     case '왕성한 진균':list=draw(ctx,side,3);list.forEach(function(x){if(element(ctx,x)==='FIRE'&&f.hand.some(function(h){return h.uid===x.uid;}))ctx.move(side,x.uid,'rest');});break;
     case '흡수':damage(ctx,enemy,up?6:4);if(t.critical)(up?(t.targets||[]):ctx.sample(t.targets||[],1)).forEach(function(x){movedToHand(ctx,side,enemy,x);});break;
     case '급속 성장':if(f.maxMana>=5)ctx.generate(side,'excess_mana',{upgraded:up});else{f.manaGrowth=(f.manaGrowth||0)+1;f.maxMana=Math.min(5,f.maxMana+1);}break;
-    case '치유의 손길':ctx.heal(side,up?15:10);break;
+    case '치유의 손길':ctx.shield(side,up?15:10);break;
     case '먹음직스러운 덥석멜론':[2,3,4,5].forEach(function(cost){draw(ctx,side,1,function(d,c){return ctx.cost(side,c)===cost;});});break;
-    case '풍요':ctx.heal(side,up?14:7);draw(ctx,side,2);break;
-    case '굽이치는 파도':amount=damage(ctx,enemy,up?8:5);if(typeof amount==='object')amount=amount.amount;ctx.heal(side,typeof amount==='number'?amount:(up?8:5));break;
-    case '기적같은 성장':list=draw(ctx,side,Math.max(0,ctx.limit(side)-f.hand.length));amount=list.reduce(function(sum,x){return sum+ctx.cost(side,x);},0);ctx.heal(side,amount*(up?2:1));break;
+    case '풍요':ctx.shield(side,up?14:7);draw(ctx,side,2);break;
+    case '굽이치는 파도':amount=damage(ctx,enemy,up?8:5);if(typeof amount==='object')amount=amount.amount;ctx.shield(side,typeof amount==='number'?amount:(up?8:5));break;
+    case '기적같은 성장':list=draw(ctx,side,Math.max(0,ctx.limit(side)-f.hand.length));amount=list.reduce(function(sum,x){return sum+ctx.cost(side,x);},0);ctx.shield(side,amount*(up?2:1));break;
     case '자연화':draw(ctx,enemy,up?1:2);break;
     case '폭풍 인도기':
       f.deck.slice().forEach(function(x){if(!x.upgraded&&(ctx.catalog.cardPool||ordinary).indexOf(x.cardId)>=0&&isGeneral(ctx,x)){var id=ctx.pick(pool(ctx));x.cardId=id;x.upgraded=true;costDrop(ctx,x,up?2:1,1);}});break;
-    case '접붙이기':amount=0;foe.rest.slice().forEach(function(x){amount+=ctx.cost(enemy,x);ctx.move(enemy,x.uid,'excluded');});ctx.heal(side,Math.floor(amount*(up?1:0.5)));break;
+    case '접붙이기':amount=0;foe.rest.slice().forEach(function(x){amount+=ctx.cost(enemy,x);ctx.move(enemy,x.uid,'excluded');});ctx.shield(side,Math.floor(amount*(up?1:0.5)));break;
     case '찌릿!':damage(ctx,enemy,up?5:3);if(f.hand.some(function(x){return element(ctx,x)==='LIGHTNING';}))draw(ctx,side,1,function(d){return d.element==='LIGHTNING';});break;
     case '선조의 지혜':ctx.overload(side,1);draw(ctx,side,up?3:2);break;
     case '부스터 팩':for(i=0;i<3;i++)randomCard(ctx,side,null,{upgraded:up||i===0});break;
@@ -204,7 +204,7 @@ A4.CardRules = (function () {
     case '윤회':draw(ctx,side,up?2:1);fromZone(ctx,side,side,'deck','cycle',{remaining:2});break;
     case '운명':ids=pool(ctx).filter(function(id){return ctx.canAutoCast({cardId:id,upgraded:true});});if(ids.length)ctx.cast(side,{cardId:ctx.pick(ids),upgraded:true},{free:true,copy:true});break;
     case '예지':if(up)fromZone(ctx,side,side,'deck','take',{remaining:1},function(x){return ctx.cost(side,x)===3;});else draw(ctx,side,1,function(d,x){return ctx.cost(side,x)===3;});break;
-    case '안도':if(!(s.previousDamage||0)){draw(ctx,side,up?2:1);ctx.heal(side,4);}break;
+    case '안도':if(!(s.previousDamage||0)){draw(ctx,side,up?2:1);ctx.shield(side,5);}break;
     case '심판':count=f.rest.filter(function(x){return element(ctx,x)==='HOLY';}).length;damage(ctx,enemy,count*(up?3:2));break;
     case '계시':fromZone(ctx,side,enemy,'hand','revelation',{upgraded:up});break;
     case '배교':damage(ctx,enemy,t.critical?(up?12:6):(up?6:3));break;

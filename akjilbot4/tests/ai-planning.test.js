@@ -328,7 +328,7 @@ test('full-health AI conserves pure healing but still values hybrid draw and dam
  b.enemy.hp=15;assert.ok(plan(b,c).uids.includes(heal.uid));assert.equal(A.AIEvaluation.evaluateCard(def,b.enemy,b.player,b,c).fullHealthPenalty,0);
  b.enemy.hp=b.enemy.maxHp;b.enemy.deck=[card('ai-test:attack'),card('ai-test:attack')];
  for(const name of ['풍요','굽이치는 파도']){
-  def=A.Battle.describeCard(card(A.CardRules.nameToId(name)),c);const mixed=A.AIEvaluation.evaluateCard(def,b.enemy,b.player,b,c);assert.equal(mixed.fullHealthPenalty,0.75);assert.ok(mixed.score>0);
+  def=A.Battle.describeCard(card(A.CardRules.nameToId(name)),c);const mixed=A.AIEvaluation.evaluateCard(def,b.enemy,b.player,b,c);assert.equal(mixed.fullHealthPenalty,0);assert.equal(mixed.heal,0);assert.ok(mixed.shield>0);assert.ok(mixed.score>0);
  }
  const retaliation=card(A.CardRules.nameToId('신의 권능: 응징'));b.enemy.hand.push(retaliation);assert.equal(A.AIEvaluation.evaluateCard(A.Battle.describeCard(heal,c),b.enemy,b.player,b,c).fullHealthPenalty,0);
 });

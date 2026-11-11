@@ -60,10 +60,10 @@ function harness(seed=99) {
   };
 }
 
-test('production catalog offers Guff and 111 neutral cards; invalid settings never consume a key',()=>{
+test('production catalog offers Guff and 108 neutral cards; invalid settings never consume a key',()=>{
   assert.equal(A4.catalog.config.enabled,true);
   assert.equal(A4.catalog.heroes.length,6);assert.equal(A4.catalog.heroes[0].id,'guff');
-  assert.equal(A4.catalog.heroes[0].cards.length,10);assert.equal(A4.catalog.cardPool.length,111);
+  assert.equal(A4.catalog.heroes[0].cards.length,10);assert.equal(A4.catalog.cardPool.length,108);
   const h=harness();h.call({type:'inventory'});h.catalog.encounters[7]=[];
   const before=h.store.getState();
   assert.throws(()=>h.call({type:'explore'}),/탐험 설정/);

@@ -103,7 +103,6 @@ A4.AIChoices=(function(){
     if(d.rule==='점화'&&own.bossId==='antonidas')value+=2;
     // A defensive pick must be useful at the current health total; the shared
     // evaluator already clips healing and recognises damage-reduction effects.
-    if(missing===0&&d.rule==='치유의 손길')value*=0.55;
     return value;
   }
   function opponentValue(option,b,c,side){

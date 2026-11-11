@@ -68,7 +68,7 @@ A4.catalog = {
   cards: {
     aquatic_form: {name:'수중 동물 변신',element:'NATURE',cost:0,text:'내 덱 맨 밑 3장을 보고 1장을 맨 위에 놓습니다. 남은 마나로 낼 수 있으면 뽑습니다.',effects:[{type:'dredge',amount:3}],upgrade:{innate:true,text:'선천성. 내 덱 맨 밑 3장을 보고 1장을 맨 위에 놓습니다. 남은 마나로 낼 수 있으면 뽑습니다.'}},
     wild_growth: {name:'급속 성장',element:'NATURE',cost:2,excludeOnUse:true,text:'일회용. 최대 마나가 1 증가합니다. 이미 5라면 넘치는 마나를 얻습니다.',effects:[{type:'growMana',amount:1,cardId:'excess_mana'}],upgrade:{innate:true,text:'선천성, 일회용. 최대 마나가 1 증가합니다. 이미 5라면 넘치는 마나+를 얻습니다.',effects:[{type:'growMana',amount:1,cardId:'excess_mana',upgraded:true}]}},
-    healing_touch: {name:'치유의 손길',element:'NATURE',cost:2,text:'체력을 10 회복합니다.',effects:[{type:'heal',amount:10}],upgrade:{text:'체력을 15 회복합니다.',effects:[{type:'heal',amount:15}]}},
+    healing_touch: {name:'치유의 손길',element:'NATURE',cost:2,text:'방어도를 10 얻습니다.',effects:[{type:'shield',amount:10}],upgrade:{text:'방어도를 15 얻습니다.',effects:[{type:'shield',amount:15}]}},
     flash_freeze: {name:'급속 빙결',element:'ICE',cost:1,overpower:true,text:'압도. 피해를 3 줍니다. 치명타: 다음 턴에 상대가 카드를 낼 수 없습니다.',effects:[{type:'damage',amount:3},{type:'lockCards',from:1,until:1,critical:true}],upgrade:{text:'압도. 피해를 5 줍니다. 치명타: 다음 턴의 엔드 페이즈시까지 상대가 카드를 낼 수 없습니다.',effects:[{type:'damage',amount:5},{type:'lockCards',from:0,until:1,critical:true}]}},
     foresight: {name:'초고속',element:'NATURE',cost:1,text:'카드를 뽑습니다. 다음 턴의 두 메인 페이즈에서 상대가 낼 카드를 알 수 있습니다.',effects:[{type:'draw',amount:1},{type:'foresight',amount:1}],upgrade:{text:'카드를 2장 뽑습니다. 다음 턴의 두 메인 페이즈에서 상대가 낼 카드를 알 수 있습니다.',effects:[{type:'draw',amount:2},{type:'foresight',amount:1}]}},
     ancestral_knowledge: {name:'선조의 지혜',element:'LIGHTNING',cost:0,text:'과부하: (1). 카드를 2장 뽑습니다.',effects:[{type:'overload',amount:1},{type:'draw',amount:2}],upgrade:{text:'과부하: (1). 카드를 3장 뽑습니다.',effects:[{type:'overload',amount:1},{type:'draw',amount:3}]}},
@@ -2805,7 +2805,8 @@ A4.content = {
           "guff_snack",
           "guff_phytoncide",
           "guff_growth",
-          "guff_entangle"
+          "guff_entangle",
+          "guff_forbidden_healing"
         ],
         "mechanics": [
           "마나 부스트",
@@ -3022,6 +3023,18 @@ A4.content = {
       }
     ],
     "cards": [
+      {
+        "id": "guff_forbidden_healing",
+        "name": "금단의 치유술",
+        "element": "NATURE",
+        "cost": 0,
+        "text": "마나를 모두 소모합니다. 소모한 마나의 4배만큼의 체력을 회복합니다.",
+        "action": "forbiddenHealing",
+        "upgrade": {
+          "cost": 0,
+          "text": "마나를 모두 소모합니다. 소모한 마나의 6배만큼의 체력을 회복합니다."
+        }
+      },
       {
         "id": "starter_strike",
         "name": "타격",
@@ -4723,7 +4736,7 @@ A4.content = {
       "name": "치유의 손길",
       "element": "NATURE",
       "cost": 2,
-      "text": "체력을 10 회복합니다.",
+      "text": "방어도를 10 얻습니다.",
       "notes": [],
       "sourceLine": 302,
       "id": "healing_touch",
@@ -4731,7 +4744,7 @@ A4.content = {
         "name": "치유의 손길+",
         "element": "NATURE",
         "cost": 2,
-        "text": "체력을 15 회복합니다.",
+        "text": "방어도를 15 얻습니다.",
         "notes": [],
         "sourceLine": 304
       },
@@ -4761,7 +4774,7 @@ A4.content = {
       "name": "풍요",
       "element": "NATURE",
       "cost": 2,
-      "text": "체력을 7 회복합니다. 카드를 2장 뽑습니다.",
+      "text": "방어도를 7 얻습니다. 카드를 2장 뽑습니다.",
       "notes": [],
       "sourceLine": 312,
       "id": "general:풍요",
@@ -4769,7 +4782,7 @@ A4.content = {
         "name": "풍요+",
         "element": "NATURE",
         "cost": 2,
-        "text": "체력을 14 회복합니다. 카드를 2장 뽑습니다.",
+        "text": "방어도를 14 얻습니다. 카드를 2장 뽑습니다.",
         "notes": [],
         "sourceLine": 314
       },
@@ -4779,16 +4792,16 @@ A4.content = {
     {
       "name": "굽이치는 파도",
       "element": "NATURE",
-      "cost": 2,
-      "text": "상대에게 피해를 5 줍니다. 준 피해만큼 체력을 회복합니다.",
+      "cost": 1,
+      "text": "상대에게 피해를 5 줍니다. 준 피해만큼 방어도를 얻습니다.",
       "notes": [],
       "sourceLine": 317,
       "id": "general:굽이치는 파도",
       "upgrade": {
         "name": "굽이치는 파도+",
         "element": "NATURE",
-        "cost": 2,
-        "text": "상대에게 피해를 8 줍니다. 준 피해만큼 체력을 회복합니다.",
+        "cost": 1,
+        "text": "상대에게 피해를 8 줍니다. 준 피해만큼 방어도를 얻습니다.",
         "notes": [],
         "sourceLine": 319
       },
@@ -4799,7 +4812,7 @@ A4.content = {
       "name": "기적같은 성장",
       "element": "NATURE",
       "cost": 3,
-      "text": "내 손이 가득 찰 때까지 카드를 뽑습니다. 그 카드들의 비용의 합만큼 체력을 회복합니다.",
+      "text": "내 손이 가득 찰 때까지 카드를 뽑습니다. 그 카드들의 비용의 합만큼 방어도를 얻습니다.",
       "notes": [],
       "sourceLine": 322,
       "id": "general:기적같은 성장",
@@ -4807,7 +4820,7 @@ A4.content = {
         "name": "기적같은 성장+",
         "element": "NATURE",
         "cost": 3,
-        "text": "내 손이 가득 찰 때까지 카드를 뽑습니다. 그 카드들의 비용의 합의 2배만큼 체력을 회복합니다.",
+        "text": "내 손이 가득 찰 때까지 카드를 뽑습니다. 그 카드들의 비용의 합의 2배만큼 방어도를 얻습니다.",
         "notes": [],
         "sourceLine": 324
       },
@@ -4856,7 +4869,7 @@ A4.content = {
       "name": "접붙이기",
       "element": "NATURE",
       "cost": 5,
-      "text": "상대의 레스트에 있는 모든 카드를 게임에서 제외합니다. 그 카드들의 비용의 합의 절반만큼 체력을 회복합니다.",
+      "text": "상대의 레스트에 있는 모든 카드를 게임에서 제외합니다. 그 카드들의 비용의 합의 절반만큼 방어도를 얻습니다.",
       "notes": [],
       "sourceLine": 338,
       "id": "general:접붙이기",
@@ -4864,7 +4877,7 @@ A4.content = {
         "name": "접붙이기+",
         "element": "NATURE",
         "cost": 5,
-        "text": "상대의 레스트에 있는 모든 카드를 게임에서 제외합니다. 그 카드들의 비용의 합만큼 체력을 회복합니다.",
+        "text": "상대의 레스트에 있는 모든 카드를 게임에서 제외합니다. 그 카드들의 비용의 합만큼 방어도를 얻습니다.",
         "notes": [
           "비용의 합이 홀수일 경우 내림"
         ],
@@ -5333,7 +5346,7 @@ A4.content = {
       "name": "안도",
       "element": "HOLY",
       "cost": 0,
-      "text": "이전 턴에 내가 피해를 입지 않았으면, 카드를 뽑고 체력을 4 회복합니다.",
+      "text": "이전 턴에 내가 피해를 입지 않았으면, 카드를 뽑고 방어도를 5 얻습니다.",
       "notes": [],
       "sourceLine": 475,
       "id": "general:안도",
@@ -5341,7 +5354,7 @@ A4.content = {
         "name": "안도+",
         "element": "HOLY",
         "cost": 0,
-        "text": "이전 턴에 내가 피해를 입지 않았으면, 카드를 2장 뽑고 체력을 4 회복합니다.",
+        "text": "이전 턴에 내가 피해를 입지 않았으면, 카드를 2장 뽑고 방어도를 5 얻습니다.",
         "notes": [],
         "sourceLine": 477
       },
@@ -7119,15 +7132,15 @@ A4.CardRules = (function () {
     case '왕성한 진균':list=draw(ctx,side,3);list.forEach(function(x){if(element(ctx,x)==='FIRE'&&f.hand.some(function(h){return h.uid===x.uid;}))ctx.move(side,x.uid,'rest');});break;
     case '흡수':damage(ctx,enemy,up?6:4);if(t.critical)(up?(t.targets||[]):ctx.sample(t.targets||[],1)).forEach(function(x){movedToHand(ctx,side,enemy,x);});break;
     case '급속 성장':if(f.maxMana>=5)ctx.generate(side,'excess_mana',{upgraded:up});else{f.manaGrowth=(f.manaGrowth||0)+1;f.maxMana=Math.min(5,f.maxMana+1);}break;
-    case '치유의 손길':ctx.heal(side,up?15:10);break;
+    case '치유의 손길':ctx.shield(side,up?15:10);break;
     case '먹음직스러운 덥석멜론':[2,3,4,5].forEach(function(cost){draw(ctx,side,1,function(d,c){return ctx.cost(side,c)===cost;});});break;
-    case '풍요':ctx.heal(side,up?14:7);draw(ctx,side,2);break;
-    case '굽이치는 파도':amount=damage(ctx,enemy,up?8:5);if(typeof amount==='object')amount=amount.amount;ctx.heal(side,typeof amount==='number'?amount:(up?8:5));break;
-    case '기적같은 성장':list=draw(ctx,side,Math.max(0,ctx.limit(side)-f.hand.length));amount=list.reduce(function(sum,x){return sum+ctx.cost(side,x);},0);ctx.heal(side,amount*(up?2:1));break;
+    case '풍요':ctx.shield(side,up?14:7);draw(ctx,side,2);break;
+    case '굽이치는 파도':amount=damage(ctx,enemy,up?8:5);if(typeof amount==='object')amount=amount.amount;ctx.shield(side,typeof amount==='number'?amount:(up?8:5));break;
+    case '기적같은 성장':list=draw(ctx,side,Math.max(0,ctx.limit(side)-f.hand.length));amount=list.reduce(function(sum,x){return sum+ctx.cost(side,x);},0);ctx.shield(side,amount*(up?2:1));break;
     case '자연화':draw(ctx,enemy,up?1:2);break;
     case '폭풍 인도기':
       f.deck.slice().forEach(function(x){if(!x.upgraded&&(ctx.catalog.cardPool||ordinary).indexOf(x.cardId)>=0&&isGeneral(ctx,x)){var id=ctx.pick(pool(ctx));x.cardId=id;x.upgraded=true;costDrop(ctx,x,up?2:1,1);}});break;
-    case '접붙이기':amount=0;foe.rest.slice().forEach(function(x){amount+=ctx.cost(enemy,x);ctx.move(enemy,x.uid,'excluded');});ctx.heal(side,Math.floor(amount*(up?1:0.5)));break;
+    case '접붙이기':amount=0;foe.rest.slice().forEach(function(x){amount+=ctx.cost(enemy,x);ctx.move(enemy,x.uid,'excluded');});ctx.shield(side,Math.floor(amount*(up?1:0.5)));break;
     case '찌릿!':damage(ctx,enemy,up?5:3);if(f.hand.some(function(x){return element(ctx,x)==='LIGHTNING';}))draw(ctx,side,1,function(d){return d.element==='LIGHTNING';});break;
     case '선조의 지혜':ctx.overload(side,1);draw(ctx,side,up?3:2);break;
     case '부스터 팩':for(i=0;i<3;i++)randomCard(ctx,side,null,{upgraded:up||i===0});break;
@@ -7153,7 +7166,7 @@ A4.CardRules = (function () {
     case '윤회':draw(ctx,side,up?2:1);fromZone(ctx,side,side,'deck','cycle',{remaining:2});break;
     case '운명':ids=pool(ctx).filter(function(id){return ctx.canAutoCast({cardId:id,upgraded:true});});if(ids.length)ctx.cast(side,{cardId:ctx.pick(ids),upgraded:true},{free:true,copy:true});break;
     case '예지':if(up)fromZone(ctx,side,side,'deck','take',{remaining:1},function(x){return ctx.cost(side,x)===3;});else draw(ctx,side,1,function(d,x){return ctx.cost(side,x)===3;});break;
-    case '안도':if(!(s.previousDamage||0)){draw(ctx,side,up?2:1);ctx.heal(side,4);}break;
+    case '안도':if(!(s.previousDamage||0)){draw(ctx,side,up?2:1);ctx.shield(side,5);}break;
     case '심판':count=f.rest.filter(function(x){return element(ctx,x)==='HOLY';}).length;damage(ctx,enemy,count*(up?3:2));break;
     case '계시':fromZone(ctx,side,enemy,'hand','revelation',{upgraded:up});break;
     case '배교':damage(ctx,enemy,t.critical?(up?12:6):(up?6:3));break;
@@ -8223,6 +8236,7 @@ A4.Classes=(function(){
   case 'leap':x=options(ctx.catalog,pool(ctx.catalog,f.heroId));if(x.length)ctx.discover(s,x,task(s,'generateChoice'));break;
   case 'generateChoice':if(t.choice)ctx.generate(s,t.choice.cardId,{upgraded:!!t.choice.upgraded});break;
   case 'innervate':ctx.mana(s,up?2:1);break;
+  case 'forbiddenHealing':n=f.mana;f.mana=0;ctx.heal(s,n*(up?6:4));break;
   case 'snack':for(n=1;n<=(up?2:1);n++)ctx.schedule(b.turn+n,'STANDBY',{kind:'effect',side:s,card:t.card,effect:{type:'mana',amount:2}});break;
   case 'phytoncide':ctx.draw(s,f.maxMana);break;
   case 'growth':if(f.maxMana<5){f.manaGrowth++;f.maxMana++;A4.Keywords.observe(f);}break;
@@ -8325,6 +8339,7 @@ A4.Classes=(function(){
   switch(action){
   case 'strike':m.damage=up?9:6;break;case 'guard':m.shield=up?8:5;break;case 'link':m.draw=up?3:2;break;
   case 'regen':m.heal=(up?4:2)*1.7;break;case 'thunderbolt':m.damage=up?10:8;m.control=up?4:3;break;
+  case 'forbiddenHealing':m.heal=Math.max(0,(own.mana||0)-(own.aiPaidBatch?0:d.cost||0))*(up?6:4);m.priority=9;break;
   case 'neutralize':m.damage=up?4:3;m.control=up?3:2;break;case 'chain':m.damage=up?6:4;m.hits=up?3:2;break;
   case 'leap':m.draw=1;m.value=1;break;case 'innervate':m.mana=up?2:1;break;case 'snack':m.value=up?5:3;break;
   case 'phytoncide':m.draw=own.maxMana;break;case 'growth':m.value=own.maxMana<5?6:0;break;case 'entangle':m.control=up?4:3;break;
@@ -8380,7 +8395,7 @@ A4.Expansion=(function(){
  ['singularity','high','특이점','내 카드들이 게임에서 제외될 때마다 무작위 하급 보물을 내 손으로 가져옵니다.'],
  ['emerald_goggles','high','에메랄드 고글','내 손패에서 첫 번째에 있는 카드의 비용이 (1) 감소합니다.']
  ];
- var allowed='과열|금단의 불꽃|벼려내기|불길|영혼관|마나 연소|불장난|소각|작열통|절멸|점화|제독|태양 작렬|폭발의 룬|화염 장막|화염구|화염포|플레어드라이브|불씨|백드래프트|번아웃|불타는 가위|화염 제단|불안정한 원소|불덩이 작렬|겨울의 뿔피리|아쿠아링|급속 빙결|냉동 캡슐|대 한파|동면|북부 항해|얼어붙은 버클러|얼음 거울|얼음 덫|얼음 방패|완전 빙결|확고한 알리바이|방한 고글|얼음 회오리|칼바람|심호흡|수중 동물 변신|금단의 치유술|광합성|먹음직스러운 덥석멜론|산사태|살아 움직이는 숲|왕성한 진균|이슬 절차|자연의 해독|초고속|흡수|가속|굽이치는 파도|치유의 손길|풍요|강풍|꿈 숨결|기적같은 성장|자연화|폭풍 인도기|살라드라실|궁극의 역병|접붙이기|부스터 팩|선조의 지혜|전선|찌릿!|초과 인출|이건 내 거야!|긴급 차단|단락|마비|무덤의 지명자|믹스테이프|전류 공급|전이|천둥|충전|파지직|송전|볼트태클|두꺼비집|번개|연쇄 번개|고철 더미에서|마법공학: 니비루|마법공학: 아틀라스|마법공학: 퓨즈|기도|안도|예지|윤회|하늘의 선물|계시|배교|불굴|성지순례|심판|운명|축성|필연|황금궤|성전|축복|신의 권능: 가속|신의 권능: 성역|신의 권능: 응징|신의 권능: 재생|신의 권능: 징벌'.split('|');
+ var allowed='과열|금단의 불꽃|벼려내기|불길|영혼관|마나 연소|불장난|소각|작열통|절멸|점화|제독|태양 작렬|폭발의 룬|화염 장막|화염구|화염포|플레어드라이브|불씨|백드래프트|번아웃|불타는 가위|화염 제단|불안정한 원소|불덩이 작렬|겨울의 뿔피리|아쿠아링|급속 빙결|냉동 캡슐|대 한파|동면|북부 항해|얼어붙은 버클러|얼음 거울|얼음 덫|얼음 방패|완전 빙결|확고한 알리바이|방한 고글|얼음 회오리|칼바람|심호흡|수중 동물 변신|광합성|먹음직스러운 덥석멜론|산사태|살아 움직이는 숲|왕성한 진균|이슬 절차|초고속|흡수|가속|굽이치는 파도|치유의 손길|풍요|강풍|꿈 숨결|기적같은 성장|자연화|폭풍 인도기|살라드라실|궁극의 역병|접붙이기|부스터 팩|선조의 지혜|전선|찌릿!|초과 인출|이건 내 거야!|긴급 차단|단락|마비|무덤의 지명자|믹스테이프|전류 공급|전이|천둥|충전|파지직|송전|볼트태클|두꺼비집|번개|연쇄 번개|고철 더미에서|마법공학: 니비루|마법공학: 아틀라스|마법공학: 퓨즈|기도|안도|예지|윤회|하늘의 선물|계시|배교|불굴|성지순례|심판|운명|축성|필연|황금궤|성전|축복|신의 권능: 가속|신의 권능: 성역|신의 권능: 응징|신의 권능: 징벌'.split('|');
  function own(f,id){return A4.TreasureRules.owns(f,id);}
  function state(f){return f.status.expansion||(f.status.expansion={});}
  function task(s,op,extra){var t={module:'expansion',side:s,op:op};Object.keys(extra||{}).forEach(function(k){t[k]=extra[k];});return t;}
@@ -9313,14 +9328,14 @@ A4.AIEvaluation=(function(){
     case '왕성한 진균':m.draw=3*(deck?1-zoneCount(own,'deck',c,function(d){return d.element==='FIRE';})/deck:0.7);break;
     case '흡수':m.damage=up?6:4;m.draw=crit*(up?2:1);break;
     case '급속 성장':if(number(own.maxMana)<5)m.value=(5-number(own.maxMana))*1.1+5*timeWeight(b);else m.draw=up?2:1;break;
-    case '치유의 손길':m.heal=up?15:10;break;
+    case '치유의 손길':m.shield=up?15:10;break;
     case '먹음직스러운 덥석멜론':for(i=2;i<=5;i++)if(zoneCount(own,'deck',c,function(d){return d.cost===i;}))m.draw++;break;
-    case '풍요':m.heal=up?14:7;m.draw=2;break;
-    case '굽이치는 파도':m.damage=up?8:5;m.heal=damageAfter(own,opp,def,m.damage,b);break;
-    case '기적같은 성장':m.draw=available;m.heal=available*(up?4:2);break;
+    case '풍요':m.shield=up?14:7;m.draw=2;break;
+    case '굽이치는 파도':m.damage=up?8:5;m.shield=damageAfter(own,opp,def,m.damage,b);break;
+    case '기적같은 성장':m.draw=available;m.shield=available*(up?4:2);break;
     case '자연화':m.control=enemyHand?6:0;m.value-=Math.min(up?1:2,Math.max(0,8-enemyHand))*1.2;break;
     case '폭풍 인도기':m.value=zoneCount(own,'deck',c,function(d,x){return !x.upgraded&&!d.treasure&&!d.exclusive&&!d.token;})*(up?1.5:1.1);break;
-    case '접붙이기':m.heal=enemyRest*(up?1.6:0.8);m.control=enemyRest*0.7;break;
+    case '접붙이기':m.shield=enemyRest*(up?1.6:0.8);m.control=enemyRest*0.7;break;
     case '찌릿!':m.damage=up?5:3;m.draw=zoneCount(own,'hand',c,function(d){return d.element==='LIGHTNING';})>1?1:0;break;
     case '선조의 지혜':m.overload=1;m.draw=up?3:2;break;
     case '부스터 팩':m.draw=3;m.value=up?2:0.7;break;
@@ -9345,7 +9360,7 @@ A4.AIEvaluation=(function(){
     case '윤회':m.draw=up?2:1;m.value=deck>2?1:0;break;
     case '운명':m.value=5.5;break;
     case '예지':m.draw=zoneCount(own,'deck',c,function(d){return d.cost===3;})?1:0;m.value=m.draw&&up?0.6:0;break;
-    case '안도':if(!number(st.previousDamage)){m.draw=up?2:1;m.heal=4;}break;
+    case '안도':if(!number(st.previousDamage)){m.draw=up?2:1;m.shield=5;}break;
     case '심판':holy=zoneCount(own,'rest',c,function(d){return d.element==='HOLY';});m.damage=holy*(up?3:2);break;
     case '계시':m.control=enemyHand?(up?4:2.5):0;m.draw=enemyHand?0.5:0;break;
     case '배교':m.damage=(up?6:3)+(up?6:3)*crit;break;
@@ -9782,7 +9797,6 @@ A4.AIChoices=(function(){
     if(d.rule==='점화'&&own.bossId==='antonidas')value+=2;
      
      
-    if(missing===0&&d.rule==='치유의 손길')value*=0.55;
     return value;
   }
   function opponentValue(option,b,c,side){

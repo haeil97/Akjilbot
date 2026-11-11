@@ -36,7 +36,8 @@
         "guff_snack",
         "guff_phytoncide",
         "guff_growth",
-        "guff_entangle"
+        "guff_entangle",
+        "guff_forbidden_healing"
       ],
       "mechanics": [
         "마나 부스트",
@@ -253,6 +254,18 @@
     }
   ],
   "cards": [
+    {
+      "id": "guff_forbidden_healing",
+      "name": "금단의 치유술",
+      "element": "NATURE",
+      "cost": 0,
+      "text": "마나를 모두 소모합니다. 소모한 마나의 4배만큼의 체력을 회복합니다.",
+      "action": "forbiddenHealing",
+      "upgrade": {
+        "cost": 0,
+        "text": "마나를 모두 소모합니다. 소모한 마나의 6배만큼의 체력을 회복합니다."
+      }
+    },
     {
       "id": "starter_strike",
       "name": "타격",
