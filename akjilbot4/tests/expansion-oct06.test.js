@@ -29,7 +29,7 @@ test('Patchwerk caps current and maximum HP at 100, and empty Execution is silen
 });
 test('chain lightning costs two in both ranks and heroes have their current starter deck sizes',()=>{
  assert.equal(A.catalog.heroes.length,6);
- for(const hero of A.catalog.heroes){assert.equal(hero.cards.length,hero.enabled===false?0:10);for(const id of hero.cards)assert.ok(A.catalog.cards[id]);}
+ for(const hero of A.catalog.heroes){assert.equal(hero.cards.length,10);for(const id of hero.cards)assert.ok(A.catalog.cards[id]);}
  const d=A.catalog.cards[A.CardRules.nameToId('연쇄 번개')];assert.equal(d.cost,2);assert.equal(d.upgrade.cost,2);
 });
 test('poison survives saves, ticks once per standby, decays and uses no card damage bonus',()=>{

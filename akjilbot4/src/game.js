@@ -217,7 +217,7 @@ A4.Game = (function () {
       A4.assert(user.items.keys >= 1,'미궁 열쇠가 부족합니다.');
       user.items.keys--;
       user.run = {id:A4.id(state,'run-'),startedAt:now,wins:0,gold:0,journeyVersion:catalog.config.engineVersion===3?2:1,phase:'HERO',hero:null,deck:[],treasures:{},effects:[],queue:[],pending:null,battle:null};
-      user.run.pending = {id:A4.id(state,'choice-'),kind:'hero',options:catalog.heroes.map(function (s) { return s.id; })};
+      user.run.pending = {id:A4.id(state,'choice-'),kind:'hero',options:catalog.heroes.filter(function (s) { return s.enabled!==false; }).map(function (s) { return s.id; })};
     } else if (user.run.phase === 'READY') offerBattle(state,user,catalog,rng);
     user.session = {room:room,until:now+catalog.config.sessionTimeoutMs};
     return {kind:'run'};
@@ -371,6 +371,7 @@ A4.Game = (function () {
     // Refresh saved Nurture definitions without replacing copied hero powers.
     if(user.run){
       var run=user.run;
+      if(run.phase==='HERO'&&run.pending&&run.pending.kind==='hero')run.pending.options=catalog.heroes.filter(function(h){return h.enabled!==false;}).map(function(h){return h.id;});
       Object.keys(run.treasures||{}).forEach(function(slot){
         if(run.treasures[slot]==='hearthstone'&&!run.deck.some(function(x){return x.cardId==='treasure_hearthstone';})){
           var converted={uid:A4.id(state,'card-'),cardId:'treasure_hearthstone',upgraded:false,treasureSlot:slot};run.deck.push(converted);

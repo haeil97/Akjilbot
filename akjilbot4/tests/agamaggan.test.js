@@ -11,9 +11,10 @@ function setup(){
  const play=(id,up=false)=>{const x=card(id,up);b.player.inFlight.push(x);job({kind:'card',side:'player',module:'classes',card:x,def:A.Battle.describeCard(x,c)});return x;};
  return {c,h,get b(){return b;},card,ctx,job,power,play,reload(){b=A.copy(b);}};
 }
-test('Agamaggan is selectable with exactly Crescendo two, Guard three, Saturation three and Blood Ritual two',()=>{
- const h=A.catalog.heroes.find(x=>x.id==='agamaggan');assert.equal(h.enabled,true);assert.deepEqual(h.cards.map(id=>A.catalog.cards[id].name),['크레센도','크레센도','수비','수비','수비','포화','포화','포화','혈석 의식','혈석 의식']);
- const files={},io={list:()=>Object.keys(files),read:n=>files[n],writeNewDurable(n,v){files[n]=v;}},store=A.Store.create(io);store.load(A.newState(42));const app=A.App.create(store,A.catalog);let event=0;
+test('Agamaggan retains its ten-card starter and can be re-enabled',()=>{
+ const h=A.catalog.heroes.find(x=>x.id==='agamaggan');assert.equal(h.enabled,false);assert.deepEqual(h.cards.map(id=>A.catalog.cards[id].name),['크레센도','크레센도','수비','수비','수비','포화','포화','포화','혈석 의식','혈석 의식']);
+ const c=A.copy(A.catalog);c.heroes.forEach(x=>{x.enabled=true;});
+ const files={},io={list:()=>Object.keys(files),read:n=>files[n],writeNewDurable(n,v){files[n]=v;}},store=A.Store.create(io);store.load(A.newState(42));const app=A.App.create(store,c);let event=0;
  const send=text=>app.handle({text,identity:'blood-player',name:'테스터',room:'개발123',now:1000,eventId:'blood-event-'+(++event)});send('+탐험');send('5');send('y');const u=Object.values(store.getState().users)[0];assert.equal(u.run.hero.id,'agamaggan');assert.equal(u.run.deck.length,10);assert.equal(u.run.battle.player.bloodstones,0);assert.equal(u.run.battle.player.startingTreasureId,'great_blood');
 });
 test('blood cards pay bloodstones instead of mana, reserve their entire batch and cannot spend stones produced by the same submission',()=>{
@@ -62,6 +63,7 @@ test('automatic Boar Altar bloodcraft consumes the ritual mode and unlocks ritua
 });
 test('spent stones persist through victory, durable reload, rewards and the next encounter while Great Blood heals twelve',()=>{
  const c=A.copy(A.catalog),files={},io={list:()=>Object.keys(files),read:n=>files[n],writeNewDurable(n,v){files[n]=v;}};let store,app,event=0;
+ c.heroes.forEach(h=>{h.enabled=true;});
  function open(){store=A.Store.create(io);store.load(A.newState(123));app=A.App.create(store,c);}open();
  const user=()=>Object.values(store.getState().users)[0],send=text=>app.handle({text,identity:'blood-carry',name:'테스터',room:'개발123',now:1000,eventId:'carry-'+(++event)});
  send('+탐험');send('5');send('y');store.transact('arrange winning fatigue',s=>{const r=Object.values(s.users)[0].run,b=r.battle;r.bloodstones=2;b.player.bloodstones=2;b.player.hp=20;b.player.mana=0;b.player.hand=[{uid:'carry-crescendo',cardId:'class:agamaggan_crescendo'}];b.enemy.hp=1;b.enemy.shield=0;b.enemyPlan=[];b.enemyPowerPlan=false;});

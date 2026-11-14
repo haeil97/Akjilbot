@@ -12,6 +12,7 @@ function request(text,extra={}){return Object.assign({identity:ID,name:'실제 �
 function harness(t){
   const root=fs.mkdtempSync(path.join(os.tmpdir(),'akjil4-production-'));
   const c=JSON.parse(JSON.stringify(A4.catalog));
+  c.heroes.forEach(h=>{h.enabled=true;}); // Exercise retained classes independently of production selection availability.
   const h={root,c,store:null,io:null,app:null};
   h.open=function(){h.io=A4.Store.nodeIO(root,require);h.store=A4.Store.create(h.io);h.store.load(A4.newState(871236541));h.app=A4.App.create(h.store,c);return h;};
   h.reopen=function(){h.store.close();return h.open();};
@@ -107,7 +108,7 @@ test('production settings enable all cards and treasures with exact rooms, timeo
   const h=harness(t);assert.equal(h.c.config.enabled,true);assert.equal(h.c.config.engineVersion,3);assert.deepEqual(A4.validateCatalog(h.c),[]);
   assert.deepEqual(h.c.config.rooms,{live:['옥랜111','옥랜222'],test:['개발123']});assert.equal(h.c.config.sessionTimeoutMs,60000);
   assert.deepEqual(h.c.config.playerMaxHpByStage,Array(8).fill(60));
-  assert.equal(h.c.neutralTreasurePool.length,62);assert.equal(h.c.cardPool.length,111);
+  assert.equal(h.c.neutralTreasurePool.length,62);assert.equal(h.c.cardPool.length,108);
   const full=h.send('+인벤'),alias=h.send('+ㅇㅂ',{room:'옥랜222'});assert.equal(full,alias);assert.match(alias,/코인/);assert.match(alias,/🔑 🔑 🔑 🔑 🔑/);assert.doesNotMatch(alias,/강화석|정수/);
   assert.equal(Object.keys(h.store.getState().users).length,1);assert.equal(h.user().items.keys,5);
   assert.match(h.send('+상점'),/준비 중|정해지지/);assert.match(h.send('+유물'),/준비 중/);assert.throws(()=>h.send('+뽑기 low'),/준비 중/);
@@ -549,8 +550,8 @@ test('lamp searches ordinary base cards, supports n, keeps total deadline and re
  const first=h.send('1');assert.equal(first,'⚔️ 제피르스의 램프 ⚔️\n\n+카드명으로 원하는 카드명을 검색하세요.');
  const deadline=h.user().run.battle.mainDeadline;assert.equal(deadline,NOW+120000);
  assert.equal(h.send('+독',{identity:'outsider',now:NOW+1000}),null);
- const found=h.send('+독',{now:NOW+10000});assert.match(found,/자연의 해독/);assert.match(found,/1 \/ 2 \/ n/);assert.doesNotMatch(found,/⚔️ 탐험 1/);
- let p=h.user().run.battle.pendingChoice;assert.equal(p.options.length,2);assert.ok(p.options.every(x=>!x.upgraded&&h.c.cardPool.includes(x.cardId)));
+ const found=h.send('+독',{now:NOW+10000});assert.match(found,/제독/);assert.doesNotMatch(found,/자연의 해독/);assert.match(found,/1 \/ n/);assert.doesNotMatch(found,/⚔️ 탐험 1/);
+ let p=h.user().run.battle.pendingChoice;assert.equal(p.options.length,1);assert.ok(p.options.every(x=>!x.upgraded&&h.c.cardPool.includes(x.cardId)));
  h.reopen();assert.equal(h.user().run.battle.mainDeadline,deadline);
  assert.equal(h.send('n',{now:NOW+20000}),first);assert.equal(h.user().run.battle.mainDeadline,deadline);
  h.send('+독',{now:NOW+30000});const selected=h.user().run.battle.pendingChoice.options[0].cardId;

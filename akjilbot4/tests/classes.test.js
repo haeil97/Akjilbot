@@ -11,12 +11,13 @@ function fixture(heroId='guff',shrineId){
  function ctx(){return A.Battle.context(b,c,()=>.3,{side:'player'},[]);}
  return {b,c,hero,card,job,settle,play,ctx};
 }
-function harness(){const files={},c=A.copy(A.catalog),io={list:()=>Object.keys(files),read:n=>files[n],writeNewDurable(n,v){files[n]=v;}};let store,app,now=1000,event=0;
+function harness(enableAll=true){const files={},c=A.copy(A.catalog),io={list:()=>Object.keys(files),read:n=>files[n],writeNewDurable(n,v){files[n]=v;}};let store,app,now=1000,event=0;
+ if(enableAll)c.heroes.forEach(h=>{h.enabled=true;});
  function open(){store=A.Store.create(io);store.load(A.newState(42));app=A.App.create(store,c);}open();
  return {c,get store(){return store;},get app(){return app;},send(text){return app.handle({text,identity:'class-user',name:'테스터',room:'개발123',now:now++,eventId:'class-event-'+(++event)});},user(){const s=store.getState();return s.users[s.identities['identity:class-user']];},reopen(){store.close();open();}};
 }
-test('all six classes are selectable with ten-card starting decks',()=>{
- assert.equal(A.catalog.heroes.length,6);assert.deepEqual(A.catalog.heroes.filter(h=>h.enabled!==false).map(h=>h.cards.length),[10,10,10,10,10,10]);
+test('all six class definitions retain ten-card starting decks and can be re-enabled',()=>{
+ assert.equal(A.catalog.heroes.length,6);assert.deepEqual(A.catalog.heroes.map(h=>h.cards.length),[10,10,10,10,10,10]);
  const h=harness(),screen=h.send('+탐험');for(const hero of h.c.heroes)assert.ok(screen.includes(hero.name));
  h.send('6');assert.equal(h.user().run.hero.id,'nautilus');
  assert.deepEqual(h.user().run.deck.map(x=>x.cardId),[
@@ -30,6 +31,21 @@ test('all six classes are selectable with ten-card starting decks',()=>{
  assert.equal(h.user().run.battle.player.startingTreasureId,'bilgewater_tribute');
  for(const id of ['guff','silent','celeste','thekal'])assert.ok(h.c.startingTreasures[h.c.heroes.find(h=>h.id===id).startingTreasureId]);
 });
+test('only Guff appears in production selection, including saved selection screens',()=>{
+ assert.deepEqual(A.catalog.heroes.filter(h=>h.enabled!==false).map(h=>h.id),['guff']);
+ const h=harness(false),screen=h.send('+탐험');assert.ok(screen.includes(h.c.heroes[0].name));
+ for(const hero of h.c.heroes.slice(1))assert.ok(!screen.includes(hero.name));
+ assert.deepEqual(h.user().run.pending.options,['guff']);assert.throws(()=>h.send('2'),/선택 번호/);
+ h.store.transact('restore old selection',s=>{Object.values(s.users)[0].run.pending.options=h.c.heroes.map(x=>x.id);});
+ h.reopen();h.send('+탐험');assert.deepEqual(h.user().run.pending.options,['guff']);h.send('1');assert.equal(h.user().run.hero.id,'guff');
+});
+
+test('disabling a class preserves its already selected exploration',()=>{
+ const h=harness();h.send('+탐험');h.send('2');const deck=A.copy(h.user().run.deck);
+ h.c.heroes.find(x=>x.id==='silent').enabled=false;h.reopen();h.send('+탐험');
+ assert.equal(h.user().run.hero.id,'silent');assert.deepEqual(h.user().run.deck,deck);h.send('y');assert.equal(h.user().run.battle.player.heroId,'silent');
+});
+
 test('hero selection uses exact new starting decks and abilities without putting starter treasures into reward slots',()=>{
  for(let index=1;index<=4;index++){
   const h=harness();h.send('+탐험');h.send(String(index));const run=h.user().run,hero=h.c.heroes[index-1];assert.deepEqual(run.deck.map(x=>x.cardId),hero.cards);assert.deepEqual(run.treasures,{});

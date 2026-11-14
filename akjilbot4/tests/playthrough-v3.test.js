@@ -36,7 +36,7 @@ function playerPlan(b,rng){
 for(const seed of [27,443,9127])test('all twenty-six opponent battles resolve after repeated saved-state reloads, seed '+seed,t=>{
   metrics={decisions:0,simulations:0,truncated:0,elapsed:0,maxMs:0,errors:[]};
   for(const [enemyIndex,enemy] of content.opponentDecks.enemies.entries()){
-    const stage=enemy.stages[enemy.stages.length-1],state=A.newState(seed),rng=A.random(state),hero=catalog.heroes.filter(h=>h.enabled!==false)[(enemyIndex+seed)%4];
+    const stage=enemy.stages[enemy.stages.length-1],state=A.newState(seed),rng=A.random(state),hero=catalog.heroes[(enemyIndex+seed)%4];
     const deck=hero.cards.map(id=>({uid:A.id(state,'run-card-'),cardId:id,upgraded:false}));
     for(let n=0;n<(stage-1)*2;n++)deck.push({uid:A.id(state,'run-card-'),cardId:A.pick(hero.classPool,rng),upgraded:n%5===0});
     const run={wins:stage-1,hero:A.copy(hero),deck,treasures:{}};

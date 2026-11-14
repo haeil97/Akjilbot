@@ -47,6 +47,8 @@
     },
     {
       "id": "silent",
+      "enabled": false,
+      "incompleteReason": "일시 비활성화",
       "name": "사일런트",
       "power": {
         "id": "swift",
@@ -91,6 +93,8 @@
     },
     {
       "id": "celeste",
+      "enabled": false,
+      "incompleteReason": "일시 비활성화",
       "name": "운룡 셀레스테",
       "power": {
         "id": "inquiry",
@@ -126,6 +130,8 @@
     },
     {
       "id": "thekal",
+      "enabled": false,
+      "incompleteReason": "일시 비활성화",
       "name": "대사제 데칼",
       "power": {
         "id": "loa_call",
@@ -164,7 +170,8 @@
     {
       "id": "agamaggan",
       "name": "위대한 멧돼지 아감마간",
-      "enabled": true,
+      "enabled": false,
+      "incompleteReason": "일시 비활성화",
       "power": {
         "id": "bloodcraft",
         "name": "혈석 제작",
@@ -206,7 +213,8 @@
     {
       "id": "nautilus",
       "name": "심해의 타이탄 노틸러스",
-      "enabled": true,
+      "enabled": false,
+      "incompleteReason": "일시 비활성화",
       "power": {
         "id": "anchor_pull",
         "name": "닻줄 견인",
