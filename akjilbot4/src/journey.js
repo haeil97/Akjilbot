@@ -6,17 +6,18 @@ A4.Journey=(function(){
   function cards(run,c){return run.deck.filter(function(x){var d=c.cards[x.cardId];return d&&d.upgrade&&!x.upgraded&&!d.treasure&&!x.treasureSlot;});}
   function show(state,run,kind,options,extra){run.phase='REWARD';run.pending={id:A4.id(state,'choice-'),kind:kind,options:A4.copy(options),extra:extra||null};}
   function pool(run,c){var hero=c.heroes.filter(function(x){return x.id===run.hero.id;})[0];return (hero&&hero.classPool||run.hero.classPool||[]).filter(function(id){return !!c.cards[id];});}
-  function price(run,value){return own(run,'vip_membership')?Math.max(1,value-1):value;}
+  function price(run,value,rng){return value;}
   function cardPrice(c,id){var d=c.cards[id];return d.shopPrice||Math.min(6,3+Math.max(0,d.cost||0));}
   function add(state,run,id){var x={uid:A4.id(state,'card-'),cardId:id,upgraded:false};run.deck.push(x);return x;}
   function stock(run,c,rng){
     var out=[],privatePool=pool(run,c),ordinary=c.cardPool||[];
-    function offer(ids,n,kind){var available=ids.slice();for(var i=0;i<n&&ids.length;i++){if(!available.length)available=ids.slice();var id=A4.pick(available,rng);available.splice(available.indexOf(id),1);out.push({kind:kind,cardId:id,price:price(run,cardPrice(c,id)),sold:false});}}
+    function offer(ids,n,kind){var available=ids.slice();for(var i=0;i<n&&ids.length;i++){if(!available.length)available=ids.slice();var id=A4.pick(available,rng);available.splice(available.indexOf(id),1);out.push({kind:kind,cardId:id,price:price(run,cardPrice(c,id),rng),sold:false});}}
     offer(privatePool,3,'card');offer(ordinary,2,'card');
-    out.push({kind:'remove',price:price(run,3+Math.max(0,run.wins-1)*2),sold:false});
+    out.push({kind:'remove',price:price(run,3+Math.max(0,run.wins-1)*2,rng),sold:false});
     var health=Math.max(0,Math.min(1,(run.hp===undefined?cap(run,c):run.hp)/cap(run,c)));
-    if(rng()<0.15+0.7*(1-health))out.push({kind:'potion',amount:10,price:price(run,4),sold:false});
-    if(cards(run,c).length&&rng()<0.15+0.7*health)out.push({kind:'upgrade',price:price(run,5),sold:false});
+    if(rng()<0.15+0.7*(1-health))out.push({kind:'potion',amount:10,price:price(run,4,rng),sold:false});
+    if(cards(run,c).length&&rng()<0.15+0.7*health)out.push({kind:'upgrade',price:price(run,5,rng),sold:false});
+    if(own(run,'vip_membership'))out.forEach(function(item){item.originalPrice=item.price;item.discountPercent=10+Math.floor(rng()*21);item.price=Math.max(1,Math.floor(item.originalPrice*(100-item.discountPercent)/100));});
     return out;
   }
   function next(state,user,c,rng){

@@ -128,9 +128,11 @@ A4.CardRules = (function () {
     case '작열통': damage(ctx,enemy,up?10:6);status(ctx,enemy,'healScale',{until:now+2,value:up?0:0.5});break;
     case '영혼관':draw(ctx,side,3,null,up?{}:{temporaryUntil:temporaryUntil(ctx)});break;
     case '불장난':damage(ctx,enemy,up?6:4);later(ctx,now+1,'STANDBY','returnRest',{uid:card.uid});break;
-    case '태양 작렬':status(ctx,enemy,'solar',{until:now+1,amount:0,burst:up?15:10,sourceSide:side,sourceCard:ctx.copy(card)});break;
+    case '태양 작렬':
+      var solarTarget=A4.Minions&&A4.Minions.resolve(ctx,enemy,'choose')[0],solar={kind:'solar',from:now,until:now+1,amount:0,burst:up?15:10,sourceSide:side,sourceCard:ctx.copy(card)};
+      if(solarTarget&&solarTarget.uid)solarTarget.status.cards.effects.push(solar);else status(ctx,enemy,'solar',solar);break;
     case '화염 장막':status(ctx,side,'flameVeil',{until:now+1,amount:up?5:3,sourceCard:ctx.copy(card)});break;
-    case '점화':damage(ctx,enemy,5+(s.ignite||0));s.ignite=(s.ignite||0)+5;break;
+    case '점화':damage(ctx,enemy,(up?6:5)+(s.ignite||0));s.ignite=(s.ignite||0)+(up?6:5);break;
     case '폭발의 룬':damage(ctx,enemy,up?8:4);if(t.critical)damage(ctx,enemy,up?12:6);break;
     case '절멸':if(!up)damage(ctx,side,5);break;
     case '백드래프트':damage(ctx,enemy,f.deck.length);break;
@@ -148,7 +150,7 @@ A4.CardRules = (function () {
     case '되감기':damage(ctx,enemy,up?4:2);chosen=ctx.pick(f.rest.filter(function(x){return ctx.canAutoCast(x);}));if(chosen)ctx.cast(side,chosen,{free:true,copy:true});break;
     case '급속 빙결':damage(ctx,enemy,up?5:3);if(t.critical)lock(ctx,enemy,up?0:1,1);break;
     case '얼음 덫':ctx.choose(side,['FIRE','NATURE','LIGHTNING','ICE','HOLY'].map(function(x){return {id:x,name:x};}),task(ctx,'iceTrap',{upgraded:up}),{label:'다음 턴에 카운터할 속성을 선택하세요.'});break;
-    case '얼어붙은 버클러':ctx.shield(side,10);later(ctx,now+(up?3:2),'STANDBY','loseShield',{amount:10});break;
+    case '얼어붙은 버클러':ctx.shield(side,12);if(!up)status(ctx,side,'disarm',{from:now+1,until:now+1});break;
     case '냉동 캡슐':e=status(ctx,side,'capsule',{until:now+1,amount:0,multiplier:up?2:1,sourceCard:ctx.copy(card),key:card.uid+':'+now});later(ctx,e.until,'END','capsule',{key:e.key});break;
     case '서리 저주':ctx.generate(enemy,names['고드름'],{upgraded:up});break;
     case '동면':fromZone(ctx,side,enemy,'hand','hibernate',{upgraded:up});break;
@@ -177,7 +179,7 @@ A4.CardRules = (function () {
     case '기적같은 성장':list=draw(ctx,side,Math.max(0,ctx.limit(side)-f.hand.length));amount=list.reduce(function(sum,x){return sum+ctx.cost(side,x);},0);ctx.shield(side,amount*(up?2:1));break;
     case '자연화':draw(ctx,enemy,up?1:2);break;
     case '폭풍 인도기':
-      f.deck.slice().forEach(function(x){if(!x.upgraded&&(ctx.catalog.cardPool||ordinary).indexOf(x.cardId)>=0&&isGeneral(ctx,x)){var id=ctx.pick(pool(ctx));x.cardId=id;x.upgraded=true;costDrop(ctx,x,up?2:1,1);}});break;
+      f.deck.slice().forEach(function(x){if(!x.upgraded&&(ctx.catalog.cardPool||ordinary).indexOf(x.cardId)>=0&&isGeneral(ctx,x)){var id=ctx.pick(pool(ctx));x.cardId=id;x.upgraded=true;costDrop(ctx,x,up?2:1,0);}});break;
     case '접붙이기':amount=0;foe.rest.slice().forEach(function(x){amount+=ctx.cost(enemy,x);ctx.move(enemy,x.uid,'excluded');});ctx.shield(side,Math.floor(amount*(up?1:0.5)));break;
     case '찌릿!':damage(ctx,enemy,up?5:3);if(f.hand.some(function(x){return element(ctx,x)==='LIGHTNING';}))draw(ctx,side,1,function(d){return d.element==='LIGHTNING';});break;
     case '선조의 지혜':ctx.overload(side,1);draw(ctx,side,up?3:2);break;
@@ -185,15 +187,15 @@ A4.CardRules = (function () {
     case '초과 인출':amount=(f.overloadNext||0)+(f.overloadLocked||0);f.overloadNext=0;ctx.mana(side,f.overloadLocked||0,true);f.overloadLocked=0;draw(ctx,side,amount);break;
     case '전선':ids=pool(ctx,function(d){return /발견/.test(d.text);},card.cardId).filter(function(id){return !up||ctx.canAutoCast({cardId:id,upgraded:false});});discover(ctx,side,ids.map(function(id){return option(ctx,id,false);}),up?'generateCast':'generateChoice');break;
     case '믹스테이프':fromZone(ctx,side,enemy,'deck','copyChoice',{discount:up?1:0});break;
-    case '전류 공급':draw(ctx,side,1);s.currentStacks++;if(s.currentStacks>=2){s.currentStacks-=2;s.lightningBonus+=2;}break;
+    case '전류 공급':draw(ctx,side,1);s.currentStacks++;if(s.currentStacks>=2){s.currentStacks-=2;f.status.classes=f.status.classes||{};f.status.classes.powerBonus=(f.status.classes.powerBonus||0)+2;}break;
     case '긴급 차단':fromZone(ctx,side,enemy,'hand','intercept',{upgraded:up});break;
-    case '천둥':for(i=1;i<=3;i++)later(ctx,now+i,'STANDBY','damage',{amount:up?4:2,target:enemy});break;
+    case '천둥':for(i=1;i<=3;i++)later(ctx,now+i,'STANDBY','damage',{amount:up?5:3,target:enemy});break;
     case '파지직':ctx.overload(side,1);damage(ctx,enemy,(up?14:7)+Math.floor(ctx.rng()*(up?5:3)));break;
     case '마비':list=(foe.usedThisTurn||[]).filter(function(x){return !x.free;}).map(function(x){return x.def?x.def.element:element(ctx,x.card||x);});status(ctx,enemy,'forbiddenElements',{until:now+3,elements:list});break;
     case '단락':fromZone(ctx,side,side,'deck','shortCircuit');break;
     case '무덤의 지명자':fromZone(ctx,side,enemy,'rest','grave',{upgraded:up});break;
     case '충전':later(ctx,now+1,'STANDBY','charge');break;
-    case '번개':lock(ctx,enemy,up?0:1,1);status(ctx,enemy,'immune',{from:now+1,until:now+1});break;
+    case '번개':lock(ctx,enemy,up?0:1,1);status(ctx,enemy,'immune',{from:now+1,until:now+1});status(ctx,enemy,'allEnemyImmune',{from:now+1,until:now+1});break;
     case '연쇄 번개':if(up)draw(ctx,side,1);count=Math.max(1,s.lightningStreak||1);for(i=0;i<count;i++)damage(ctx,enemy,5);break;
     case '마법공학: 퓨즈':case '마법공학: 니비루': break; /* Hand-triggered rules below; manual use is prohibited. */
     case '고철 더미에서':if((f.lastTurnCards||[]).some(function(x){return (x.def?x.def.element:element(ctx,x.card||x))==='LIGHTNING'&&!x.free;})){
@@ -204,7 +206,7 @@ A4.CardRules = (function () {
     case '윤회':draw(ctx,side,up?2:1);fromZone(ctx,side,side,'deck','cycle',{remaining:2});break;
     case '운명':ids=pool(ctx).filter(function(id){return ctx.canAutoCast({cardId:id,upgraded:true});});if(ids.length)ctx.cast(side,{cardId:ctx.pick(ids),upgraded:true},{free:true,copy:true});break;
     case '예지':if(up)fromZone(ctx,side,side,'deck','take',{remaining:1},function(x){return ctx.cost(side,x)===3;});else draw(ctx,side,1,function(d,x){return ctx.cost(side,x)===3;});break;
-    case '안도':if(!(s.previousDamage||0)){draw(ctx,side,up?2:1);ctx.shield(side,5);}break;
+    case '안도':if(!(s.previousDamage||0)){draw(ctx,side,up?2:1);ctx.shield(side,4);}break;
     case '심판':count=f.rest.filter(function(x){return element(ctx,x)==='HOLY';}).length;damage(ctx,enemy,count*(up?3:2));break;
     case '계시':fromZone(ctx,side,enemy,'hand','revelation',{upgraded:up});break;
     case '배교':damage(ctx,enemy,t.critical?(up?12:6):(up?6:3));break;
@@ -212,7 +214,7 @@ A4.CardRules = (function () {
     case '필연':ids=pool(ctx).filter(function(id){return ctx.canAutoCast({cardId:id,upgraded:false});});if(ids.length)for(i=0;i<(up?3:2);i++)ctx.cast(side,{cardId:ctx.pick(ids),upgraded:false},{free:true,copy:true});break;
     case '불굴':status(ctx,side,up?'immune':'immuneCards',{until:now});break;
     case '성전':draw(ctx,side,1);lock(ctx,side,0,up?2:1,['HOLY']);lock(ctx,enemy,0,up?2:1,['HOLY']);break;
-    case '성지순례':status(ctx,side,'pilgrimage',{amount:up?2:1,sourceCard:ctx.copy(card)});break;
+    case '성지순례':status(ctx,side,'pilgrimage',{amount:up?3:2,sourceCard:ctx.copy(card)});break;
     case '축성':ctx.sample(f.rest.filter(function(x){return !x.upgraded&&(isGeneral(ctx,x)||x.cardId==='crystal_ball'||x.originalCardId==='crystal_ball');}),5).forEach(function(x){ctx.upgrade(x);});if(up)fromZone(ctx,side,side,'rest','take',{remaining:1});else if(f.rest.length)ctx.move(side,ctx.pick(f.rest).uid,'hand');break;
     case '신의 권능: 가속':case '신의 권능: 재생':case '신의 권능: 징벌':case '신의 권능: 성역':case '신의 권능: 응징':break; /* Aura effects apply while held. */
     case '넘치는 마나':draw(ctx,side,up?2:1);break;
@@ -243,7 +245,7 @@ A4.CardRules = (function () {
     case 'heal':ctx.heal(side,t.amount);break;
     case 'mana':ctx.mana(side,t.amount);break;
     case 'damage':damage(ctx,t.target||enemy,t.amount);break;
-    case 'solarBurst':ctx.damage(side,t.target,t.amount,{card:t.card});draw(ctx,side,1);break;
+    case 'solarBurst':ctx.damage(side,t.target,t.amount,{card:t.card,bodyOnly:true});draw(ctx,side,1);break;
     case 'coldDiscard':if(!t.upgraded)draw(ctx,side,1);draw(ctx,enemy,1);break;
     case 'iceTrap':status(ctx,enemy,'iceTrap',{from:b.turn+1,until:b.turn+1,element:selected.id,all:t.upgraded,sourceSide:side});break;
     case 'hibernate':if(ctx.find(t.owner,selected.uid)){ctx.move(t.owner,selected.uid,t.upgraded?'rest':'deck');if(!t.upgraded)ctx.shuffle(ctx.fighter(t.owner).deck);}break;
@@ -252,7 +254,7 @@ A4.CardRules = (function () {
       movedToHand(ctx,side,t.owner,selected);
       if(t.remaining>1)fromZone(ctx,side,t.owner,t.zone,'take',{remaining:t.remaining-1});break;
     case 'dredge':
-      c=ctx.remove(side,selected.uid);if(c){f.deck.unshift(c);if(ctx.cost(side,c)<=f.mana)draw(ctx,side,1);}break;
+      c=ctx.remove(side,selected.uid);if(c){f.deck.unshift(c);if(ctx.cost(side,c)<=f.mana){draw(ctx,side,1);if(t.card&&t.card.upgraded)copyToHand(ctx,side,c);}}break;
     case 'generateChoice':ctx.generate(side,selected.cardId,{upgraded:!!selected.upgraded});break;
     case 'generateCast':if(ctx.canAutoCast(selected))ctx.cast(side,selected,{free:true,copy:true});break;
     case 'copyChoice':c=copyToHand(ctx,side,selected);if(c&&t.discount)costDrop(ctx,c,t.discount,0);break;
@@ -275,7 +277,7 @@ A4.CardRules = (function () {
     case 'auraRest':
       (t.auras||[]).forEach(function(x){
         if(x.rule==='신의 권능: 재생')ctx.heal(side,5,{card:x.card});
-        if(x.rule==='신의 권능: 징벌')ctx.damage(side,enemy,5,{card:x.card});
+        if(x.rule==='신의 권능: 징벌'){if(A4.Minions)A4.Minions.randomDamage(ctx,side,5,{card:x.card});else ctx.damage(side,enemy,5,{card:x.card});}
         if(x.rule==='신의 권능: 성역'&&x.card.uid!==t.restCard.uid)ctx.withSource(side,ctx.def(x.card),function(){draw(ctx,side,1);});
       });break;
     case 'reflectHeal':ctx.damage(side,enemy,t.amount,{card:t.card});break;

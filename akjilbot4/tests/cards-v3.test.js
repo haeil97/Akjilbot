@@ -58,7 +58,7 @@ test('draw occurs after the submitted card leaves hand and overflow is excluded'
 test('frostbolt critical locks only next turn and both main phases share limited ignite usage',()=>{
   const {A,c,battle,card,submit,rng}=setup(),b=battle();const one=card('점화'),two=card('점화',true);b.player.hand=[one,two];submit(b,[one]);
   assert.throws(()=>submit(b,[two]),/제한/);assert.equal(b.enemy.hp,195);
-  submit(b);b.player.mana=5;submit(b,[two]);assert.equal(b.enemy.hp,185);
+  submit(b);b.player.mana=5;submit(b,[two]);assert.equal(b.enemy.hp,184);
 });
 
 test('forbidden flame consumes remaining mana after batch costs',()=>{
@@ -266,7 +266,7 @@ test('upgraded Nibiru ongoing counters do not consume another held Nibiru',()=>{
 test('rebalanced soul jar costs zero and only base draw is temporary',()=>{
   for(const up of [false,true]){
     const {battle,card,play,submit,c,id}=setup(),b=battle();
-    assert.equal((up?c.cards[id('영혼관')].upgrade:c.cards[id('영혼관')]).cost,0);
+    assert.equal((up?c.cards[id('영혼관')].upgrade:c.cards[id('영혼관')]).cost,1);
     const drawn=[card('blank'),card('blank'),card('blank')];b.player.deck=drawn.concat([card('blank')]);
     play(b,'영혼관',up);
     drawn.forEach(x=>assert.equal(b.player.hand.some(h=>h.uid===x.uid),true));

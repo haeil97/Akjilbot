@@ -146,10 +146,10 @@ test('Thunder stacks scheduled standby hits and fires at most once per turn, whi
   assert.deepEqual(frozen.enemy.status.cardLocks,[{from:1,until:1}]);
 });
 
-test('upgraded innate Guff cards are guaranteed in opening hand and foresight reveals both next-turn plans',()=>{
+test('upgraded Growth remains innate while revised Aquatic Form is not; foresight reveals both next-turn plans',()=>{
   const c=catalog(),hero=c.heroes[0],deck=hero.cards.map((cardId,i)=>({uid:'p'+i,cardId,upgraded:cardId==='aquatic_form'||cardId==='wild_growth'}));
   const b=A4.Combat.create({name:'p',maxHp:15,deck,passives:[],heroPower:hero.power},{name:'e',maxHp:100,deck:[],passives:[]},c,()=>0.5);
-  assert.ok(b.player.hand.some(x=>x.cardId==='aquatic_form'));assert.ok(b.player.hand.some(x=>x.cardId==='wild_growth'));assert.equal(b.player.hand.length,4);
+  assert.equal(c.cards.aquatic_form.upgrade.innate,false);assert.ok(b.player.hand.some(x=>x.cardId==='wild_growth'));assert.equal(b.player.hand.length,4);
   const see=makeBattle(['foresight'],[],c);quiet(see);A4.Combat.submit(see,[uid(see,'foresight')],c,()=>0.5);quiet(see);A4.Combat.submit(see,[],c,()=>0.5);
   assert.deepEqual(A4.Combat.publicView(see).foreseenCards,[]);quiet(see);A4.Combat.submit(see,[],c,()=>0.5);assert.deepEqual(A4.Combat.publicView(see).foreseenCards,[]);
 });

@@ -71,8 +71,9 @@ A4.validateState = function (state) {
           ok(Array.isArray(f[zone]),'전투 카드 영역');
           f[zone].forEach(function (card) { ok(card && typeof card.uid === 'string' && !cards[card.uid] && typeof card.cardId === 'string','전투 카드 중복/누락'); cards[card.uid]=true; });
         });
-        ok(!f.runes||Array.isArray(f.runes)&&f.runes.length<=1,'발동 중인 룬 수');
+        ok(!f.runes||Array.isArray(f.runes)&&f.runes.length<=A4.Runes.capacity(f),'발동 중인 룬 수');
         (f.runes||[]).forEach(function(card){ok(card&&typeof card.uid==='string'&&!cards[card.uid]&&typeof card.cardId==='string','룬 카드 중복/누락');cards[card.uid]=true;});
+        (f.minions||[]).forEach(function(m){ok(m&&typeof m.uid==='string'&&!cards[m.uid]&&typeof m.name==='string'&&A4.integer(m.maxHp,1)&&A4.integer(m.hp,0)&&m.hp<=m.maxHp&&A4.integer(m.shield,0)&&Array.isArray(m.skills),'하수인 상태');cards[m.uid]=true;ok(m.selection==='cycle'||m.selection==='random','하수인 행동 방식');ok(!m.preparedSkill||typeof m.preparedSkill.name==='string','하수인 예약 스킬');});
         (f.shrines||[]).forEach(function(a){ok(typeof a.id==='string'&&A4.integer(a.maxHp,1)&&A4.integer(a.hp,0)&&a.hp<=a.maxHp,'제단 체력');if(a.hp===0)ok(A4.integer(a.reviveTurn,0),'제단 부활 예약');});
         ok(f.hand.length <= (v3?A4.Battle.handLimit(r.battle,sideIndex===0?'player':'enemy',A4.catalog):A4.HAND_LIMIT),'손패 한도');
       });

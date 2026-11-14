@@ -108,7 +108,7 @@ test('production settings enable all cards and treasures with exact rooms, timeo
   const h=harness(t);assert.equal(h.c.config.enabled,true);assert.equal(h.c.config.engineVersion,3);assert.deepEqual(A4.validateCatalog(h.c),[]);
   assert.deepEqual(h.c.config.rooms,{live:['옥랜111','옥랜222'],test:['개발123']});assert.equal(h.c.config.sessionTimeoutMs,60000);
   assert.deepEqual(h.c.config.playerMaxHpByStage,Array(8).fill(60));
-  assert.equal(h.c.neutralTreasurePool.length,62);assert.equal(h.c.cardPool.length,108);
+  assert.equal(h.c.neutralTreasurePool.length,63);assert.equal(h.c.cardPool.length,105);
   const full=h.send('+인벤'),alias=h.send('+ㅇㅂ',{room:'옥랜222'});assert.equal(full,alias);assert.match(alias,/코인/);assert.match(alias,/🔑 🔑 🔑 🔑 🔑/);assert.doesNotMatch(alias,/강화석|정수/);
   assert.equal(Object.keys(h.store.getState().users).length,1);assert.equal(h.user().items.keys,5);
   assert.match(h.send('+상점'),/준비 중|정해지지/);assert.match(h.send('+유물'),/준비 중/);assert.throws(()=>h.send('+뽑기 low'),/준비 중/);

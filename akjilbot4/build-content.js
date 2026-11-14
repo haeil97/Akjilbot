@@ -52,12 +52,17 @@ function parseCards(raw) {
 function compileContent() {
     const read = file => fs.readFileSync(path.join(__dirname,'content',file),'utf8').replace(/^\uFEFF/,'');
     const cardReference = parseCards(read('일반카드-원고.txt'));
+    const neutralRevision=JSON.parse(read('중립-개편.json'));
+    cardReference.generalCards.forEach(card=>{const ref=neutralRevision.cards.find(ref=>ref.id===card.id);if(ref){card.cost=ref.cost;card.text=ref.text;card.upgrade.cost=ref.upgrade.cost;card.upgrade.text=ref.upgrade.text;card.botOnly=!!ref.botOnly;}});
     return Object.assign({version:1,revision:'expansion-2026-10-06',
         description:'카드 원문과 상대 설계 자료입니다. 아직 구현되지 않은 효과의 실행 정의가 아닙니다.',
         stageHp:[15,20,25,35,40,50,60,70],
         opponentDecks:JSON.parse(read('상대-덱-초안.json')),
         opponentAbilities:JSON.parse(read('상대-능력.json')),
-        classes:JSON.parse(read('직업-설계.json'))
+        classes:JSON.parse(read('직업-설계.json')),
+        guffRevision:JSON.parse(read('거프-개편.json')),
+        neutralRevision,
+        minionDesign:JSON.parse(read('하수인-설계.json'))
     },cardReference);
 }
 

@@ -114,6 +114,7 @@ A4.UI = (function () {
     function compare(a,b){return a.cost-b.cost||(a.name<b.name?-1:a.name>b.name?1:0);}
     function normalize(text){return String(text||'').replace(/\s/g,'').toLowerCase();}
     function show(e){
+      if(e.skill)return '[🌕] '+e.name+' | 스킬\n'+e.skill.text;
       if(e.startingTreasure)return '[🎖️] '+e.name+'\n'+e.startingTreasure.text;
       if(e.power)return '[🛟] '+e.name+(e.power.kind==='active'?' | 💧'+e.cost:' | ⏳️지속')+'\n'+e.power.text;
       if(e.treasureId)return rewardTreasure(e.treasureId,catalog);
@@ -123,7 +124,8 @@ A4.UI = (function () {
     }
     var entries=catalog.cardPool.concat(Object.keys(catalog.cards).filter(function(id){return catalog.cards[id].classCard;})).map(entry),needle=normalize(query),lines=[title];
     if(needle){
-      Object.keys(catalog.cards).forEach(function(id){var d=catalog.cards[id];if((d.token||d.exclusive)&&!d.classCard&&catalog.cardPool.indexOf(id)<0)entries.push(entry(id));});
+      Object.keys(catalog.minionSkills||{}).forEach(function(id){var skill=catalog.minionSkills[id];entries.push({skill:skill,name:skill.name,cost:0});});
+      Object.keys(catalog.cards).forEach(function(id){var d=catalog.cards[id];if((d.token||d.exclusive||d.botOnly)&&!d.classCard&&catalog.cardPool.indexOf(id)<0)entries.push(entry(id));});
       Object.keys(catalog.treasures).forEach(function(id){var t=catalog.treasures[id];if(t.retired)return;var d=t.cardId&&catalog.cards[t.cardId];entries.push({treasureId:id,name:t.name,cost:d?d.cost:0});});
       Object.keys(catalog.startingTreasures||{}).forEach(function(id){var t=catalog.startingTreasures[id];entries.push({startingTreasure:t,name:t.name,cost:0});});
       var seenPowers={};

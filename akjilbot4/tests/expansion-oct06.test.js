@@ -27,10 +27,10 @@ test('Patchwerk caps current and maximum HP at 100, and empty Execution is silen
  const {b,power}=setup();b.enemy.hp=80;b.enemy.maxHp=90;power('patchwerk');assert.equal(b.enemy.hp,100);assert.equal(b.enemy.maxHp,100);
  b.report.logs=[];power('black_knight');assert.deepEqual(b.report.logs,[]);
 });
-test('chain lightning costs two in both ranks and heroes have their current starter deck sizes',()=>{
+test('chain lightning costs one in both ranks and heroes have their current starter deck sizes',()=>{
  assert.equal(A.catalog.heroes.length,6);
  for(const hero of A.catalog.heroes){assert.equal(hero.cards.length,10);for(const id of hero.cards)assert.ok(A.catalog.cards[id]);}
- const d=A.catalog.cards[A.CardRules.nameToId('연쇄 번개')];assert.equal(d.cost,2);assert.equal(d.upgrade.cost,2);
+ const d=A.catalog.cards[A.CardRules.nameToId('연쇄 번개')];assert.equal(d.cost,1);assert.equal(d.upgrade.cost,1);
 });
 test('poison survives saves, ticks once per standby, decays and uses no card damage bonus',()=>{
  const {b,c,ctx,event,reload}=setup();b.player.treasureIds=['archmage_robe'];b.enemy.status.cosmicBonus=50;

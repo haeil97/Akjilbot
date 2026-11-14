@@ -21,6 +21,7 @@ A4.Keywords=(function(){
   function liberated(ctx,side,card,test){if(card.liberationReady)return true;if(test&&(test.type==='heroPowerUsed'||test.type==='played'))return false;if(condition(ctx,side,card,test)){card.liberationReady=true;return true;}return false;}
   function enqueue(ctx,side,list,card){(list||[]).forEach(function(e){ctx.enqueue({kind:'effect',side:side,card:card||null,effect:ctx.copy(e)});});}
   function effect(ctx,t){
+    if(t.effect.type==='summonMinion'){A4.Minions.summon(ctx,t.side,t.effect.minionId||t.effect.spec);return true;}
     var e=t.effect,side=t.side,other=side==='player'?'enemy':'player',target=e.target==='self'?side:other,f=ctx.fighter(target),b=ctx.battle,n=Math.max(0,Math.floor(e.amount||0)),card;
     if(e.type==='sunrise'||e.type==='dusk'){if(condition(ctx,side,t.card,{type:e.type}))enqueue(ctx,side,e.effects,t.card);return true;}
     if(e.type==='power'){f=ctx.fighter(side);f.status.classes=f.status.classes||{};f.status.classes.powerBonus=(f.status.classes.powerBonus||0)+n;return true;}

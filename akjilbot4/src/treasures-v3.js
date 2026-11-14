@@ -282,7 +282,10 @@ A4.TreasureRules = (function () {
       return true;
     case 'roasting_wand':
       /* Stops at the first lethal hit; other phase effects still resolve before the core's death check. */
-      while(self.hp>0 && foe.hp>0) ctx.damage(side,ctx.rng()<0.5?side:enemy,10,{unblockable:true,ignoreArmor:true,noBonus:true,card:t.card});
+      while(self.hp>0 && foe.hp>0){
+        var characters=A4.Minions?A4.Minions.targets(b,side).map(function(m){return {side:side,unit:m};}).concat(A4.Minions.targets(b,enemy).map(function(m){return {side:enemy,unit:m};})):[{side:side,unit:{}},{side:enemy,unit:{}}],victim=ctx.pick(characters),settings={unblockable:true,ignoreArmor:true,noBonus:true,card:t.card,bodyOnly:true};
+        if(victim.unit.uid){A4.Minions.hit(ctx,side,victim.side,victim.unit,10,settings);if(victim.unit.hp<=0)break;}else ctx.damage(side,victim.side,10,settings);
+      }
       return true;
     case 'time_warp':
       foe.status.cardLocks=foe.status.cardLocks||[]; foe.status.cardLocks.push({from:b.turn+1,until:b.turn+1,name:'시간 왜곡'});
@@ -295,7 +298,8 @@ A4.TreasureRules = (function () {
     var side=data.side || data.sourceSide || ctx.side, self=ctx.fighter(side), s=state(self), b=ctx.battle;
     if(what==='damage') {
       if(data.card && owns(ctx.fighter(data.sourceSide),'archmage_robe') && !data.noBonus) data.value+=2;
-    } else if(what==='handLimit' && owns(self,'pelgozi_wallet')) data.value+=3;
+    } else if(what==='heal'&&data.card&&owns(self,'archmage_robe')&&!data.noBonus)data.value+=2;
+    else if(what==='handLimit' && owns(self,'pelgozi_wallet')) data.value+=3;
     else if(what==='powerCost' && owns(self,'judge_ring')) data.value=0;
     else if(what==='cardCost') {
       if(s.freeMain2Turn===b.turn && b.phase==='MAIN2') data.value=0;
@@ -352,7 +356,7 @@ A4.TreasureRules = (function () {
       if(e.countered&&owns(f,'recycling_bin'))sourced(ctx,side,'recycling_bin',function(){ctx.shield(side,5);});
       if(!e.free) {
         if(owns(f,'philosopher_stone')&&e.paidCost>=2)f.hand.forEach(function(x){x.costDelta=(x.costDelta||0)-1;x.costFloor=0;});
-        if(owns(f,'antarctic_clock')&&e.paidCost===0)sourced(ctx,side,'antarctic_clock',function(){ctx.damage(side,ctx.other(side),4,{card:null,noBonus:true});});
+        if(owns(f,'antarctic_clock')&&e.paidCost===0)sourced(ctx,side,'antarctic_clock',function(){if(A4.Minions)A4.Minions.randomDamage(ctx,side,4,{card:null,noBonus:true});else ctx.damage(side,ctx.other(side),4,{card:null,noBonus:true});});
         if(s.firstElementTurn!==b.turn) {s.firstElementTurn=b.turn;s.firstElement=e.def.element;}
         if((b.phase==='MAIN1' || b.resolution&&b.resolution.phase==='MAIN1')) {
           if(s.main1PaidTurn!==b.turn){s.main1PaidTurn=b.turn;s.main1Paid=0;}
@@ -376,7 +380,7 @@ A4.TreasureRules = (function () {
         else if(first.cardId) copyInto(ctx,side,first);
         else if(first.id && ctx.catalog.cards[first.id]) ctx.generate(side,first.id);
       }
-    } else if(e.type==='overload' && f && owns(f,'lightning_rod')) sourced(ctx,side,'lightning_rod',function(){ctx.damage(side,ctx.other(side),6*e.amount,{noBonus:true,card:null});});
+    } else if(e.type==='overload' && f && owns(f,'lightning_rod')) sourced(ctx,side,'lightning_rod',function(){if(A4.Minions)A4.Minions.randomDamage(ctx,side,6*e.amount,{noBonus:true,card:null});else ctx.damage(side,ctx.other(side),6*e.amount,{noBonus:true,card:null});});
     else if(e.type==='powerUsed' && f && owns(f,'enchant_table')) {
       cards=f.hand.filter(function(c){var d=ctx.def(c);return !c.upgraded&&!d.treasure&&(!d.exclusive||c.cardId==='crystal_ball')&&(!c.noUpgrade||c.cardId==='crystal_ball')&&!!d.upgrade;});
       if(cards.length) ctx.upgrade(ctx.pick(cards));

@@ -18,7 +18,7 @@ This repository contains a Korean KakaoTalk card-battle bot. Communicate with th
 - AI may use public information and sampled unknown hands; never expose the actual hidden opponent hand or deck order. Keep the 5-second planning budget and fallback behavior.
 - The current class document is `akjilbot4/docs/플레이어-직업.md`.
 - Current post-battle flow is documented in `akjilbot4/docs/전투후-선술집-개편.md`. Rune behavior is in `akjilbot4/docs/룬-카드군.md`.
-- Do not invent unfinished card, treasure, or event effects. Agamaggan has a completed ten-card starting deck and is selectable. Nautilus remains locked until its starting deck is provided. No actual rune cards have been specified yet.
+- Do not invent unfinished card, treasure, minion, skill, or event effects. Only Guff is currently offered in new-run selection; the other five class definitions and existing runs remain available. Guff has a specified 40-card reward pool including nine rune families. Minion support exists but no live encounter minions have been specified yet. Current replacement definitions are in akjilbot4/content/거프-개편.json, akjilbot4/content/중립-개편.json, and akjilbot4/content/하수인-설계.json.
 - Historical manuscripts may describe old behavior. Prefer current source code and the latest relevant design document, following the user's requested changes.
 
 ## Repository contents

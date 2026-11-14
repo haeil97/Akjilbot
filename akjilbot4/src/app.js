@@ -3,9 +3,10 @@ A4.App = (function () {
   function initials(text){return text.replace(/[가-힣]/g,function(x){return 'ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ'.charAt(Math.floor((x.charCodeAt(0)-44032)/588));});}
   ['+통계','+규칙','+도감','+탐험','+선택','+제출','+인벤','+덱','+도움말','+상점','+뽑기','+강화','+강화확인','+슬롯확장','+유물','+연동코드','+연동','+연동승인','++관리자획득','++재시작','++인벤','++아이템지급','++아이템회수','++돈지급'].forEach(function(x){aliases[initials(x)]=x;});
   function command(text){return aliases[text]||text;}
+  function submittedNumber(text){return String(text).indexOf(':')>=0?String(text):Number(text);}
   function parse(text) {
     if (/^[yn]$/i.test(String(text || '').trim())) return {type:'encounterResponse',accept:String(text).trim().toLowerCase()==='y'};
-    if (/^\d+(?:\s+\d+)*$/.test(String(text || '').trim())) return {type:'numbers',indices:String(text).trim().split(/\s+/).map(Number)};
+    if (/^\d+(?::\d+)?(?:\s+\d+(?::\d+)?)*$/.test(String(text || '').trim())) return {type:'numbers',indices:String(text).trim().split(/\s+/).map(submittedNumber)};
     if (String(text || '').trim().toLowerCase() === 's') return {type:'numbers',indices:[],pass:true};
     if (String(text || '').trim().toLowerCase() === 'p') return {type:'pauseBattle'};
     var p = String(text || '').trim().split(/\s+/), rawCommand = p.shift(), cmd = command(rawCommand);
@@ -18,7 +19,7 @@ A4.App = (function () {
       var args=p.slice(1).map(function(x){return x==='ㅇㅇ'?'영웅':x==='S'?'s':x;}), powers=args.filter(function(x){return x==='영웅';}), numbers=args.filter(function(x){return x!=='영웅';});
       A4.assert(powers.length<=1,'영웅 능력은 한 번만 제출할 수 있습니다.');
       A4.assert(numbers.indexOf('s')<0 || numbers.length===1,'s와 카드 번호를 함께 제출할 수 없습니다.');
-      return {type:'submit',token:p[0],heroPower:powers.length===1,indices:numbers.length===1 && numbers[0]==='s'?[]:numbers.map(Number)};
+      return {type:'submit',token:p[0],heroPower:powers.length===1,indices:numbers.length===1 && numbers[0]==='s'?[]:numbers.map(submittedNumber)};
     }
     if (cmd === '+인벤' || cmd === '+ㅇㅂ') return {type:'inventory'};
     if (cmd === '+통계') return {type:'stats'};

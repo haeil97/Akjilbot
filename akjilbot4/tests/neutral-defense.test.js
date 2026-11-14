@@ -11,9 +11,9 @@ function fixture(){
  return {b,c,card,play};
 }
 
-test('healing-only cards leave neutral generation while Guff gains Forbidden Healing and enemies retain their cards',()=>{
+test('legacy healing cards remain loadable while replacement pools exclude Forbidden Healing and retain enemy-only cards',()=>{
  const c=A.catalog,guff=c.heroes.find(h=>h.id==='guff'),id='class:guff_forbidden_healing';
- assert.equal(c.cardPool.length,108);assert.ok(guff.classPool.includes(id));assert.equal(guff.cards.length,10);
+ assert.equal(c.cardPool.length,105);assert.ok(!guff.classPool.includes(id));assert.equal(guff.cards.length,10);
  for(const h of c.heroes.filter(h=>h.id!=='guff'))assert.ok(!h.classPool.includes(id));
  for(const oldId of ['general:금단의 치유술','general:자연의 해독','general:신의 권능: 재생',id]){
   assert.ok(c.cards[oldId]);assert.ok(!c.cardPool.includes(oldId));assert.equal(c.cards[oldId].neutralCard,false);
@@ -41,7 +41,7 @@ test('converted cards grant armor at both ranks and on both sides without healin
     f.hand=Array.from({length:5},()=>card('blank'));
     f.deck=[card('굽이치는 파도'),card('치유의 손길'),card('기적같은 성장'),card('blank')];shield=up?12:6;break;
    case '접붙이기':foe.rest=[card('치유의 손길'),card('기적같은 성장')];shield=up?5:2;break;
-   case '안도':shield=5;break;
+   case '안도':shield=4;break;
   }
   const def=A.Battle.describeCard(card(name,up),c),metric=A.AIEvaluation.evaluateCard(def,f,foe,b,c);
   assert.equal(metric.heal,0,name);assert.ok(metric.shield>0,name);

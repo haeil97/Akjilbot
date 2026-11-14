@@ -270,8 +270,13 @@ A4.Game = (function () {
     A4.assert(run && run.phase === 'BATTLE','진행 중인 전투가 없습니다.');
     A4.assert(run.turnToken === token,'이미 처리되었거나 이전 턴의 제출입니다. +탐험으로 현재 전투를 확인하세요.');
     battle = run.battle;
-    indices.forEach(function (index) { A4.assert(A4.integer(index,1) && index <= battle.player.hand.length,'손패 번호가 올바르지 않습니다.'); ids.push(battle.player.hand[index-1].uid); });
-    result = A4.Combat.submit(battle,ids,catalog,rng,{heroPower:!!heroPower});
+    var targets={},available=A4.Minions?A4.Minions.targets(battle,'enemy'):[];
+    indices.forEach(function (index) {
+      var number=index,target=1;if(String(index).indexOf(':')>=0){var parts=String(index).split(':');number=Number(parts[0]);target=Number(parts[1]);}else if(index>=10&&available.length>1){number=Math.floor(index/10);target=index%10;}
+      A4.assert(A4.integer(number,1)&&number<=battle.player.hand.length,'손패 번호가 올바르지 않습니다.');
+      A4.assert(target>=1&&target<=Math.max(1,available.length),'대상 번호가 올바르지 않습니다.');var card=battle.player.hand[number-1];ids.push(card.uid);if(target>1)targets[card.uid]=available[target-1].uid;
+    });
+    result = A4.Combat.submit(battle,ids,catalog,rng,{heroPower:!!heroPower,targets:targets});
     return battleResult(state,user,catalog,result,now,rng);
   }
   function battleResult(state,user,catalog,result,now,rng) {

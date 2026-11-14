@@ -7,7 +7,7 @@ function fixture(heroId='guff',shrineId){
  const b=A.Battle.create(player,spec('상대'),c,()=>.3);b.enemyPlan=[];b.enemyPowerPlan=false;
  function job(t){b.resolution={queue:[t]};A.Battle.process(b,c,()=>.3);}
  function settle(){let n=0;while(b.pendingChoice){assert.ok(n++<100);A.Battle.choose(b,0,c,()=>.3);}}
- function play(id,up=false){const x=card(id,up);b.player.inFlight.push(x);job({kind:'card',module:'classes',side:'player',card:x,def:A.Battle.describeCard(x,c)});settle();return x;}
+ function play(id,up=false){const x=card(id,up),d=A.Battle.describeCard(x,c);b.player.inFlight.push(x);job({kind:'card',module:d.module,side:'player',card:x,def:d});settle();return x;}
  function ctx(){return A.Battle.context(b,c,()=>.3,{side:'player'},[]);}
  return {b,c,hero,card,job,settle,play,ctx};
 }

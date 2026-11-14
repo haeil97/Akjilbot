@@ -37,7 +37,7 @@ A4.AIEvaluation=(function(){
     if(!options.noBonus)n+=damageBonus(own,def);
     if(options.unblockable)return n;
     if(effects(own,'weakened',b).length)n=Math.floor(n*0.75);
-    if(effects(opp,'vulnerable',b).length)n=Math.floor(n*1.5);
+    if(effects(opp,'vulnerable',b).length)n=Math.floor(n*(A4.GuffRules&&A4.GuffRules.hasRune(own,'fire_heart')?1.75:1.5));
     if(effects(opp,'immune',b).length||(!options.power&&effects(opp,'immuneCards',b).length&&own!==opp))return 0;
     if(effects(opp,'iceShield',b).length&&def.element!=='LIGHTNING')return 0;
     effects(opp,'flameVeil',b).forEach(function(e){n=Math.max(0,n-number(e.amount));});
@@ -172,7 +172,7 @@ A4.AIEvaluation=(function(){
     case '불장난':m.damage=up?6:4;m.draw=0.7;break;
     case '태양 작렬':m.delayedDamage=(up?15:10)*0.42;break;
     case '화염 장막':m.shield=up?8:5;m.delayedDamage=up?5:3;break;
-    case '점화':m.damage=5+number(st.ignite);m.value=5*0.55*timeWeight(b);break;
+    case '점화':m.damage=(up?6:5)+number(st.ignite);m.value=(up?6:5)*0.55*timeWeight(b);break;
     case '폭발의 룬':m.damage=(up?8:4)+(up?12:6)*crit;m.control=2*crit;break;
     case '절멸':m.selfDamage=up?0:5;m.control=enemyHand?4.8:0;break;
     case '백드래프트':m.damage=deck;break;
@@ -190,7 +190,7 @@ A4.AIEvaluation=(function(){
     case '되감기':m.damage=up?4:2;m.value=rest?4.5:0;break;
     case '급속 빙결':m.damage=up?5:3;m.control=4.8*crit;break;
     case '얼음 덫':m.control=(up?4.5:2.8)*Math.min(1,enemyHand/2);break;
-    case '얼어붙은 버클러':m.shield=10;break;
+    case '얼어붙은 버클러':m.shield=12;if(!up)m.value-=1;break;
     case '냉동 캡슐':m.delayedDamage=Math.min(number(own.hp)-1,number(opp.maxMana,1)*4)*0.7*(up?2:1);break;
     case '서리 저주':m.control=enemyHand<8?2.5:0;break;
     case '동면':m.control=enemyHand?(up?4:2.4):0;break;
@@ -228,7 +228,7 @@ A4.AIEvaluation=(function(){
     case '믹스테이프':m.draw=count(opp,'deck')?1:0;m.value=up&&m.draw?1:0;break;
     case '전류 공급':m.draw=1;m.value=(number(st.currentStacks)>=1?3:1.4)*timeWeight(b);break;
     case '긴급 차단':m.draw=enemyHand?1:0;m.control=enemyHand?(up?2.5:1):0;break;
-    case '천둥':m.delayedDamage=3*(up?4:2)*0.78;break;
+    case '천둥':m.delayedDamage=3*(up?5:3)*0.78;break;
     case '파지직':m.overload=1;m.damage=up?16:8;break;
     case '마비':m.control=Math.min(4,(opp.usedThisTurn||[]).filter(function(x){return !x.free;}).length)*2;break;
     case '단락':m.draw=deck?Math.min(3,Math.max.apply(Math,(own.deck||[]).map(function(x){return number(definition(x,c).cost);} ).concat([0]))):0;m.value-=0.4;break;
@@ -244,7 +244,7 @@ A4.AIEvaluation=(function(){
     case '윤회':m.draw=up?2:1;m.value=deck>2?1:0;break;
     case '운명':m.value=5.5;break;
     case '예지':m.draw=zoneCount(own,'deck',c,function(d){return d.cost===3;})?1:0;m.value=m.draw&&up?0.6:0;break;
-    case '안도':if(!number(st.previousDamage)){m.draw=up?2:1;m.shield=5;}break;
+    case '안도':if(!number(st.previousDamage)){m.draw=up?2:1;m.shield=4;}break;
     case '심판':holy=zoneCount(own,'rest',c,function(d){return d.element==='HOLY';});m.damage=holy*(up?3:2);break;
     case '계시':m.control=enemyHand?(up?4:2.5):0;m.draw=enemyHand?0.5:0;break;
     case '배교':m.damage=(up?6:3)+(up?6:3)*crit;break;
@@ -252,7 +252,7 @@ A4.AIEvaluation=(function(){
     case '필연':m.value=(up?3:2)*3.8;break;
     case '불굴':m.shield=number(opp.mana)*3+1;m.value+=number(own.hp)<8?2:0;break;
     case '성전':m.draw=1;holy=zoneCount(own,'hand',c,function(d){return d.element==='HOLY';});m.control=(holy-Math.max(0,h-holy))*0.6+2;break;
-    case '성지순례':m.delayedDamage=(up?2:1)*4*timeWeight(b);break;
+    case '성지순례':m.delayedDamage=(up?3:2)*4*timeWeight(b);break;
     case '축성':m.draw=1;m.value=Math.min(5,zoneCount(own,'rest',c,function(d,x){return !x.upgraded&&!d.treasure&&!d.exclusive&&!d.token;}))*1.25;break;
     case '신의 권능: 가속':m.holdValue=2+Math.min(3,h*0.45);m.value=-m.holdValue;break;
     case '신의 권능: 재생':m.holdValue=wounded(own)?5:1;m.heal=5;break;
@@ -343,7 +343,7 @@ A4.AIEvaluation=(function(){
     case 'mida':m.control=Math.min(3,enemyRest)*(count(opp,'deck')<4?2.2:1.1);break;
     case 'plague_doctor':m.value=number(os.baptisms)>=11?40:20+number(os.baptisms)*1.2;m.value-=wounded(opp)*0.1;break;
     case 'extreme_troll':m.draw=zoneCount(own,'deck',c,function(d){return d.element==='ICE';})||(!deck&&zoneCount(own,'rest',c,function(d){return d.element==='ICE';}))?1:0;m.control=count(opp,'deck')?1:0;break;
-    default:if(def.module==='classes'&&A4.Classes)A4.Classes.evaluate(def,m,own,opp,b,c);else if(def.module==='expansion'&&A4.Expansion)A4.Expansion.evaluate(def,m,own,opp,b,c);else generic(def,m);
+    default:if(def.module==='guff'&&A4.GuffRules)A4.GuffRules.evaluate(def,m,own,opp,b,c);else if(def.module==='classes'&&A4.Classes)A4.Classes.evaluate(def,m,own,opp,b,c);else if(def.module==='expansion'&&A4.Expansion)A4.Expansion.evaluate(def,m,own,opp,b,c);else generic(def,m);
     }
     // Respect current public protection and scaling. Multiple-hit lightning applies
     // bonuses/caps per hit, just as the executor does.

@@ -101,7 +101,9 @@ A4.BattleUI = (function () {
     lines.push('⚔️ 탐험 '+stage+'/8 · '+((shownTurn+1)+'턴 · '+phase(shownPhase))+' ⚔️');
     function tree(n,depth){if(depth>24)return '…';var children=r.nodes.filter(function(x){return x.parent===n.id;});return name(n.label,c)+(n.countered?' ❌️':'')+(children.length?' ⮕ '+children.map(function(x){return tree(x,depth+1);}).join(', '):'');}
     ['player','enemy'].forEach(function(s){var roots=r.nodes.filter(function(n){return n.side===s&&n.parent===null;});if(r.submitted||roots.length)lines.push(b[s].name+': '+(roots.map(function(n){return tree(n,0);}).join(', ')||'쉬기'));});
-    ['player','enemy'].forEach(function(s){var f=b[s];lines.push('','■ '+f.name+': ❤️ '+f.hp+(f.shield?'(+'+f.shield+')':'')+'/'+f.maxHp);lines=lines.concat(states(b,s,c));});
+    ['player','enemy'].forEach(function(s){var f=b[s];lines.push('','■ '+f.name+': ❤️ '+f.hp+(f.shield?'(+'+f.shield+')':'')+'/'+f.maxHp);lines=lines.concat(states(b,s,c));
+      (f.minions||[]).filter(function(m){return m.hp>0;}).forEach(function(m){lines.push('','□ '+m.name+': ❤️ '+m.hp+(m.shield?'(+'+m.shield+')':'')+'/'+m.maxHp);if(m.preparedSkill)lines.push('》\''+m.preparedSkill.name+'\'을 준비한다.');(m.status.cards.effects||[]).filter(function(e){return e.until===undefined||e.until>=b.turn;}).forEach(function(e){var info={vulnerable:'취약: 받는 피해가 50% 증가한다.',weakened:'약화: 가하는 피해가 25% 감소한다.'}[e.kind];if(info)lines.push('• '+info+' ('+duration(e,b)+')');});});
+    });
     if(r.logs.length)lines.push('');
     var pilgrimageLogs={},drawLogs={};
     r.logs.forEach(function(e){
@@ -113,6 +115,7 @@ A4.BattleUI = (function () {
     });
     r.logs.forEach(function(e){
       var target=e.side==='player'?b.player.name:b.enemy.name,src=e.source,actor=src?(src.side==='player'?b.player.name:b.enemy.name):target,via=src?' '+instrumental(name(src.label,c)):'',text;
+      if(e.minionUid){var victim=A4.Minions.find(b,e.side,e.minionUid);if(victim)target=victim.name;}if(src&&src.minionUid){var acting=A4.Minions.find(b,src.side,src.minionUid);if(acting)actor=acting.name;}
       if(e.type==='damage'&&src&&/^성지순례\+?$/.test(src.label.name)){
         var total=pilgrimageLogs[e.side+':'+src.side];if(total.shown)return;total.shown=true;
         text=subject(target)+' [🕊️] 성지순례로 피해를 '+(total.amount>=2||total.modified?'*'+total.amount+'*':total.amount)+' 받았다.'+(total.blocked?' (보호막 흡수 '+total.blocked+')':'');
@@ -175,7 +178,7 @@ A4.BattleUI = (function () {
       b.player.hand.forEach(function(x,i){lines.push((i+1)+'. '+name((function(){var d=ctx.def(x);if(x.originalCardId==='crystal_ball')d.displayElement='🌌'+(d.displayElement||icons[d.element]||'🌊');return d;})(),c)+' | '+(ctx.def(x).bloodCost!==undefined?'🩸'+ctx.cost('player',x):A4.Classes&&A4.Classes.alive(b.player,'hireek').length?'❤️'+ctx.cost('player',x)*5:'💧'+ctx.cost('player',x))+(A4.Battle.cardAllowed(b,'player',c,x)?'':' ❌️'));});
       var v=A4.Battle.publicView(b);if(v.foreseenCards)lines.push('👁 상대의 예정 카드: '+(v.foreseenCards.map(function(x){return name(A4.Battle.describeCard(x,c),c);}).join(', ')||'쉬기'));if(v.enemyReacting)lines.push('👁 상대가 예지 중입니다.');
     }
-    if(!b.pendingChoice)lines.push('s / p / gg');
+    if(!b.pendingChoice){if(A4.Minions&&A4.Minions.alive(b.enemy).length)lines.push('대상: '+A4.Minions.targets(b,'enemy').map(function(m,i){return (i+1)+'. '+m.name;}).join(' / '),'카드번호+대상번호로 제출 (예: 12). 대상 생략 시 본체.');lines.push('s / p / gg');}
     return lines.join('\n');
   }
   return {summary:summary,controls:controls};

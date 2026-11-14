@@ -12,7 +12,7 @@ A4.Battle = (function () {
     if(card&&card.originalCardId==='crystal_ball'&&card.cardId!=='crystal_ball')parent=node(b,side,{name:card.crystalUpgraded?'수정구+':'수정구',element:'COSMIC'},null,parent).id;
     var r=report(b),n={id:r.nodes.length,side:side,label:label(d),uid:card&&card.uid||null,parent:parent===undefined?null:parent,countered:false};r.nodes.push(n);return n;
   }
-  function modules(){return [A4.CardRules,A4.TreasureRules,A4.BossRules,A4.Keywords,A4.Classes,A4.Expansion,A4.Runes].filter(function(x){return !!x;});}
+  function modules(){return [A4.CardRules,A4.TreasureRules,A4.BossRules,A4.Keywords,A4.Classes,A4.Expansion,A4.Runes,A4.GuffRules,A4.Minions].filter(function(x){return !!x;});}
   function shuffle(a,rng){for(var i=a.length-1;i>0;i--){var j=Math.floor(rng()*(i+1)),t=a[i];a[i]=a[j];a[j]=t;}return a;}
   function describe(c,catalog){
     var base=catalog.cards[c.cardId]; A4.assert(base,'알 수 없는 카드: '+c.cardId);
@@ -58,9 +58,9 @@ A4.Battle = (function () {
     if(ownNode&&task.kind!=='cast'){task.displayNode={serial:b.report.serial,id:ownNode.id};task.displaySource={side:ctx.side,label:ownNode.label};}
     if(!task.displaySource&&(task.card||task.power))task.displaySource={side:ctx.side,label:label(task.card?describe(task.card,c):task.power)};
     ctx.withSource=function(side,source,fn){var old=task.displaySource;task.displaySource={side:side,label:label(source)};try{return fn();}finally{task.displaySource=old;}};
-    ctx.note=function(type,side,amount,extra){if(b._aiSimulation)return;var r=report(b),source=extra&&extra.source||task.displaySource||null,last=r.logs[r.logs.length-1];if(['gainCard','move','overflow'].indexOf(type)>=0&&last&&last.type===type&&last.side===side&&last.text===(extra&&extra.text||null)&&JSON.stringify(last.source)===JSON.stringify(source)&&!!last.cards===!!(extra&&extra.cards)){last.amount+=amount;if(extra&&extra.cards)last.cards=last.cards.concat(clone(extra.cards));return;}if(r.logs.length>=100){if(!r.omitted){r.omitted=true;r.logs.push({type:'text',text:'반복 효과의 추가 로그는 생략합니다.'});}return;}r.logs.push({type:type,side:side,amount:amount,source:clone(source),blocked:extra&&extra.blocked||0,modified:!!(extra&&extra.modified),text:extra&&extra.text||null,cards:extra&&extra.cards?clone(extra.cards):null});};
+    ctx.note=function(type,side,amount,extra){if(b._aiSimulation)return;var r=report(b),source=extra&&extra.source||task.displaySource||null,last=r.logs[r.logs.length-1];if(['gainCard','move','overflow'].indexOf(type)>=0&&last&&last.type===type&&last.side===side&&last.text===(extra&&extra.text||null)&&JSON.stringify(last.source)===JSON.stringify(source)&&!!last.cards===!!(extra&&extra.cards)){last.amount+=amount;if(extra&&extra.cards)last.cards=last.cards.concat(clone(extra.cards));return;}if(r.logs.length>=100){if(!r.omitted){r.omitted=true;r.logs.push({type:'text',text:'반복 효과의 추가 로그는 생략합니다.'});}return;}r.logs.push({type:type,side:side,amount:amount,source:clone(source),blocked:extra&&extra.blocked||0,modified:!!(extra&&extra.modified),text:extra&&extra.text||null,minionUid:extra&&extra.minionUid||null,cards:extra&&extra.cards?clone(extra.cards):null});};
     ctx.reveal=function(s,card){return node(b,s,ctx.def(card),card);};
-    function inherit(next){if(task.runeSource&&next.kind==='effect'&&!next.runeSource)next.runeSource=clone(task.runeSource);if(task.castTrail&&!next.castTrail)next.castTrail=clone(task.castTrail);if(task.displaySource&&!next.displaySource)next.displaySource=clone(task.displaySource);if(task.displayNode&&!next.displayNode)next.displayNode=clone(task.displayNode);return next;}
+    function inherit(next){if(task.minionSource&&!next.minionSource)next.minionSource=task.minionSource;if(task.enemyTarget!==undefined&&next.enemyTarget===undefined&&(!next.card||task.card&&next.card.uid===task.card.uid))next.enemyTarget=task.enemyTarget;if(task.runeSource&&next.kind==='effect'&&!next.runeSource)next.runeSource=clone(task.runeSource);if(task.castTrail&&!next.castTrail)next.castTrail=clone(task.castTrail);if(task.displaySource&&!next.displaySource)next.displaySource=clone(task.displaySource);if(task.displayNode&&!next.displayNode)next.displayNode=clone(task.displayNode);return next;}
     ctx.enqueue=function(t){spawned.push(inherit(clone(t)));};
     ctx.prepend=function(t){var list=Array.isArray(t)?t:[t];for(var i=list.length-1;i>=0;i--)spawned.unshift(inherit(clone(list[i])));};
     ctx.emit=function(type,data){var ev=clone(data||{});ev.type=type;ctx.enqueue({kind:'event',side:ev.side||ctx.side,event:ev});};
@@ -86,7 +86,7 @@ A4.Battle = (function () {
       if(zone==='rest'||zone==='excluded'||(zone==='deck'&&(options.from==='hand'||options.from==='inFlight')))clearCostReduction(card,c);
       if(zone==='rest'){delete card.liberationReady;delete card.liberationProgress;}
       if(zone==='hand'&&options.from!=='hand'){delete card.orbitCount;delete card.orbitTriggered;}
-      if(zone==='runes'){(b[s].runes||[]).slice().forEach(function(old){if(old.uid!==card.uid)ctx.move(s,old.uid,'rest');});if(!card.activeRuneDef)card.activeRuneDef=clone(ctx.def(card));}if(!b[s][zone])b[s][zone]=[];b[s][zone].push(card);if(A4.Keywords)A4.Keywords.observe(b[s]);
+      if(zone==='runes'){var runeLimit=A4.Runes.capacity(b[s]);while((b[s].runes||[]).length>=runeLimit)ctx.move(s,b[s].runes[0].uid,'rest');if(!card.activeRuneDef)card.activeRuneDef=clone(ctx.def(card));}if(!b[s][zone])b[s][zone]=[];b[s][zone].push(card);if(A4.Keywords)A4.Keywords.observe(b[s]);
       if(task.displaySource&&!options.silent&&!overflow&&zone==='hand')ctx.note('gainCard',s,1);
       if(overflow){ctx.log(ctx.def(card).name+' — 손패 초과로 제외');ctx.note('overflow',s,1,{cards:[label(ctx.def(card))]});}
       if(zone==='excluded')ctx.emit('cardExcluded',{side:s,card:card,previousZone:options.from||null});
@@ -144,10 +144,13 @@ A4.Battle = (function () {
       return amount;
     };
     ctx.damage=function(source,s,n,options){
+      if(A4.Minions&&s===other(source)&&!(options&&options.bodyOnly)&&A4.Minions.mode(ctx)!=='body'){
+        var total=0;A4.Minions.resolve(ctx,s).forEach(function(target){var settings=clone(options||{});settings.bodyOnly=true;total+=target.uid?A4.Minions.hit(ctx,source,s,target,n,settings):ctx.damage(source,s,n,settings);});return total;
+      }
       options=options||{};var card=options.card===undefined?task.card:options.card;
       var data={sourceSide:source,side:s,card:card||null,value:Math.max(0,n),unblockable:!!options.unblockable,ignoreArmor:!!options.ignoreArmor,noBonus:!!options.noBonus};
       if(card&&!options.noBonus)b[source].passives.forEach(function(p){if(p.type==='damageBonus')data.value+=p.amount;});
-      ctx.modify('damage',data);if(A4.Keywords&&!data.unblockable){if(A4.Keywords.active(b[source],'weakened',b))data.value=Math.floor(data.value*0.75);if(A4.Keywords.active(b[s],'vulnerable',b))data.value=Math.floor(data.value*1.5);}ctx.modify('damageTaken',data);var damage=Math.max(0,Math.floor(data.value)),f=b[s],blocked=data.ignoreArmor?0:Math.min(f.shield,damage);
+      ctx.modify('damage',data);if(A4.Keywords&&!data.unblockable){if(A4.Keywords.active(task.minionSource?A4.Minions.find(b,source,task.minionSource)||b[source]:b[source],'weakened',b))data.value=Math.floor(data.value*0.75);if(A4.Keywords.active(b[s],'vulnerable',b))data.value=Math.floor(data.value*(A4.GuffRules&&A4.GuffRules.hasRune(b[other(s)],'fire_heart')?1.75:1.5));}ctx.modify('damageTaken',data);var damage=Math.max(0,Math.floor(data.value)),f=b[s],blocked=data.ignoreArmor?0:Math.min(f.shield,damage);
       f.shield-=blocked;var hpDamage=damage-blocked;if(A4.Classes)hpDamage=A4.Classes.absorb(ctx,s,hpDamage);f.hp-=hpDamage;f.damageTakenThisTurn+=damage;
       var reactionDepth=options.reactionDepth===undefined?(task.kind==='event'&&task.event.type==='damage'?(task.event.reactionDepth||0)+1:task.reactionDepth||0):options.reactionDepth;
       ctx.emit('damage',{side:s,sourceSide:source,amount:damage,hpDamage:hpDamage,card:card||null,unblockable:data.unblockable,reactionDepth:reactionDepth,reactiveAllowed:reactionDepth===0||(b.player.hp>0&&b.enemy.hp>0)});
@@ -161,7 +164,7 @@ A4.Battle = (function () {
     };
     ctx.shield=function(s,n){if(n>0&&A4.Keywords&&A4.Keywords.active(b[s],'disarm',b))return;b[s].shield=Math.max(0,b[s].shield+n);if(n){ctx.note('shield',s,n);if(n>0)ctx.emit('shieldGained',{side:s,amount:n});}};
     ctx.mana=function(s,n,recover){var current=b[s].mana;if(recover&&n>=0)b[s].mana=Math.max(current,Math.min(b[s].maxMana,current+n));else b[s].mana=Math.max(0,Math.min(5,current+n));if(b[s].mana!==current)ctx.note('mana',s,b[s].mana-current);};
-    ctx.overload=function(s,n){n=ctx.modify('overload',{side:s,value:n}).value;if(n>0&&!ctx.modify('harmfulEffect',{side:s,kind:'overload',cancel:false}).cancel){b[s].overloadNext+=n;ctx.emit('overload',{side:s,amount:n});}};
+    ctx.overload=function(s,n,reflected){n=ctx.modify('overload',{side:s,value:n}).value;if(n>0&&!ctx.modify('harmfulEffect',{side:s,kind:'overload',cancel:false}).cancel){b[s].overloadNext+=n;ctx.emit('overload',{side:s,amount:n,guffReflected:!!reflected});}};
     ctx.schedule=function(turn,phase,t){b.scheduled.push({turn:turn,phase:phase,task:inherit(clone(t))});};
     ctx.canAutoCast=function(card){
       var d=ctx.def(card),rule=d.rule||d.name;
@@ -355,18 +358,18 @@ A4.Battle = (function () {
     modules().forEach(function(m){if(m.hook)m.hook(ctx,e);});
   }
   function dispatch(ctx,t){
-    var module=t.module==='cards'?A4.CardRules:t.module==='treasures'?A4.TreasureRules:t.module==='boss'?A4.BossRules:t.module==='keywords'?A4.Keywords:t.module==='classes'?A4.Classes:t.module==='expansion'?A4.Expansion:t.module==='runes'?A4.Runes:null;
+    var module=t.module==='cards'?A4.CardRules:t.module==='treasures'?A4.TreasureRules:t.module==='boss'?A4.BossRules:t.module==='keywords'?A4.Keywords:t.module==='classes'?A4.Classes:t.module==='expansion'?A4.Expansion:t.module==='runes'?A4.Runes:t.module==='guff'?A4.GuffRules:t.module==='minions'?A4.Minions:null;
     if(module&&module.run&&module.run(ctx,t)===true)return true;
     if(!t.module){var list=modules();for(var i=0;i<list.length;i++)if(list[i].run&&list[i].run(ctx,t)===true)return true;}
     return false;
   }
-  function cardTask(entry,side,free){var d=entry.def;return {kind:'card',module:d.module||(d.treasure?'treasures':d.exclusive?'boss':'cards'),side:side,card:clone(entry.card),def:clone(d),targets:clone(entry.targets||[]),critical:!!entry.didCounter,free:!!free,fromDraw:!!entry.fromDraw,step:0};}
+  function cardTask(entry,side,free){var d=entry.def;return {kind:'card',module:d.module||(d.treasure?'treasures':d.exclusive?'boss':'cards'),side:side,card:clone(entry.card),def:clone(d),enemyTarget:entry.enemyTarget||null,paidCost:entry.paidCost,targets:clone(entry.targets||[]),critical:!!entry.didCounter,free:!!free,fromDraw:!!entry.fromDraw,step:0};}
   function effect(ctx,t){
     var e=t.effect,s=t.side,opp=other(s),targets=e.target==='both'?SIDES:[e.target==='opponent'?opp:s],f=ctx.battle[s];
     if(A4.Keywords&&A4.Keywords.effect(ctx,t))return;
     switch(e.type){
     case 'damage':ctx.damage(s,e.target==='self'?s:opp,e.amount);break;
-    case 'discountRandomHand':var discounted=ctx.pick(f.hand.filter(function(x){return ctx.cost(s,x)>0;}));if(discounted){var beforeCost=ctx.cost(s,discounted);discounted.costDelta=(discounted.costDelta||0)-e.amount;discounted.costFloor=0;var afterCost=ctx.cost(s,discounted);ctx.note('discount',s,beforeCost-afterCost,{text:beforeCost+' → '+afterCost,cards:s==='player'?[label(ctx.def(discounted))]:null});}else ctx.note('powerNoTarget',s,0);break;
+    case 'discountRandomHand':var discounted=ctx.pick(f.hand.filter(function(x){return ctx.cost(s,x)>0;}));if(discounted){var beforeCost=ctx.cost(s,discounted);if(A4.TreasureRules.owns(f,'nature_staff'))discounted.guffStaffDiscount=(discounted.guffStaffDiscount||0)+e.amount;else discounted.costDelta=(discounted.costDelta||0)-e.amount;discounted.costFloor=0;var afterCost=ctx.cost(s,discounted);ctx.note('discount',s,beforeCost-afterCost,{text:beforeCost+' → '+afterCost,cards:s==='player'?[label(ctx.def(discounted))]:null});}else ctx.note('powerNoTarget',s,0);break;
     case 'randomPoison':ctx.poison(s,opp,e.min+Math.floor(ctx.rng()*(e.max-e.min+1)));break;
     case 'heal':targets.forEach(function(x){ctx.heal(x,e.amount);});break;
     case 'shield':targets.forEach(function(x){ctx.shield(x,e.amount);});break;
@@ -389,7 +392,7 @@ A4.Battle = (function () {
   function scheduled(ctx,phase){var b=ctx.battle,remaining=[];b.scheduled.forEach(function(x){if(x.turn===b.turn&&x.phase===phase)ctx.enqueue(x.task);else if(x.turn>=b.turn)remaining.push(x);});b.scheduled=remaining;}
   function core(ctx,t){
     var b=ctx.battle,s=t.side||'player',f=b[s],i,d,card,entries;
-    if(t.kind==='effect'&&t.runeSource){var activeRune=A4.Runes.current(b[t.runeSource.side]);if(!activeRune||activeRune.uid!==t.runeSource.uid||t.runeSource.activation!==undefined&&activeRune.runeActivationId!==t.runeSource.activation)return;}
+    if(t.kind==='effect'&&t.runeSource){var activeRune=(b[t.runeSource.side].runes||[]).filter(function(x){return x.uid===t.runeSource.uid;})[0];if(!activeRune||activeRune.uid!==t.runeSource.uid||t.runeSource.activation!==undefined&&activeRune.runeActivationId!==t.runeSource.activation)return;}
     if(t.kind==='event'){
       if(b.resolution.suppressed&&['draw','cardRest','damage','heal','counter','powerUsed','cardUsed','cardResolved','discovered','overload','refill'].indexOf(t.event.type)>=0)return;
       // Events store snapshots for recovery but live-instance mutations must affect
@@ -471,7 +474,7 @@ A4.Battle = (function () {
         SIDES.forEach(function(side){b[side].hand.slice().forEach(function(x){var def=ctx.def(x);if(def.volatile){ctx.move(side,x.uid,'excluded');return;}if((def.temporary||A4.TreasureRules&&A4.TreasureRules.owns&&A4.TreasureRules.owns(b[side],'time_potion'))&&x.temporaryUntil===undefined)x.temporaryUntil=b.turn;if(x.temporaryUntil!==undefined&&x.temporaryUntil<=b.turn)ctx.move(side,x.uid,'rest');});});
         ctx.emit('afterEnd',{});ctx.enqueue({kind:'phase',op:'clearShields'});ctx.emit('beforeDeath',{phase:'END'});ctx.enqueue({kind:'phase',op:'death',next:'standby'});return;
       }
-      if(t.op==='clearShields'){SIDES.forEach(function(side){b[side].shield=0;});return;}
+      if(t.op==='clearShields'){SIDES.forEach(function(side){if(!A4.GuffRules||!A4.GuffRules.hasRune(b[side],'barricade'))b[side].shield=0;(b[side].minions||[]).forEach(function(m){m.shield=0;});});return;}
       if(t.op==='standby'){
         b.turn++;b.phase='STANDBY';
         SIDES.forEach(function(side){var p=b[side];p.lastTurnCards=clone(p.usedThisTurn);p.usedThisTurn=[];p.playedThisTurn=0;p.limitedUsed={};p.damageTakenLastTurn=p.damageTakenThisTurn;p.damageTakenThisTurn=0;p.drawnCountThisTurn=0;p.maxMana=Math.max(0,Math.min(5,ctx.modify('maximumMana',{side:side,value:2+Math.floor((b.turn+1)/5)+p.manaGrowth}).value));p.overloadLocked=Math.min(p.maxMana,p.overloadNext);p.mana=Math.max(0,p.maxMana-p.overloadNext);p.overloadNext=0;
@@ -492,8 +495,8 @@ A4.Battle = (function () {
       if(b._aiSimulation){if(A4.AI)A4.AI.checkDeadline();if(--b._aiStepsRemaining<0)throw new Error('AI_SIMULATION_LIMIT');}
       b.resolution.steps=(b.resolution.steps||0)+1;
       if(b.resolution.steps>2000&&!b.resolution.suppressed){b.resolution.suppressed=true;b.lastLog.push('반복 효과가 2,000회를 넘어 추가 연쇄 발동을 멈춥니다. 제출한 카드와 페이즈 처리는 계속됩니다.');report(b).logs.push({type:'text',text:'반복 효과가 2,000회를 넘어 추가 연쇄 발동을 멈춥니다. 제출한 카드와 페이즈 처리는 계속됩니다.'});}
-      var t=b.resolution.queue.shift(),spawned=[];if(t.discoveryEvent)t.discoveryEvent.beforeHandUids=b[t.side].hand.map(function(x){return x.uid;});core(context(b,c,rng,t,spawned),t);if(A4.Keywords)SIDES.forEach(function(side){A4.Keywords.observe(b[side]);});
-      if(b.escapeRequested){b.resolution=null;b.pendingChoice=null;break;}
+      var previousMaxMana={player:b.player.maxMana,enemy:b.enemy.maxMana};var t=b.resolution.queue.shift(),spawned=[];if(t.discoveryEvent)t.discoveryEvent.beforeHandUids=b[t.side].hand.map(function(x){return x.uid;});core(context(b,c,rng,t,spawned),t);if(A4.Keywords)SIDES.forEach(function(side){A4.Keywords.observe(b[side]);});
+      SIDES.forEach(function(s){if(b[s].maxMana>previousMaxMana[s])spawned.push({kind:'event',side:s,event:{type:'maximumManaIncreased',side:s,amount:b[s].maxMana-previousMaxMana[s]}});});if(b.escapeRequested){b.resolution=null;b.pendingChoice=null;break;}
       if(t.discoveryEvent){t.discoveryEvent.castUids=spawned.filter(function(x){return x.kind==='cast'&&x.side===t.side;}).map(function(x){return x.card.uid;});spawned.unshift({kind:'event',side:t.side,event:clone(t.discoveryEvent)});}
       if(b.resolution) b.resolution.queue=spawned.concat(b.resolution.queue);
     }
@@ -518,6 +521,7 @@ A4.Battle = (function () {
   function submit(b,uids,c,rng,options){
     options=options||{};A4.assert(b.outcome==='ongoing'&&!b.pendingChoice&&!b.resolution,'현재 제출할 수 없습니다.');A4.assert(b.phase==='MAIN1'||b.phase==='MAIN2','메인 페이즈가 아닙니다.');
     var initialTasks=[],ctx=context(b,c,rng,{side:'player'},initialTasks),p=validateSubmission(ctx,'player',uids,options.heroPower);
+    p.cards.forEach(function(entry){var target=(options.targets||{})[entry.card.uid];if(target){A4.assert(A4.Minions&&entry.def.targetMode==='choose','이 카드는 하수인을 대상으로 지정할 수 없습니다.');var unit=A4.Minions.find(b,'enemy',target);A4.assert(unit&&unit.hp>0,'살아 있는 대상을 지정하세요.');entry.enemyTarget=target;}});
     if(b.enemyPlanDeferred&&b.player.status.foresightTurns.indexOf(b.turn)<0){var reactive=plan(b,c,rng,p.cards);b.enemyPlan=reactive.uids;b.enemyPowerPlan=reactive.heroPower;}
     var e=validateSubmission(ctx,'enemy',b.enemyPlan||[],b.enemyPowerPlan),groups={player:p.cards,enemy:e.cards};
     b.lastLog=[];b.report={turn:b.turn,phase:b.phase,serial:b.phaseSerial,submitted:true,nodes:[],logs:[]};b.resolution={queue:[],entries:groups,phase:b.phase};
@@ -550,7 +554,7 @@ A4.Battle = (function () {
   }
   function view(b){var v={turn:b.turn,phase:b.phase,outcome:b.outcome,player:clone(b.player),enemy:publicFighter(b.enemy),history:clone(b.history),lastLog:clone(b.lastLog),enemyReacting:b.enemy.status.foresightTurns.indexOf(b.turn)>=0&&b.player.status.foresightTurns.indexOf(b.turn)<0};redactTrapChoices(v.player.status,'player','player');if(b.player.status.foresightTurns.indexOf(b.turn)>=0&&b.enemy.status.foresightTurns.indexOf(b.turn)<0)v.foreseenCards=b.enemyPlan.map(function(uid){return clone(locate(b.enemy,uid).card);});return v;}
   function sync(b,passives){b.player.passives=clone(passives);}
-  function validateCard(card,c){var d=describe(card,c);A4.assert(A4.integer(d.cost,0)&&d.cost<=5,'카드 비용이 올바르지 않습니다.');A4.assert(d.rule||Array.isArray(d.effects),'카드 효과가 없습니다.');if(d.rule){var m=d.module==='expansion'?A4.Expansion:d.module==='classes'?A4.Classes:d.module==='treasures'?A4.TreasureRules:d.module==='boss'?A4.BossRules:A4.CardRules;if(m&&m.supports)A4.assert(m.supports(d.rule),'효과 구현이 없습니다: '+d.rule);}}
+  function validateCard(card,c){var d=describe(card,c);A4.assert(A4.integer(d.cost,0)&&d.cost<=5,'카드 비용이 올바르지 않습니다.');A4.assert(d.rule||Array.isArray(d.effects),'카드 효과가 없습니다.');if(d.rule){var m=d.module==='guff'?A4.GuffRules:d.module==='expansion'?A4.Expansion:d.module==='classes'?A4.Classes:d.module==='treasures'?A4.TreasureRules:d.module==='boss'?A4.BossRules:A4.CardRules;if(m&&m.supports)A4.assert(m.supports(d.rule),'효과 구현이 없습니다: '+d.rule);}}
   function validatePower(power){A4.assert(power&&power.id&&power.name,'영웅 능력 정의가 필요합니다.');A4.assert(power.kind==='active'||power.kind==='passive','영웅 능력 유형이 올바르지 않습니다.');}
   function canSubmit(b,s,c,card){try{if(b.pendingChoice||b.resolution||b.outcome!=='ongoing'||['MAIN1','MAIN2'].indexOf(b.phase)<0)return false;validateSubmission(context(b,c,function(){return 0.5;},{side:s},[]),s,card?[card.uid]:[],!card);return true;}catch(error){return false;}}
   return {create:create,submit:submit,choose:choose,publicView:view,syncPassives:sync,describeCard:describe,canSubmit:canSubmit,validateSubmission:validateSubmission,legacyPlan:legacyPlan,choiceOptions:choiceOptions,cardAllowed:function(b,s,c,card){return usable(context(b,c,function(){return 0.5;},{side:s},[]),s,card).allowed;},planEnemy:function(b,c,rng){return plan(b,c,rng).uids;},plan:plan,maximumMana:function(turn){return Math.min(5,2+Math.floor(turn/5));},fatigue:function(turn){return turn<20?0:1+(turn-20);},fatigueDamage:function(turn,f){return Math.max(1,1+(turn-20))+(f&&f.fatigueExtra||0);},validateCard:validateCard,validatePassives:function(p){A4.assert(Array.isArray(p),'지속 효과 목록이 필요합니다.');},validateHeroPower:validatePower,context:context,process:process,redactTrapChoices:redactTrapChoices,handLimit:function(b,s,c){return context(b,c,function(){return 0.5;},{side:s},[]).limit(s);},cardCost:function(b,s,card,c){return context(b,c,function(){return 0.5;},{side:s},[]).cost(s,card);},powerCost:function(b,s,c){return context(b,c,function(){return 0.5;},{side:s},[]).powerCost(s);}};
@@ -566,5 +570,5 @@ A4.Battle = (function () {
       return (v3?A4.Battle[name]:old).apply(null,a);
     };
   });
-  var oldPassives=legacy.validatePassives;A4.Combat.validatePassives=function(p){if((p||[]).some(function(x){return x.type==='treasure'||x.module==='treasures'||x.module==='classes'||x.module==='expansion';}))return A4.Battle.validatePassives(p);return oldPassives(p);};
+  var oldPassives=legacy.validatePassives;A4.Combat.validatePassives=function(p){if((p||[]).some(function(x){return x.type==='treasure'||x.module==='treasures'||x.module==='classes'||x.module==='expansion'||x.module==='guff';}))return A4.Battle.validatePassives(p);return oldPassives(p);};
 }());
