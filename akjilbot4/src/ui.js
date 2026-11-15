@@ -276,8 +276,11 @@ A4.UI = (function () {
       prefix=treasureName(result.treasureChange.before)+' 카드가 '+treasureName(result.treasureChange.after)+' 카드로 변신합니다!'+separator;
     }
     if(result.eventResult){
-      var eventResult=result.eventResult,eventLines=['⚔️ 이벤트 - '+eventResult.name+' ⚔️','',eventResult.outro,''];
+      var eventResult=result.eventResult,eventLines=[eventResult.title||'⚔️ 이벤트 - '+eventResult.name+' ⚔️','',eventResult.outro,''];
       if(eventResult.costGold)eventLines.push('골드를 '+eventResult.costGold+' 잃었습니다. '+eventResult.beforeGold+' → '+eventResult.afterGold);
+      if(eventResult.gainGold)eventLines.push('골드를 '+eventResult.gainGold+' 얻었습니다.');
+      if(eventResult.loseHp)eventLines.push('체력을 '+eventResult.loseHp+' 잃었습니다.');
+      if(eventResult.treasureId)eventLines.push(rewardTreasure(eventResult.treasureId,catalog).split('\n')[0].split(' | ')[0]+(function(){var name=catalog.treasures[eventResult.treasureId].name,last=name.charCodeAt(name.length-1);return (last-44032)%28?'을':'를';}())+' 획득했습니다.');
       if(eventResult.cardId)eventLines.push(eventCardText({cardId:eventResult.cardId,upgraded:false},catalog)+' '+(eventResult.deckText||'내 덱')+'에 추가했습니다.');
       if(eventResult.removedCard)eventLines.push(eventCardText(eventResult.removedCard,catalog)+' 덱에서 제거했습니다.');
       if(eventResult.heal)eventLines.push('체력을 '+eventResult.heal+' 회복했습니다. ('+eventResult.beforeHp+'/'+eventResult.maxHp+') → ('+eventResult.afterHp+'/'+eventResult.maxHp+')');

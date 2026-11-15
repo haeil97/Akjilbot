@@ -158,12 +158,12 @@ A4.Game = (function () {
     var stage=run.wins+1;
     if(!results.some(function(x){return x.stage===stage;})){var entry={stage:stage,enemyId:run.enemyId||null,name:enemy.name,won:won};if(A4.Regions&&A4.Regions.enabled(run)){var region=A4.Regions.info(run);entry.regionName=region.regionName;entry.regionId=region.regionId;entry.regionBattle=region.battle;entry.isBoss=region.isBoss;}results.push(entry);}
   }
-  function finish(state, user, reason, now, rng, catalog) {
+  function finish(state, user, reason, now, rng, catalog, outsideBattle) {
     var run = user.run;
     A4.assert(run,'진행 중인 탐험이 없습니다.');
-    if(reason!=='clear')A4.Stats.battle(state,run,false);
+    if(reason!=='clear'&&!outsideBattle)A4.Stats.battle(state,run,false);
     A4.Stats.finish(state,run,catalog);
-    if(reason!=='clear')recordEncounter(run,false);
+    if(reason!=='clear'&&!outsideBattle)recordEncounter(run,false);
     var regional=A4.Regions&&A4.Regions.enabled(run),reward=run.journeyVersion===2&&!regional?{gold:run.gold||0,keys:0,stones:0,essence:0}:A4.Economy.reward(run.wins,rng);
     A4.Economy.grant(user,reward,now);
     user.lastRun = {id:run.id,wins:run.wins,reason:reason,reward:reward,finishedAt:now,encounterResults:A4.copy(encounterResults(run))};
@@ -243,6 +243,7 @@ A4.Game = (function () {
       hero.cards.forEach(function (id) { addCard(state,run,id); }); offerBattle(state,user,catalog,rng); return {kind:'run'};
     }
     var journeyChoice=A4.Journey&&A4.Journey.choose(state,user,catalog,p,picked,rng);
+    if(journeyChoice&&journeyChoice.eventDefeat)return {kind:'finished',record:finish(state,user,'defeat',now,rng,catalog,true),eventResult:journeyChoice.eventResult};
     if(journeyChoice==='stay')return {kind:'run'};
     if(journeyChoice){}
     else if (p.kind === 'add') {A4.Stats.choice(state,p.options,picked,catalog);addCard(state,run,picked);}

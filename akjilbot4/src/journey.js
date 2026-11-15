@@ -66,12 +66,20 @@ A4.Journey=(function(){
         var alternatives=removalCandidates(r,c,p.extra.removalCandidate);A4.assert(alternatives.length,'직전 후보와 다른 카드가 없습니다. 다른 선택지를 골라주세요.');
         var nextCandidate=A4.pick(alternatives,rng);r.gold=(r.gold||0)-(choice.costGold||0);var updated=A4.copy(p.extra);updated.removalCandidate=A4.copy(nextCandidate);show(state,r,'event',p.options,updated);return 'stay';
       }
+      if(choice.nextEvent){
+        if(choice.loseHp){r.hp=Math.max(0,(r.hp===undefined?cap(r,c):r.hp)-choice.loseHp);if(r.hp===0)return {eventDefeat:true,eventResult:{name:event.name,title:event.resultTitle,outro:'상자를 꺼내다 쓰러졌습니다.',loseHp:choice.loseHp}};}
+        var following=A4.copy(choice.nextEvent);show(state,r,'event',following.choices.map(function(x){return x.id;}),{event:following});return 'stay';
+      }
+      if(choice.outcomes)choice=choice.outcomes[rng()<0.5?0:1];
+      var treasurePool=choice.addLowTreasure?Object.keys(c.treasures).filter(function(id){var t=c.treasures[id];return t.tier==='low'&&!t.retired&&(!t.classId||t.classId===r.hero.id)&&(!t.excludeHeroes||t.excludeHeroes.indexOf(r.hero.id)<0)&&!own(r,id);}):[];
+      A4.assert(!choice.addLowTreasure||treasurePool.length,'획득할 하급 보물이 없습니다.');
       var removal=choice.removeCandidate?r.deck.filter(function(x){return p.extra.removalCandidate&&x.uid===p.extra.removalCandidate.uid;})[0]:null;
       A4.assert(!choice.removeCandidate||removal&&c.cards[removal.cardId]&&!c.cards[removal.cardId].treasure&&!removal.treasureSlot,'제거할 카드가 없습니다. 다른 선택지를 골라주세요.');
       A4.assert(!choice.addCardId||c.cards[choice.addCardId],'이벤트 보상 카드가 등록되지 않았습니다.');
       var privatePool=choice.addClassCard?pool(r,c):[];A4.assert(!choice.addClassCard||privatePool.length,'추가할 직업 카드가 없습니다.');
-      var result={id:event.id,name:event.name,outro:event.outro,beforeHp:r.hp===undefined?cap(r,c):r.hp,maxHp:cap(r,c),beforeGold:r.gold||0,heal:choice.heal||0,costGold:choice.costGold||0,cardId:null,deckText:event.deckText||'내 덱',removedCard:removal?A4.copy(removal):null};
-      r.gold=result.beforeGold-result.costGold;
+      var result={id:event.id,name:event.name,title:event.resultTitle,outro:choice.outro||event.outro,beforeHp:r.hp===undefined?cap(r,c):r.hp,maxHp:cap(r,c),beforeGold:r.gold||0,heal:choice.heal||0,costGold:choice.costGold||0,gainGold:choice.gainGold||0,cardId:null,deckText:event.deckText||'내 덱',removedCard:removal?A4.copy(removal):null};
+      r.gold=result.beforeGold-result.costGold+result.gainGold;
+      if(choice.addLowTreasure){var treasureId=A4.pick(treasurePool,rng),slot='extra-'+A4.id(state,'treasure-');r.treasures[slot]=treasureId;result.treasureId=treasureId;if(c.treasures[treasureId].kind==='card'){var treasureCard=add(state,r,c.treasures[treasureId].cardId);treasureCard.treasureSlot=slot;}}
       if(choice.addClassCard){result.cardId=A4.pick(privatePool,rng);add(state,r,result.cardId);}
       if(choice.addCardId){result.cardId=choice.addCardId;add(state,r,choice.addCardId);}
       if(removal)r.deck=r.deck.filter(function(x){return x.uid!==removal.uid;});

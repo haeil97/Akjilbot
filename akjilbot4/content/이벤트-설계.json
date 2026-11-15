@@ -9,9 +9,26 @@
     ],
     "outro": "요리사는 빈 그릇을 보고서야 자기 몫을 뜹니다.",
     "choices": [
-      {"id": "clear_soup", "name": "맑은 수프", "text": "체력을 6 회복합니다.", "heal": 6},
-      {"id": "root_soup", "name": "뿌리 수프", "text": "골드를 2 잃습니다. 체력을 12 회복합니다.", "costGold": 2, "heal": 12},
-      {"id": "thick_soup", "name": "걸쭉한 수프", "text": "내 직업의 무작위 카드를 내 덱에 추가합니다. 체력을 10 회복합니다.", "addClassCard": true, "heal": 10}
+      {
+        "id": "clear_soup",
+        "name": "맑은 수프",
+        "text": "체력을 6 회복합니다.",
+        "heal": 6
+      },
+      {
+        "id": "root_soup",
+        "name": "뿌리 수프",
+        "text": "골드를 2 잃습니다. 체력을 12 회복합니다.",
+        "costGold": 2,
+        "heal": 12
+      },
+      {
+        "id": "thick_soup",
+        "name": "걸쭉한 수프",
+        "text": "내 직업의 무작위 카드를 내 덱에 추가합니다. 체력을 10 회복합니다.",
+        "addClassCard": true,
+        "heal": 10
+      }
     ]
   },
   {
@@ -27,9 +44,85 @@
     ],
     "outro": "도장은 도토리 모양입니다. 합격인 것 같습니다.",
     "choices": [
-      {"id": "take_ration", "name": "식량을 받는다", "text": "비상식량을 덱에 추가합니다.", "addCardId": "event:emergency_ration"},
-      {"id": "reduce_luggage", "name": "짐을 줄인다", "text": "{candidate} 내 덱에서 제거하고 비상식량을 덱에 추가합니다.", "removeCandidate": true, "addCardId": "event:emergency_ration"},
-      {"id": "inspect_luggage", "name": "짐 검사", "text": "골드를 1 잃습니다. 2번 선택지의 카드가 무작위로 변경됩니다. 이 선택지를 반복할 수 있습니다.", "rerollCandidate": true, "costGold": 1}
+      {
+        "id": "take_ration",
+        "name": "식량을 받는다",
+        "text": "비상식량을 덱에 추가합니다.",
+        "addCardId": "event:emergency_ration"
+      },
+      {
+        "id": "reduce_luggage",
+        "name": "짐을 줄인다",
+        "text": "{candidate} 내 덱에서 제거하고 비상식량을 덱에 추가합니다.",
+        "removeCandidate": true,
+        "addCardId": "event:emergency_ration"
+      },
+      {
+        "id": "inspect_luggage",
+        "name": "짐 검사",
+        "text": "골드를 1 잃습니다. 2번 선택지의 카드가 무작위로 변경됩니다. 이 선택지를 반복할 수 있습니다.",
+        "rerollCandidate": true,
+        "costGold": 1
+      }
+    ]
+  },
+  {
+    "id": "pouch_below_bank",
+    "regionId": "elwynn_forest",
+    "name": "둑 아래의 주머니",
+    "menuTitle": "⚔️ 이벤트 – 둑 아래의 주머니 ⚔️",
+    "resultTitle": "⚔️ 이벤트 – 둑 아래의 주머니 ⚔️",
+    "deckText": "덱",
+    "intro": [
+      "개울 아래에서 돈주머니가 흔들립니다. 얕은 물에는 동전이, 깊은 물에는 묵직한 상자가 잠겨 있습니다."
+    ],
+    "outro": "양말은 젖었지만, 주머니까지 빈 것은 아닙니다.",
+    "choices": [
+      {
+        "id": "shallow",
+        "name": "얕은 곳을 뒤진다",
+        "text": "2골드를 얻습니다.",
+        "gainGold": 2
+      },
+      {
+        "id": "deep",
+        "name": "깊은 곳을 뒤진다",
+        "text": "체력을 4 잃고 상자를 꺼냅니다.",
+        "loseHp": 4,
+        "nextEvent": {
+          "id": "pouch_below_bank_chest",
+          "name": "둑 아래의 주머니",
+          "menuTitle": "⚔️ 이벤트 – 둑 아래의 주머니 ⚔️",
+          "resultTitle": "⚔️ 이벤트 – 둑 아래의 주머니 ⚔️",
+          "deckText": "덱",
+          "intro": [
+            "상자가 손에 들어왔습니다."
+          ],
+          "outro": "양말은 젖었지만, 주머니까지 빈 것은 아닙니다.",
+          "choices": [
+            {
+              "id": "open",
+              "name": "상자를 연다",
+              "text": "50%로 무작위 하급 보물을 얻습니다. 50%로 덱에 [💔] 돌을 추가합니다.",
+              "outcomes": [
+                {
+                  "addLowTreasure": true
+                },
+                {
+                  "addCardId": "event:stone",
+                  "outro": "상자 안에는 쓸모없는 돌만 가득 차 있습니다."
+                }
+              ]
+            },
+            {
+              "id": "sell",
+              "name": "상자째 판다",
+              "text": "4골드를 얻습니다.",
+              "gainGold": 4
+            }
+          ]
+        }
+      }
     ]
   }
 ]
