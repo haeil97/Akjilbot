@@ -6183,7 +6183,7 @@ A4.content = {
     {
       "id": "event:emergency_ration",
       "name": "비상식량",
-      "element": "NEUTRAL",
+      "element": "NATURE",
       "cost": 0,
       "text": "일회용. 방어도를 5 얻고 카드를 뽑습니다.",
       "excludeOnUse": true,

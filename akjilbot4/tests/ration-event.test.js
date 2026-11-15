@@ -14,11 +14,11 @@ test('ration menu shows the stored non-treasure candidate with blank lines and t
 });
 test('taking food adds exactly one ration without removing a card, healing, or spending money',()=>{
  const h=harness(),before=h.user(),output=h.send('1'),messages=A.UI.messages(output),r=h.user().run;
- assert.equal(messages[0],title+'\n\n'+outro+'\n\n[🌊] 비상식량을 덱에 추가했습니다.');assert.match(messages[1],/선술집/);assert.equal(r.deck.length,before.run.deck.length+1);assert.equal(r.deck.at(-1).cardId,food);assert.equal(r.deck.at(-1).upgraded,false);assert.equal(r.hp,20);assert.equal(r.gold,5);assert.equal(h.user().gold,before.gold);
+ assert.equal(messages[0],title+'\n\n'+outro+'\n\n[🍃] 비상식량을 덱에 추가했습니다.');assert.match(messages[1],/선술집/);assert.equal(r.deck.length,before.run.deck.length+1);assert.equal(r.deck.at(-1).cardId,food);assert.equal(r.deck.at(-1).upgraded,false);assert.equal(r.hp,20);assert.equal(r.gold,5);assert.equal(h.user().gold,before.gold);
 });
 test('reducing luggage removes the exact displayed physical card and logs food before removal',()=>{
  const deck=[{uid:'willow',cardId:'class:guff_willow'},{uid:'second-copy',cardId:'class:guff_willow'},{uid:'treasure',cardId:'treasure_wonder_wand',treasureSlot:'low'}],h=harness(deck),messages=A.UI.messages(h.send('2')),r=h.user().run;
- assert.equal(messages[0],title+'\n\n'+outro+'\n\n[🌊] 비상식량을 덱에 추가했습니다.\n[🍃] 버드나무를 덱에서 제거했습니다.');assert.equal(r.deck.length,3);assert.ok(!r.deck.some(x=>x.uid==='willow'));assert.ok(r.deck.some(x=>x.uid==='second-copy'));assert.ok(r.deck.some(x=>x.uid==='treasure'));assert.equal(r.deck.filter(x=>x.cardId===food).length,1);
+ assert.equal(messages[0],title+'\n\n'+outro+'\n\n[🍃] 비상식량을 덱에 추가했습니다.\n[🍃] 버드나무를 덱에서 제거했습니다.');assert.equal(r.deck.length,3);assert.ok(!r.deck.some(x=>x.uid==='willow'));assert.ok(r.deck.some(x=>x.uid==='second-copy'));assert.ok(r.deck.some(x=>x.uid==='treasure'));assert.equal(r.deck.filter(x=>x.cardId===food).length,1);
 });
 test('inspection repeatedly pays one run gold, changes the candidate and token, and prints the full menu',()=>{
  const h=harness(),coins=h.user().gold;let previous=h.user().run.pending;
