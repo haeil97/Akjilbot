@@ -275,7 +275,7 @@ A4.UI = (function () {
       prefix=treasureName(result.treasureChange.before)+' 카드가 '+treasureName(result.treasureChange.after)+' 카드로 변신합니다!'+separator;
     }
     if(result.eventResult){
-      var eventResult=result.eventResult,eventLines=['⚔️ 이벤트 - '+eventResult.name+' ⚔️',eventResult.outro];
+      var eventResult=result.eventResult,eventLines=['⚔️ 이벤트 - '+eventResult.name+' ⚔️','',eventResult.outro,''];
       if(eventResult.costGold)eventLines.push('골드를 '+eventResult.costGold+' 잃었습니다. '+eventResult.beforeGold+' → '+eventResult.afterGold);
       if(eventResult.cardId){var eventCardName=catalog.cards[eventResult.cardId].name,eventNameTail=eventCardName.replace(/[^가-힣]+$/,''),lastCode=eventNameTail.charCodeAt(eventNameTail.length-1),particle=lastCode>=44032&&lastCode<=55203&&(lastCode-44032)%28?'을':'를';eventLines.push(card({cardId:eventResult.cardId,upgraded:false},catalog).split(' | ')[0]+particle+' 내 덱에 추가했습니다.');}
       eventLines.push('체력을 '+eventResult.heal+' 회복했습니다. ('+eventResult.beforeHp+'/'+eventResult.maxHp+') → ('+eventResult.afterHp+'/'+eventResult.maxHp+')');

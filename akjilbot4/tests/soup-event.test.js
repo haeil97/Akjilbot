@@ -14,15 +14,15 @@ test('Elwynn event presents the exact story and three soup choices',()=>{
 });
 test('clear soup heals six, logs before and after HP, and then presents the tavern',()=>{
  const h=harness(),coins=h.user().gold,deck=A.copy(h.user().run.deck),messages=A.UI.messages(h.send('1'));
- assert.equal(messages[0],title+'\n'+outro+'\n체력을 6 회복했습니다. (20/60) → (26/60)');assert.match(messages[1],/선술집/);assert.equal(h.user().run.pending.kind,'tavern');assert.equal(h.user().run.hp,26);assert.equal(h.user().run.gold,5);assert.equal(h.user().gold,coins);assert.deepEqual(h.user().run.deck,deck);
+ assert.equal(messages[0],title+'\n\n'+outro+'\n\n체력을 6 회복했습니다. (20/60) → (26/60)');assert.match(messages[1],/선술집/);assert.equal(h.user().run.pending.kind,'tavern');assert.equal(h.user().run.hp,26);assert.equal(h.user().run.gold,5);assert.equal(h.user().gold,coins);assert.deepEqual(h.user().run.deck,deck);
 });
 test('root soup loses only exploration gold and logs the twelve-point heal',()=>{
  const h=harness(),coins=h.user().gold,messages=A.UI.messages(h.send('2'));
- assert.equal(messages[0],title+'\n'+outro+'\n골드를 2 잃었습니다. 5 → 3\n체력을 12 회복했습니다. (20/60) → (32/60)');assert.equal(h.user().run.gold,3);assert.equal(h.user().run.hp,32);assert.equal(h.user().gold,coins);
+ assert.equal(messages[0],title+'\n\n'+outro+'\n\n골드를 2 잃었습니다. 5 → 3\n체력을 12 회복했습니다. (20/60) → (32/60)');assert.equal(h.user().run.gold,3);assert.equal(h.user().run.hp,32);assert.equal(h.user().gold,coins);
 });
 test('thick soup adds one unupgraded class card and logs its element without cost or description',()=>{
  const h=harness();h.c.heroes[0].classPool=['class:guff_willow'];const before=h.user().run.deck.length,messages=A.UI.messages(h.send('3'));
- assert.equal(messages[0],title+'\n'+outro+'\n[🍃] 버드나무를 내 덱에 추가했습니다.\n체력을 10 회복했습니다. (20/60) → (30/60)');assert.equal(h.user().run.deck.length,before+1);const card=h.user().run.deck.at(-1);assert.equal(card.cardId,'class:guff_willow');assert.equal(card.upgraded,false);assert.equal(h.user().run.gold,5);
+ assert.equal(messages[0],title+'\n\n'+outro+'\n\n[🍃] 버드나무를 내 덱에 추가했습니다.\n체력을 10 회복했습니다. (20/60) → (30/60)');assert.equal(h.user().run.deck.length,before+1);const card=h.user().run.deck.at(-1);assert.equal(card.cardId,'class:guff_willow');assert.equal(card.upgraded,false);assert.equal(h.user().run.gold,5);
 });
 test('all healing choices cap HP and record the actual before and after values',()=>{
  for(const choice of [1,2,3]){const h=harness(1,59);const messages=A.UI.messages(h.send(String(choice)));assert.equal(h.user().run.hp,60);assert.match(messages[0],/\(59\/60\) → \(60\/60\)/);}
