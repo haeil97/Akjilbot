@@ -6361,6 +6361,39 @@ A4.content = {
           "outro": "갈증이 조금 가십니다."
         }
       ]
+    },
+    {
+      "id": "leaf_lunchbox",
+      "regionId": "elwynn_forest",
+      "name": "나뭇잎 도시락",
+      "menuTitle": "⚔️ 이벤트 – 나뭇잎 도시락 ⚔️",
+      "resultTitle": "⚔️ 이벤트 – 나눠 먹는 도시락 ⚔️",
+      "simpleResult": true,
+      "intro": [
+        "당신은 숲속에서 누군가가 싸 둔 나뭇잎 도시락을 발견합니다. 반대편에는 아직 아무도 앉지 않았습니다."
+      ],
+      "outro": "빈자리 쪽의 풀이 조용히 눕습니다.",
+      "choices": [
+        {
+          "id": "eat_alone",
+          "name": "혼자 먹는다",
+          "text": "체력을 14 회복합니다.",
+          "heal": 14
+        },
+        {
+          "id": "leave_half",
+          "name": "반을 남긴다",
+          "text": "체력을 7 회복합니다. 다음 전투 후 5골드를 추가로 얻습니다.",
+          "heal": 7,
+          "nextBattleGold": 5
+        },
+        {
+          "id": "leave_lunch",
+          "name": "도시락을 두고 간다",
+          "text": "이번 탐험에서 이벤트 발생 확률이 5% 증가합니다.",
+          "eventChanceBonusPercent": 5
+        }
+      ]
     }
   ],
   "eventCards": [
@@ -13455,7 +13488,7 @@ A4.Journey=(function(){
       if(step==='camp'){show(state,r,'camp',['rest','forge']);return true;}
       if(step==='forge'){opts=A4.sample(cards(r,c),3,rng).map(function(x){return x.uid;});if(opts.length){show(state,r,'forge',opts);return true;}continue;}
       if(step==='event'){
-        if(rng()>=0.2)continue;
+        if(rng()>=Math.min(100,20+(r.eventChanceBonusPercent||0))/100)continue;
         var region=A4.Regions&&A4.Regions.enabled(r)?A4.Regions.progress(r,true):null;
         var curses=curseCandidates(r,c);
         var events=(A4.content.regionEvents||[]).filter(function(e){return region&&e.regionId===region.regionId&&(!e.requiresRemovalCandidate||removalCandidates(r,c).length)&&(!e.lowTreasureOffers||lowTreasures(r,c).length>=2)&&(e.curseOrHpAtMost===undefined||curses.length||(r.hp===undefined?cap(r,c):r.hp)<=e.curseOrHpAtMost);});
@@ -13472,7 +13505,8 @@ A4.Journey=(function(){
   function tavern(state,user){var r=user.run;show(state,r,'tavern',r.tavern.map(function(x,i){return {index:i,item:x};}).concat([{leave:true}]));return true;}
   function reward(run,c,rng){
     var missing=1-Math.max(0,Math.min(1,run.hp/cap(run,c))),base=4+Math.floor(rng()*3),bonus=Math.min(5,Math.round(missing*5));
-    run.gold=(run.gold||0)+base+bonus;run.lastBattleGold={base:base,bonus:bonus,total:base+bonus};
+    var eventBonus=run.nextBattleGoldBonus||0;
+    run.gold=(run.gold||0)+base+bonus+eventBonus;run.lastBattleGold={base:base,bonus:bonus,eventBonus:eventBonus,total:base+bonus+eventBonus};delete run.nextBattleGoldBonus;
     run.journeyVersion=2;
     var milestone=run.wins===1?['low']:run.wins===4?['high']:run.wins===6?['swap']:[];
     run.queue=milestone.concat(['bundles','camp','event','tavern']);if(run.wins>=(A4.Regions?A4.Regions.limit(run):8))run.queue.push('clear');
@@ -13519,6 +13553,8 @@ A4.Journey=(function(){
       if(choice.addCardId){result.cardId=choice.addCardId;add(state,r,choice.addCardId);}
       if(removal)r.deck=r.deck.filter(function(x){return x.uid!==removal.uid;});
       result.loseHp=choice.loseHp||0;result.logOrder=event.logOrder||null;
+      if(choice.nextBattleGold){r.nextBattleGoldBonus=(r.nextBattleGoldBonus||0)+choice.nextBattleGold;result.nextBattleGold=choice.nextBattleGold;}
+      if(choice.eventChanceBonusPercent){r.eventChanceBonusPercent=Math.min(80,(r.eventChanceBonusPercent||0)+choice.eventChanceBonusPercent);result.eventChanceBonusPercent=choice.eventChanceBonusPercent;}
       r.hp=Math.max(0,Math.min(result.maxHp,result.beforeHp+result.heal-result.loseHp));result.afterHp=r.hp;result.afterGold=r.gold;r.lastEventResult=A4.copy(result);
       return {eventResult:result,eventDefeat:r.hp===0};
     }
@@ -14361,7 +14397,7 @@ A4.UI = (function () {
       var headings={bundles:'직업 카드 묶음 선택',camp:'휴식 또는 제련',forge:'제련',event:'이벤트',tavern:'선술집',shopUpgrade:'강화권',shopRemove:'카드 제거'};
       lines.push('⚔️ '+headings[p.kind]+' ⚔️','❤️ '+(r.hp===undefined?60:r.hp)+'/60 · 🪙 '+(r.gold||0)+'골드');
       if(A4.Regions&&A4.Regions.enabled(r))lines.splice(1,0,A4.Regions.label(r,true)+' · 누적 '+r.wins+'/32처치');
-      if(p.kind==='bundles'&&r.lastBattleGold)lines.push('전투 골드 +'+r.lastBattleGold.total+' (기본 '+r.lastBattleGold.base+' + 체력 보너스 '+r.lastBattleGold.bonus+')');
+      if(p.kind==='bundles'&&r.lastBattleGold)lines.push('전투 골드 +'+r.lastBattleGold.total+' (기본 '+r.lastBattleGold.base+' + 체력 보너스 '+r.lastBattleGold.bonus+(r.lastBattleGold.eventBonus?' + 도시락 보너스 '+r.lastBattleGold.eventBonus:'')+')');
       if(p.kind==='event')lines.push('이벤트는 준비 중입니다. 다음 단계로 진행합니다.');
       p.options.forEach(function(x,i){var text;
         if(p.kind==='bundles')text=x.map(function(id){return rewardCard({cardId:id,upgraded:false},catalog);}).join('\n');
@@ -14611,7 +14647,9 @@ A4.UI = (function () {
       if(eventResult.cardId)eventLogs.card=eventCardText({cardId:eventResult.cardId,upgraded:false},catalog)+' '+(eventResult.deckText||'내 덱')+'에 추가했습니다.';
       if(eventResult.removedCard)eventLogs.removal=eventCardText(eventResult.removedCard,catalog)+' 덱에서 제거했습니다.';
       if(eventResult.heal)eventLogs.heal='체력을 '+eventResult.heal+' 회복했습니다.'+(eventResult.simpleResult?'':' ('+eventResult.beforeHp+'/'+eventResult.maxHp+') → ('+eventResult.afterHp+'/'+eventResult.maxHp+')');
-      (eventResult.logOrder||['costGold','gainGold','loseHp','treasure','card','removal','heal']).forEach(function(key){if(eventLogs[key])eventLines.push(eventLogs[key]);});
+      if(eventResult.nextBattleGold)eventLogs.nextBattleGold='다음 전투 완료 후 '+eventResult.nextBattleGold+'골드를 획득합니다.';
+      if(eventResult.eventChanceBonusPercent)eventLogs.eventChance='이번 탐험에서 이벤트 발생 확률이 '+eventResult.eventChanceBonusPercent+'% 증가합니다.';
+      (eventResult.logOrder||['costGold','gainGold','loseHp','treasure','card','removal','heal','nextBattleGold','eventChance']).forEach(function(key){if(eventLogs[key])eventLines.push(eventLogs[key]);});
       prefix+=eventLines.join('\n')+separator;
     }
     lines.push(text); return prefix+(result.battleSummary?result.battleSummary+separator:'')+(result.victoryAnnouncement?result.victoryAnnouncement+separator:'')+lines.join('\n')+(result.extraMessages&&result.extraMessages.length?separator+result.extraMessages.join(separator):'');

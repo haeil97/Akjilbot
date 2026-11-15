@@ -33,7 +33,7 @@ A4.Journey=(function(){
       if(step==='camp'){show(state,r,'camp',['rest','forge']);return true;}
       if(step==='forge'){opts=A4.sample(cards(r,c),3,rng).map(function(x){return x.uid;});if(opts.length){show(state,r,'forge',opts);return true;}continue;}
       if(step==='event'){
-        if(rng()>=0.2)continue;
+        if(rng()>=Math.min(100,20+(r.eventChanceBonusPercent||0))/100)continue;
         var region=A4.Regions&&A4.Regions.enabled(r)?A4.Regions.progress(r,true):null;
         var curses=curseCandidates(r,c);
         var events=(A4.content.regionEvents||[]).filter(function(e){return region&&e.regionId===region.regionId&&(!e.requiresRemovalCandidate||removalCandidates(r,c).length)&&(!e.lowTreasureOffers||lowTreasures(r,c).length>=2)&&(e.curseOrHpAtMost===undefined||curses.length||(r.hp===undefined?cap(r,c):r.hp)<=e.curseOrHpAtMost);});
@@ -50,7 +50,8 @@ A4.Journey=(function(){
   function tavern(state,user){var r=user.run;show(state,r,'tavern',r.tavern.map(function(x,i){return {index:i,item:x};}).concat([{leave:true}]));return true;}
   function reward(run,c,rng){
     var missing=1-Math.max(0,Math.min(1,run.hp/cap(run,c))),base=4+Math.floor(rng()*3),bonus=Math.min(5,Math.round(missing*5));
-    run.gold=(run.gold||0)+base+bonus;run.lastBattleGold={base:base,bonus:bonus,total:base+bonus};
+    var eventBonus=run.nextBattleGoldBonus||0;
+    run.gold=(run.gold||0)+base+bonus+eventBonus;run.lastBattleGold={base:base,bonus:bonus,eventBonus:eventBonus,total:base+bonus+eventBonus};delete run.nextBattleGoldBonus;
     run.journeyVersion=2;
     var milestone=run.wins===1?['low']:run.wins===4?['high']:run.wins===6?['swap']:[];
     run.queue=milestone.concat(['bundles','camp','event','tavern']);if(run.wins>=(A4.Regions?A4.Regions.limit(run):8))run.queue.push('clear');
@@ -97,6 +98,8 @@ A4.Journey=(function(){
       if(choice.addCardId){result.cardId=choice.addCardId;add(state,r,choice.addCardId);}
       if(removal)r.deck=r.deck.filter(function(x){return x.uid!==removal.uid;});
       result.loseHp=choice.loseHp||0;result.logOrder=event.logOrder||null;
+      if(choice.nextBattleGold){r.nextBattleGoldBonus=(r.nextBattleGoldBonus||0)+choice.nextBattleGold;result.nextBattleGold=choice.nextBattleGold;}
+      if(choice.eventChanceBonusPercent){r.eventChanceBonusPercent=Math.min(80,(r.eventChanceBonusPercent||0)+choice.eventChanceBonusPercent);result.eventChanceBonusPercent=choice.eventChanceBonusPercent;}
       r.hp=Math.max(0,Math.min(result.maxHp,result.beforeHp+result.heal-result.loseHp));result.afterHp=r.hp;result.afterGold=r.gold;r.lastEventResult=A4.copy(result);
       return {eventResult:result,eventDefeat:r.hp===0};
     }

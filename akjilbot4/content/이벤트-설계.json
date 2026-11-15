@@ -249,5 +249,38 @@
         "outro": "갈증이 조금 가십니다."
       }
     ]
+  },
+  {
+    "id": "leaf_lunchbox",
+    "regionId": "elwynn_forest",
+    "name": "나뭇잎 도시락",
+    "menuTitle": "⚔️ 이벤트 – 나뭇잎 도시락 ⚔️",
+    "resultTitle": "⚔️ 이벤트 – 나눠 먹는 도시락 ⚔️",
+    "simpleResult": true,
+    "intro": [
+      "당신은 숲속에서 누군가가 싸 둔 나뭇잎 도시락을 발견합니다. 반대편에는 아직 아무도 앉지 않았습니다."
+    ],
+    "outro": "빈자리 쪽의 풀이 조용히 눕습니다.",
+    "choices": [
+      {
+        "id": "eat_alone",
+        "name": "혼자 먹는다",
+        "text": "체력을 14 회복합니다.",
+        "heal": 14
+      },
+      {
+        "id": "leave_half",
+        "name": "반을 남긴다",
+        "text": "체력을 7 회복합니다. 다음 전투 후 5골드를 추가로 얻습니다.",
+        "heal": 7,
+        "nextBattleGold": 5
+      },
+      {
+        "id": "leave_lunch",
+        "name": "도시락을 두고 간다",
+        "text": "이번 탐험에서 이벤트 발생 확률이 5% 증가합니다.",
+        "eventChanceBonusPercent": 5
+      }
+    ]
   }
 ]
