@@ -29,7 +29,12 @@ A4.Journey=(function(){
       }
       if(step==='camp'){show(state,r,'camp',['rest','forge']);return true;}
       if(step==='forge'){opts=A4.sample(cards(r,c),3,rng).map(function(x){return x.uid;});if(opts.length){show(state,r,'forge',opts);return true;}continue;}
-      if(step==='event'){show(state,r,'event',['continue']);return true;}
+      if(step==='event'){
+        var region=A4.Regions&&A4.Regions.enabled(r)?A4.Regions.progress(r,true):null;
+        var events=(A4.content.regionEvents||[]).filter(function(e){return region&&e.regionId===region.regionId;});
+        if(events.length){var event=A4.pick(events,rng);show(state,r,'event',event.choices.map(function(x){return x.id;}),{event:event});}
+        else show(state,r,'event',['continue']);return true;
+      }
       if(step==='tavern'){r.tavern=stock(r,c,rng);return tavern(state,user);}
       if(step==='clear'){r.journeyClear=true;return false;}
       // Treasure milestones retain their existing selection and swap rules.
@@ -51,7 +56,17 @@ A4.Journey=(function(){
     if(p.kind==='camp'){if(picked==='rest')r.hp=Math.min(cap(r,c),(r.hp===undefined?cap(r,c):r.hp)+10);else r.queue.unshift('forge');return true;}
     if(p.kind==='forge'||p.kind==='shopUpgrade'){x=cards(r,c).filter(function(y){return y.uid===picked;})[0];A4.assert(x,'강화할 수 없는 카드입니다.');x.upgraded=true;if(p.kind==='shopUpgrade')r.queue.unshift('tavernResume');return true;}
     if(p.kind==='shopRemove'){A4.assert(r.deck.some(function(y){return y.uid===picked;}),'덱에 없는 카드입니다.');r.deck=r.deck.filter(function(y){return y.uid!==picked;});r.queue.unshift('tavernResume');return true;}
-    if(p.kind==='event')return true;
+    if(p.kind==='event'){
+      var event=p.extra&&p.extra.event;if(!event)return true;
+      var choice=event.choices.filter(function(x){return x.id===picked;})[0];A4.assert(choice,'이벤트 선택지가 올바르지 않습니다.');
+      A4.assert((r.gold||0)>=(choice.costGold||0),'골드가 부족합니다. 다른 수프를 선택하세요.');
+      var privatePool=choice.addClassCard?pool(r,c):[];A4.assert(!choice.addClassCard||privatePool.length,'추가할 직업 카드가 없습니다.');
+      var result={id:event.id,name:event.name,outro:event.outro,beforeHp:r.hp===undefined?cap(r,c):r.hp,maxHp:cap(r,c),beforeGold:r.gold||0,heal:choice.heal||0,costGold:choice.costGold||0,cardId:null};
+      r.gold=result.beforeGold-result.costGold;
+      if(choice.addClassCard){result.cardId=A4.pick(privatePool,rng);add(state,r,result.cardId);}
+      r.hp=Math.min(result.maxHp,result.beforeHp+result.heal);result.afterHp=r.hp;result.afterGold=r.gold;r.lastEventResult=A4.copy(result);
+      return {eventResult:result};
+    }
     if(p.kind==='tavern'){
       if(picked.leave){var interest=Math.min(5,Math.floor((r.gold||0)/10));r.gold+=interest;r.lastInterest=interest;delete r.tavern;return true;}
       offer=r.tavern[picked.index];A4.assert(offer&&!offer.sold,'이미 구매한 물품입니다.');A4.assert((r.gold||0)>=offer.price,'골드가 부족합니다.');

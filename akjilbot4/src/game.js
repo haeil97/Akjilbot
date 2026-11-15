@@ -266,7 +266,7 @@ A4.Game = (function () {
       if (index === 2) run.queue = ['remove','remove'].concat(run.queue);
       if (index === 3) run.queue = ['add','add'].concat(run.queue);
     } else A4.fail('알 수 없는 선택 단계입니다.');
-    nextReward(state,user,catalog,rng); if(run.journeyClear)return {kind:'finished',record:finish(state,user,'clear',now,rng,catalog)};return {kind:'run',treasureChange:treasureChange};
+    nextReward(state,user,catalog,rng); if(run.journeyClear)return {kind:'finished',record:finish(state,user,'clear',now,rng,catalog),eventResult:journeyChoice&&journeyChoice.eventResult};return {kind:'run',treasureChange:treasureChange,eventResult:journeyChoice&&journeyChoice.eventResult};
   }
   function submit(state,user,catalog,token,indices,now,rng,heroPower) {
     var run = user.run, ids = [], battle, result, queues;

@@ -69,7 +69,7 @@ test('spent stones persist through victory, durable reload, rewards and the next
  send('+탐험');send('5');send('y');store.transact('arrange winning fatigue',s=>{const r=Object.values(s.users)[0].run,b=r.battle;r.bloodstones=2;b.player.bloodstones=2;b.player.hp=20;b.player.mana=0;b.player.hand=[{uid:'carry-crescendo',cardId:'class:agamaggan_crescendo'}];b.enemy.hp=1;b.enemy.shield=0;b.enemyPlan=[];b.enemyPowerPlan=false;});
  send('1');assert.equal(user().run.hp,37);assert.equal(user().run.bloodstones,1);store.close();open();assert.equal(user().run.bloodstones,1);
  let guard=0;while(user().run.phase==='REWARD'){assert.ok(++guard<15);const p=user().run.pending;send(String(p.kind==='camp'?2:p.kind==='tavern'?p.options.length:1));}
- send('+탐험');send('y');assert.equal(user().run.battle.player.bloodstones,1);assert.equal(user().run.battle.player.hp,37);assert.equal(user().run.battle.player.runWins,1);
+ send('+탐험');send('y');assert.equal(user().run.battle.player.bloodstones,1);assert.equal(user().run.battle.player.hp,43);assert.equal(user().run.battle.player.runWins,1); // Clear Soup adds six HP during the first-region reward flow.
 });
 test('Agamaggan AI completes real battles with blood payments and repeated save reloads at early, middle and final stages',()=>{
  const c=A.catalog,hero=c.heroes.find(x=>x.id==='agamaggan');

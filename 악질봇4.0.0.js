@@ -6110,6 +6110,40 @@ A4.content = {
       }
     ]
   },
+  "regionEvents": [
+    {
+      "id": "today_soup",
+      "regionId": "elwynn_forest",
+      "name": "오늘의 수프",
+      "intro": [
+        "나무 그루터기 위에서 솥 세 개가 끓고 있습니다. 요리사는 국자를 든 채 당신을 기다립니다.",
+        "당신의 배가 꼬르륵거립니다..."
+      ],
+      "outro": "요리사는 빈 그릇을 보고서야 자기 몫을 뜹니다.",
+      "choices": [
+        {
+          "id": "clear_soup",
+          "name": "맑은 수프",
+          "text": "체력을 6 회복합니다.",
+          "heal": 6
+        },
+        {
+          "id": "root_soup",
+          "name": "뿌리 수프",
+          "text": "골드를 2 잃습니다. 체력을 12 회복합니다.",
+          "costGold": 2,
+          "heal": 12
+        },
+        {
+          "id": "thick_soup",
+          "name": "걸쭉한 수프",
+          "text": "내 직업의 무작위 카드를 내 덱에 추가합니다. 체력을 10 회복합니다.",
+          "addClassCard": true,
+          "heal": 10
+        }
+      ]
+    }
+  ],
   "generalCards": [
     {
       "name": "과열",
@@ -13121,7 +13155,12 @@ A4.Journey=(function(){
       }
       if(step==='camp'){show(state,r,'camp',['rest','forge']);return true;}
       if(step==='forge'){opts=A4.sample(cards(r,c),3,rng).map(function(x){return x.uid;});if(opts.length){show(state,r,'forge',opts);return true;}continue;}
-      if(step==='event'){show(state,r,'event',['continue']);return true;}
+      if(step==='event'){
+        var region=A4.Regions&&A4.Regions.enabled(r)?A4.Regions.progress(r,true):null;
+        var events=(A4.content.regionEvents||[]).filter(function(e){return region&&e.regionId===region.regionId;});
+        if(events.length){var event=A4.pick(events,rng);show(state,r,'event',event.choices.map(function(x){return x.id;}),{event:event});}
+        else show(state,r,'event',['continue']);return true;
+      }
       if(step==='tavern'){r.tavern=stock(r,c,rng);return tavern(state,user);}
       if(step==='clear'){r.journeyClear=true;return false;}
        
@@ -13143,7 +13182,17 @@ A4.Journey=(function(){
     if(p.kind==='camp'){if(picked==='rest')r.hp=Math.min(cap(r,c),(r.hp===undefined?cap(r,c):r.hp)+10);else r.queue.unshift('forge');return true;}
     if(p.kind==='forge'||p.kind==='shopUpgrade'){x=cards(r,c).filter(function(y){return y.uid===picked;})[0];A4.assert(x,'강화할 수 없는 카드입니다.');x.upgraded=true;if(p.kind==='shopUpgrade')r.queue.unshift('tavernResume');return true;}
     if(p.kind==='shopRemove'){A4.assert(r.deck.some(function(y){return y.uid===picked;}),'덱에 없는 카드입니다.');r.deck=r.deck.filter(function(y){return y.uid!==picked;});r.queue.unshift('tavernResume');return true;}
-    if(p.kind==='event')return true;
+    if(p.kind==='event'){
+      var event=p.extra&&p.extra.event;if(!event)return true;
+      var choice=event.choices.filter(function(x){return x.id===picked;})[0];A4.assert(choice,'이벤트 선택지가 올바르지 않습니다.');
+      A4.assert((r.gold||0)>=(choice.costGold||0),'골드가 부족합니다. 다른 수프를 선택하세요.');
+      var privatePool=choice.addClassCard?pool(r,c):[];A4.assert(!choice.addClassCard||privatePool.length,'추가할 직업 카드가 없습니다.');
+      var result={id:event.id,name:event.name,outro:event.outro,beforeHp:r.hp===undefined?cap(r,c):r.hp,maxHp:cap(r,c),beforeGold:r.gold||0,heal:choice.heal||0,costGold:choice.costGold||0,cardId:null};
+      r.gold=result.beforeGold-result.costGold;
+      if(choice.addClassCard){result.cardId=A4.pick(privatePool,rng);add(state,r,result.cardId);}
+      r.hp=Math.min(result.maxHp,result.beforeHp+result.heal);result.afterHp=r.hp;result.afterGold=r.gold;r.lastEventResult=A4.copy(result);
+      return {eventResult:result};
+    }
     if(p.kind==='tavern'){
       if(picked.leave){var interest=Math.min(5,Math.floor((r.gold||0)/10));r.gold+=interest;r.lastInterest=interest;delete r.tavern;return true;}
       offer=r.tavern[picked.index];A4.assert(offer&&!offer.sold,'이미 구매한 물품입니다.');A4.assert((r.gold||0)>=offer.price,'골드가 부족합니다.');
@@ -13430,7 +13479,7 @@ A4.Game = (function () {
       if (index === 2) run.queue = ['remove','remove'].concat(run.queue);
       if (index === 3) run.queue = ['add','add'].concat(run.queue);
     } else A4.fail('알 수 없는 선택 단계입니다.');
-    nextReward(state,user,catalog,rng); if(run.journeyClear)return {kind:'finished',record:finish(state,user,'clear',now,rng,catalog)};return {kind:'run',treasureChange:treasureChange};
+    nextReward(state,user,catalog,rng); if(run.journeyClear)return {kind:'finished',record:finish(state,user,'clear',now,rng,catalog),eventResult:journeyChoice&&journeyChoice.eventResult};return {kind:'run',treasureChange:treasureChange,eventResult:journeyChoice&&journeyChoice.eventResult};
   }
   function submit(state,user,catalog,token,indices,now,rng,heroPower) {
     var run = user.run, ids = [], battle, result, queues;
@@ -13975,6 +14024,7 @@ A4.UI = (function () {
   }
   function rewardMenu(r,catalog) {
     var p=r.pending,title,lines=[],labels;
+    if(p.kind==='event'&&p.extra&&p.extra.event){var event=p.extra.event;return '⚔️ 이벤트 - '+event.name+' ⚔️\n'+event.intro.join('\n')+'\n\n'+p.options.map(function(id,i){var choice=event.choices.filter(function(x){return x.id===id;})[0];return (i+1)+'. '+choice.name+': '+choice.text;}).join('\n');}
     if(['bundles','camp','forge','event','tavern','shopUpgrade','shopRemove'].indexOf(p.kind)>=0){
       var headings={bundles:'직업 카드 묶음 선택',camp:'휴식 또는 제련',forge:'제련',event:'이벤트',tavern:'선술집',shopUpgrade:'강화권',shopRemove:'카드 제거'};
       lines.push('⚔️ '+headings[p.kind]+' ⚔️','❤️ '+(r.hp===undefined?60:r.hp)+'/60 · 🪙 '+(r.gold||0)+'골드');
@@ -14218,6 +14268,13 @@ A4.UI = (function () {
     if(result.treasureChange){
       var treasureName=function(id){return rewardTreasure(id,catalog).split('\n')[0].split(' | ')[0];};
       prefix=treasureName(result.treasureChange.before)+' 카드가 '+treasureName(result.treasureChange.after)+' 카드로 변신합니다!'+separator;
+    }
+    if(result.eventResult){
+      var eventResult=result.eventResult,eventLines=['⚔️ 이벤트 - '+eventResult.name+' ⚔️',eventResult.outro];
+      if(eventResult.costGold)eventLines.push('골드를 '+eventResult.costGold+' 잃었습니다. '+eventResult.beforeGold+' → '+eventResult.afterGold);
+      if(eventResult.cardId){var eventCardName=catalog.cards[eventResult.cardId].name,eventNameTail=eventCardName.replace(/[^가-힣]+$/,''),lastCode=eventNameTail.charCodeAt(eventNameTail.length-1),particle=lastCode>=44032&&lastCode<=55203&&(lastCode-44032)%28?'을':'를';eventLines.push(card({cardId:eventResult.cardId,upgraded:false},catalog).split(' | ')[0]+particle+' 내 덱에 추가했습니다.');}
+      eventLines.push('체력을 '+eventResult.heal+' 회복했습니다. ('+eventResult.beforeHp+'/'+eventResult.maxHp+') → ('+eventResult.afterHp+'/'+eventResult.maxHp+')');
+      prefix+=eventLines.join('\n')+separator;
     }
     lines.push(text); return prefix+(result.battleSummary?result.battleSummary+separator:'')+(result.victoryAnnouncement?result.victoryAnnouncement+separator:'')+lines.join('\n')+(result.extraMessages&&result.extraMessages.length?separator+result.extraMessages.join(separator):'');
   }

@@ -1,0 +1,17 @@
+[
+  {
+    "id": "today_soup",
+    "regionId": "elwynn_forest",
+    "name": "오늘의 수프",
+    "intro": [
+      "나무 그루터기 위에서 솥 세 개가 끓고 있습니다. 요리사는 국자를 든 채 당신을 기다립니다.",
+      "당신의 배가 꼬르륵거립니다..."
+    ],
+    "outro": "요리사는 빈 그릇을 보고서야 자기 몫을 뜹니다.",
+    "choices": [
+      {"id": "clear_soup", "name": "맑은 수프", "text": "체력을 6 회복합니다.", "heal": 6},
+      {"id": "root_soup", "name": "뿌리 수프", "text": "골드를 2 잃습니다. 체력을 12 회복합니다.", "costGold": 2, "heal": 12},
+      {"id": "thick_soup", "name": "걸쭉한 수프", "text": "내 직업의 무작위 카드를 내 덱에 추가합니다. 체력을 10 회복합니다.", "addClassCard": true, "heal": 10}
+    ]
+  }
+]
