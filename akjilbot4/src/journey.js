@@ -8,7 +8,9 @@ A4.Journey=(function(){
   function pool(run,c){var hero=c.heroes.filter(function(x){return x.id===run.hero.id;})[0];return (hero&&hero.classPool||run.hero.classPool||[]).filter(function(id){return !!c.cards[id];});}
   function removalCandidates(run,c,previous){return run.deck.filter(function(x){var d=c.cards[x.cardId];return d&&!d.treasure&&!x.treasureSlot&&(!previous||x.cardId!==previous.cardId||!!x.upgraded!==!!previous.upgraded);});}
   function curseCandidates(run,c){return removalCandidates(run,c).filter(function(x){return A4.Combat.describeCard(x,c).element==='CURSE';});}
-  function lowTreasures(run,c){return Object.keys(c.treasures).filter(function(id){var t=c.treasures[id];return t.tier==='low'&&!t.retired&&(!t.classId||t.classId===run.hero.id)&&(!t.excludeHeroes||t.excludeHeroes.indexOf(run.hero.id)<0)&&!own(run,id);});}
+  function availableTreasures(run,c,tier){return Object.keys(c.treasures).filter(function(id){var t=c.treasures[id];return t.tier===tier&&!t.retired&&(!t.classId||t.classId===run.hero.id)&&(!t.excludeHeroes||t.excludeHeroes.indexOf(run.hero.id)<0)&&!own(run,id);});}
+  function lowTreasures(run,c){return availableTreasures(run,c,'low');}
+  function ownedGeneralLow(run,c){return Object.keys(run.treasures||{}).filter(function(slot){var id=run.treasures[slot],t=c.treasures[id];return t&&t.tier==='low'&&!t.classId&&!t.retired&&id!==run.hero.startingTreasureId&&!(c.startingTreasures&&c.startingTreasures[id]);}).map(function(slot){return {slot:slot,treasureId:run.treasures[slot]};});}
   function price(run,value,rng){return value;}
   function cardPrice(c,id){var d=c.cards[id];return d.shopPrice||Math.min(6,3+Math.max(0,d.cost||0));}
   function add(state,run,id){var x={uid:A4.id(state,'card-'),cardId:id,upgraded:false};run.deck.push(x);return x;}
@@ -36,8 +38,8 @@ A4.Journey=(function(){
         if(rng()>=Math.min(100,20+(r.eventChanceBonusPercent||0))/100)continue;
         var region=A4.Regions&&A4.Regions.enabled(r)?A4.Regions.progress(r,true):null;
         var curses=curseCandidates(r,c);
-        var events=(A4.content.regionEvents||[]).filter(function(e){return region&&e.regionId===region.regionId&&(!e.requiresRemovalCandidate||removalCandidates(r,c).length)&&(!e.lowTreasureOffers||lowTreasures(r,c).length>=2)&&(e.curseOrHpAtMost===undefined||curses.length||(r.hp===undefined?cap(r,c):r.hp)<=e.curseOrHpAtMost);});
-        if(events.length){var event=A4.copy(A4.pick(events,rng)),extra={event:event};if(event.requiresRemovalCandidate)extra.removalCandidate=A4.copy(A4.pick(removalCandidates(r,c),rng));if(event.choices.some(function(x){return x.requiresCurse;})&&curses.length)extra.removalCandidate=A4.copy(A4.pick(curses,rng));if(event.lowTreasureOffers){extra.treasureCandidates=A4.sample(lowTreasures(r,c),2,rng);extra.rerollCount=0;}event.choices=event.choices.filter(function(x){return !x.requiresCurse||curses.length;});show(state,r,'event',event.choices.map(function(x){return x.id;}),extra);}
+        var events=(A4.content.regionEvents||[]).filter(function(e){return region&&e.regionId===region.regionId&&(!e.requiresRemovalCandidate||removalCandidates(r,c).length)&&(!e.lowTreasureOffers||lowTreasures(r,c).length>=2)&&(!e.requiresOwnedGeneralLow||ownedGeneralLow(r,c).length)&&(e.curseOrHpAtMost===undefined||curses.length||(r.hp===undefined?cap(r,c):r.hp)<=e.curseOrHpAtMost);});
+        if(events.length){var event=A4.copy(A4.pick(events,rng)),extra={event:event};if(event.requiresOwnedGeneralLow)extra.ownedLowCandidate=A4.copy(A4.pick(ownedGeneralLow(r,c),rng));if(event.requiresRemovalCandidate)extra.removalCandidate=A4.copy(A4.pick(removalCandidates(r,c),rng));if(event.choices.some(function(x){return x.requiresCurse;})&&curses.length)extra.removalCandidate=A4.copy(A4.pick(curses,rng));if(event.lowTreasureOffers){extra.treasureCandidates=A4.sample(lowTreasures(r,c),2,rng);extra.rerollCount=0;}event.choices=event.choices.filter(function(x){return !x.requiresCurse||curses.length;});show(state,r,'event',event.choices.map(function(x){return x.id;}),extra);}
         else show(state,r,'event',['continue']);return true;
       }
       if(step==='tavern'){r.tavern=stock(r,c,rng);return tavern(state,user);}
@@ -93,9 +95,12 @@ A4.Journey=(function(){
         var following=A4.copy(choice.nextEvent);show(state,r,'event',following.choices.map(function(x){return x.id;}),{event:following});return 'stay';
       }
       if(choice.outcomes)choice=choice.outcomes[rng()<0.5?0:1];
-      var treasurePool=choice.addLowTreasure||choice.treasureOffer!==undefined?lowTreasures(r,c):[],offeredTreasure=choice.treasureOffer!==undefined&&(p.extra.treasureCandidates||[])[choice.treasureOffer];
+      var treasurePool=choice.exchangeOwnedLow?availableTreasures(r,c,'high'):choice.addLowTreasure||choice.treasureOffer!==undefined?lowTreasures(r,c):[],offeredTreasure=choice.treasureOffer!==undefined&&(p.extra.treasureCandidates||[])[choice.treasureOffer];
       A4.assert(!choice.addLowTreasure||treasurePool.length,'획득할 하급 보물이 없습니다.');
       A4.assert(choice.treasureOffer===undefined||offeredTreasure&&treasurePool.indexOf(offeredTreasure)>=0,'선택한 하급 보물을 획득할 수 없습니다.');
+      var exchanged=choice.exchangeOwnedLow&&p.extra.ownedLowCandidate;
+      A4.assert(!choice.exchangeOwnedLow||exchanged&&ownedGeneralLow(r,c).some(function(held){return held.slot===exchanged.slot&&held.treasureId===exchanged.treasureId;}),'교환할 일반 하급 보물이 없습니다.');
+      A4.assert(!choice.exchangeOwnedLow||treasurePool.length,'획득할 상급 보물이 없습니다.');
       var removal=choice.removeCandidate?r.deck.filter(function(x){return p.extra.removalCandidate&&x.uid===p.extra.removalCandidate.uid;})[0]:null;
       A4.assert(!choice.removeCandidate||removal&&c.cards[removal.cardId]&&!c.cards[removal.cardId].treasure&&!removal.treasureSlot,'제거할 카드가 없습니다. 다른 선택지를 골라주세요.');
       A4.assert(!choice.requiresCurse||removal&&A4.Combat.describeCard(removal,c).element==='CURSE','제거할 저주가 없습니다. 다른 선택지를 골라주세요.');
@@ -103,7 +108,7 @@ A4.Journey=(function(){
       var privatePool=choice.addClassCard?pool(r,c):[];A4.assert(!choice.addClassCard||privatePool.length,'추가할 직업 카드가 없습니다.');
       var result={id:event.id,name:event.name,title:choice.resultTitle||event.resultTitle,simpleResult:!!event.simpleResult,outro:choice.outro||event.outro,beforeHp:r.hp===undefined?cap(r,c):r.hp,maxHp:cap(r,c),beforeGold:r.gold||0,heal:choice.heal||0,costGold:choice.costGold||0,gainGold:choice.gainGold||0,cardId:null,deckText:event.deckText||'내 덱',removedCard:removal?A4.copy(removal):null};
       r.gold=result.beforeGold-result.costGold+result.gainGold;
-      if(choice.addLowTreasure||offeredTreasure){var treasureId=offeredTreasure||A4.pick(treasurePool,rng),slot='extra-'+A4.id(state,'treasure-');r.treasures[slot]=treasureId;result.treasureId=treasureId;if(c.treasures[treasureId].kind==='card'){var treasureCard=add(state,r,c.treasures[treasureId].cardId);treasureCard.treasureSlot=slot;}}
+      if(choice.addLowTreasure||offeredTreasure||choice.exchangeOwnedLow){var treasureId=offeredTreasure||A4.pick(treasurePool,rng),slot=exchanged?exchanged.slot:'extra-'+A4.id(state,'treasure-');if(exchanged){result.lostTreasureId=exchanged.treasureId;result.treasureNoParticle=true;r.deck=r.deck.filter(function(card){return card.treasureSlot!==slot;});}r.treasures[slot]=treasureId;result.treasureId=treasureId;if(c.treasures[treasureId].kind==='card'){var treasureCard=add(state,r,c.treasures[treasureId].cardId);treasureCard.treasureSlot=slot;}}
       if(choice.addClassCard){result.cardId=A4.pick(privatePool,rng);add(state,r,result.cardId);}
       if(choice.addCardId){result.cardId=choice.addCardId;add(state,r,choice.addCardId);}
       if(removal)r.deck=r.deck.filter(function(x){return x.uid!==removal.uid;});

@@ -311,5 +311,35 @@
         "resultTitle": "⚔️ 이벤트 – 매듭을 푸는 까마귀 ⚔️"
       }
     ]
+  },
+  {
+    "id": "forest_lost_and_found",
+    "regionId": "elwynn_forest",
+    "name": "숲의 분실물함",
+    "menuTitle": "⚔️ 이벤트 – 숲의 분실물함 ⚔️",
+    "resultTitle": "⚔️ 이벤트 – 숲의 분실물함 ⚔️",
+    "simpleResult": true,
+    "requiresOwnedGeneralLow": true,
+    "logOrder": [
+      "treasure",
+      "lostTreasure"
+    ],
+    "intro": [
+      "상자 안에서 작은 종이 울립니다. 뚜껑에는 ‘주인과 닮은 물건만 받아요’라고 쓰여 있습니다."
+    ],
+    "outro": "상자는 새 주인을 찾은 듯 잠잠해집니다.",
+    "choices": [
+      {
+        "id": "exchange",
+        "name": "내 물건을 넣는다",
+        "text": "{ownedTreasure} 덱에서 제거합니다. 무작위 상급 보물을 덱에 추가합니다.",
+        "exchangeOwnedLow": true
+      },
+      {
+        "id": "leave",
+        "name": "떠난다",
+        "text": "교환하지 않고 떠납니다."
+      }
+    ]
   }
 ]

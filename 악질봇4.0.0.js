@@ -6423,6 +6423,36 @@ A4.content = {
           "resultTitle": "⚔️ 이벤트 – 매듭을 푸는 까마귀 ⚔️"
         }
       ]
+    },
+    {
+      "id": "forest_lost_and_found",
+      "regionId": "elwynn_forest",
+      "name": "숲의 분실물함",
+      "menuTitle": "⚔️ 이벤트 – 숲의 분실물함 ⚔️",
+      "resultTitle": "⚔️ 이벤트 – 숲의 분실물함 ⚔️",
+      "simpleResult": true,
+      "requiresOwnedGeneralLow": true,
+      "logOrder": [
+        "treasure",
+        "lostTreasure"
+      ],
+      "intro": [
+        "상자 안에서 작은 종이 울립니다. 뚜껑에는 ‘주인과 닮은 물건만 받아요’라고 쓰여 있습니다."
+      ],
+      "outro": "상자는 새 주인을 찾은 듯 잠잠해집니다.",
+      "choices": [
+        {
+          "id": "exchange",
+          "name": "내 물건을 넣는다",
+          "text": "{ownedTreasure} 덱에서 제거합니다. 무작위 상급 보물을 덱에 추가합니다.",
+          "exchangeOwnedLow": true
+        },
+        {
+          "id": "leave",
+          "name": "떠난다",
+          "text": "교환하지 않고 떠납니다."
+        }
+      ]
     }
   ],
   "eventCards": [
@@ -13492,7 +13522,9 @@ A4.Journey=(function(){
   function pool(run,c){var hero=c.heroes.filter(function(x){return x.id===run.hero.id;})[0];return (hero&&hero.classPool||run.hero.classPool||[]).filter(function(id){return !!c.cards[id];});}
   function removalCandidates(run,c,previous){return run.deck.filter(function(x){var d=c.cards[x.cardId];return d&&!d.treasure&&!x.treasureSlot&&(!previous||x.cardId!==previous.cardId||!!x.upgraded!==!!previous.upgraded);});}
   function curseCandidates(run,c){return removalCandidates(run,c).filter(function(x){return A4.Combat.describeCard(x,c).element==='CURSE';});}
-  function lowTreasures(run,c){return Object.keys(c.treasures).filter(function(id){var t=c.treasures[id];return t.tier==='low'&&!t.retired&&(!t.classId||t.classId===run.hero.id)&&(!t.excludeHeroes||t.excludeHeroes.indexOf(run.hero.id)<0)&&!own(run,id);});}
+  function availableTreasures(run,c,tier){return Object.keys(c.treasures).filter(function(id){var t=c.treasures[id];return t.tier===tier&&!t.retired&&(!t.classId||t.classId===run.hero.id)&&(!t.excludeHeroes||t.excludeHeroes.indexOf(run.hero.id)<0)&&!own(run,id);});}
+  function lowTreasures(run,c){return availableTreasures(run,c,'low');}
+  function ownedGeneralLow(run,c){return Object.keys(run.treasures||{}).filter(function(slot){var id=run.treasures[slot],t=c.treasures[id];return t&&t.tier==='low'&&!t.classId&&!t.retired&&id!==run.hero.startingTreasureId&&!(c.startingTreasures&&c.startingTreasures[id]);}).map(function(slot){return {slot:slot,treasureId:run.treasures[slot]};});}
   function price(run,value,rng){return value;}
   function cardPrice(c,id){var d=c.cards[id];return d.shopPrice||Math.min(6,3+Math.max(0,d.cost||0));}
   function add(state,run,id){var x={uid:A4.id(state,'card-'),cardId:id,upgraded:false};run.deck.push(x);return x;}
@@ -13520,8 +13552,8 @@ A4.Journey=(function(){
         if(rng()>=Math.min(100,20+(r.eventChanceBonusPercent||0))/100)continue;
         var region=A4.Regions&&A4.Regions.enabled(r)?A4.Regions.progress(r,true):null;
         var curses=curseCandidates(r,c);
-        var events=(A4.content.regionEvents||[]).filter(function(e){return region&&e.regionId===region.regionId&&(!e.requiresRemovalCandidate||removalCandidates(r,c).length)&&(!e.lowTreasureOffers||lowTreasures(r,c).length>=2)&&(e.curseOrHpAtMost===undefined||curses.length||(r.hp===undefined?cap(r,c):r.hp)<=e.curseOrHpAtMost);});
-        if(events.length){var event=A4.copy(A4.pick(events,rng)),extra={event:event};if(event.requiresRemovalCandidate)extra.removalCandidate=A4.copy(A4.pick(removalCandidates(r,c),rng));if(event.choices.some(function(x){return x.requiresCurse;})&&curses.length)extra.removalCandidate=A4.copy(A4.pick(curses,rng));if(event.lowTreasureOffers){extra.treasureCandidates=A4.sample(lowTreasures(r,c),2,rng);extra.rerollCount=0;}event.choices=event.choices.filter(function(x){return !x.requiresCurse||curses.length;});show(state,r,'event',event.choices.map(function(x){return x.id;}),extra);}
+        var events=(A4.content.regionEvents||[]).filter(function(e){return region&&e.regionId===region.regionId&&(!e.requiresRemovalCandidate||removalCandidates(r,c).length)&&(!e.lowTreasureOffers||lowTreasures(r,c).length>=2)&&(!e.requiresOwnedGeneralLow||ownedGeneralLow(r,c).length)&&(e.curseOrHpAtMost===undefined||curses.length||(r.hp===undefined?cap(r,c):r.hp)<=e.curseOrHpAtMost);});
+        if(events.length){var event=A4.copy(A4.pick(events,rng)),extra={event:event};if(event.requiresOwnedGeneralLow)extra.ownedLowCandidate=A4.copy(A4.pick(ownedGeneralLow(r,c),rng));if(event.requiresRemovalCandidate)extra.removalCandidate=A4.copy(A4.pick(removalCandidates(r,c),rng));if(event.choices.some(function(x){return x.requiresCurse;})&&curses.length)extra.removalCandidate=A4.copy(A4.pick(curses,rng));if(event.lowTreasureOffers){extra.treasureCandidates=A4.sample(lowTreasures(r,c),2,rng);extra.rerollCount=0;}event.choices=event.choices.filter(function(x){return !x.requiresCurse||curses.length;});show(state,r,'event',event.choices.map(function(x){return x.id;}),extra);}
         else show(state,r,'event',['continue']);return true;
       }
       if(step==='tavern'){r.tavern=stock(r,c,rng);return tavern(state,user);}
@@ -13577,9 +13609,12 @@ A4.Journey=(function(){
         var following=A4.copy(choice.nextEvent);show(state,r,'event',following.choices.map(function(x){return x.id;}),{event:following});return 'stay';
       }
       if(choice.outcomes)choice=choice.outcomes[rng()<0.5?0:1];
-      var treasurePool=choice.addLowTreasure||choice.treasureOffer!==undefined?lowTreasures(r,c):[],offeredTreasure=choice.treasureOffer!==undefined&&(p.extra.treasureCandidates||[])[choice.treasureOffer];
+      var treasurePool=choice.exchangeOwnedLow?availableTreasures(r,c,'high'):choice.addLowTreasure||choice.treasureOffer!==undefined?lowTreasures(r,c):[],offeredTreasure=choice.treasureOffer!==undefined&&(p.extra.treasureCandidates||[])[choice.treasureOffer];
       A4.assert(!choice.addLowTreasure||treasurePool.length,'획득할 하급 보물이 없습니다.');
       A4.assert(choice.treasureOffer===undefined||offeredTreasure&&treasurePool.indexOf(offeredTreasure)>=0,'선택한 하급 보물을 획득할 수 없습니다.');
+      var exchanged=choice.exchangeOwnedLow&&p.extra.ownedLowCandidate;
+      A4.assert(!choice.exchangeOwnedLow||exchanged&&ownedGeneralLow(r,c).some(function(held){return held.slot===exchanged.slot&&held.treasureId===exchanged.treasureId;}),'교환할 일반 하급 보물이 없습니다.');
+      A4.assert(!choice.exchangeOwnedLow||treasurePool.length,'획득할 상급 보물이 없습니다.');
       var removal=choice.removeCandidate?r.deck.filter(function(x){return p.extra.removalCandidate&&x.uid===p.extra.removalCandidate.uid;})[0]:null;
       A4.assert(!choice.removeCandidate||removal&&c.cards[removal.cardId]&&!c.cards[removal.cardId].treasure&&!removal.treasureSlot,'제거할 카드가 없습니다. 다른 선택지를 골라주세요.');
       A4.assert(!choice.requiresCurse||removal&&A4.Combat.describeCard(removal,c).element==='CURSE','제거할 저주가 없습니다. 다른 선택지를 골라주세요.');
@@ -13587,7 +13622,7 @@ A4.Journey=(function(){
       var privatePool=choice.addClassCard?pool(r,c):[];A4.assert(!choice.addClassCard||privatePool.length,'추가할 직업 카드가 없습니다.');
       var result={id:event.id,name:event.name,title:choice.resultTitle||event.resultTitle,simpleResult:!!event.simpleResult,outro:choice.outro||event.outro,beforeHp:r.hp===undefined?cap(r,c):r.hp,maxHp:cap(r,c),beforeGold:r.gold||0,heal:choice.heal||0,costGold:choice.costGold||0,gainGold:choice.gainGold||0,cardId:null,deckText:event.deckText||'내 덱',removedCard:removal?A4.copy(removal):null};
       r.gold=result.beforeGold-result.costGold+result.gainGold;
-      if(choice.addLowTreasure||offeredTreasure){var treasureId=offeredTreasure||A4.pick(treasurePool,rng),slot='extra-'+A4.id(state,'treasure-');r.treasures[slot]=treasureId;result.treasureId=treasureId;if(c.treasures[treasureId].kind==='card'){var treasureCard=add(state,r,c.treasures[treasureId].cardId);treasureCard.treasureSlot=slot;}}
+      if(choice.addLowTreasure||offeredTreasure||choice.exchangeOwnedLow){var treasureId=offeredTreasure||A4.pick(treasurePool,rng),slot=exchanged?exchanged.slot:'extra-'+A4.id(state,'treasure-');if(exchanged){result.lostTreasureId=exchanged.treasureId;result.treasureNoParticle=true;r.deck=r.deck.filter(function(card){return card.treasureSlot!==slot;});}r.treasures[slot]=treasureId;result.treasureId=treasureId;if(c.treasures[treasureId].kind==='card'){var treasureCard=add(state,r,c.treasures[treasureId].cardId);treasureCard.treasureSlot=slot;}}
       if(choice.addClassCard){result.cardId=A4.pick(privatePool,rng);add(state,r,result.cardId);}
       if(choice.addCardId){result.cardId=choice.addCardId;add(state,r,choice.addCardId);}
       if(removal)r.deck=r.deck.filter(function(x){return x.uid!==removal.uid;});
@@ -14432,7 +14467,7 @@ A4.UI = (function () {
   function rewardMenu(r,catalog) {
     var p=r.pending,title,lines=[],labels;
     if(p.kind==='eventRemove'){return (p.extra.event.menuTitle||'⚔️ 이벤트 - '+p.extra.event.name+' ⚔️')+'\n\n덱에서 제거할 카드를 선택하세요.\n\n'+p.extra.candidates.map(function(card,i){return (i+1)+'. '+rewardCard(card,catalog);}).join('\n\n');}
-    if(p.kind==='event'&&p.extra&&p.extra.event){var event=p.extra.event,intro=p.extra.lastRerollHp?event.rerollIntro+'\n\n체력을 '+p.extra.lastRerollHp+' 잃었습니다.\n하급 보물 후보 2개를 교체했습니다.':event.intro.join('\n');return (event.menuTitle||'⚔️ 이벤트 - '+event.name+' ⚔️')+'\n\n'+intro+'\n\n'+p.options.map(function(id,i){var choice=event.choices.filter(function(x){return x.id===id;})[0],text=choice.text;if(choice.removeCandidate)text=text.replace('{candidate}',p.extra.removalCandidate?eventCardText(p.extra.removalCandidate,catalog):'제거할 카드가 없습니다.');if(choice.treasureOffer!==undefined)text=text.replace('{treasure}',eventTreasureText(p.extra.treasureCandidates[choice.treasureOffer],catalog));if(choice.rerollTreasures)text=text.replace('{hpCost}',2+4*(p.extra.rerollCount||0));return (i+1)+'. '+choice.name+': '+text;}).join('\n\n');}
+    if(p.kind==='event'&&p.extra&&p.extra.event){var event=p.extra.event,intro=p.extra.lastRerollHp?event.rerollIntro+'\n\n체력을 '+p.extra.lastRerollHp+' 잃었습니다.\n하급 보물 후보 2개를 교체했습니다.':event.intro.join('\n');return (event.menuTitle||'⚔️ 이벤트 - '+event.name+' ⚔️')+'\n\n'+intro+'\n\n'+p.options.map(function(id,i){var choice=event.choices.filter(function(x){return x.id===id;})[0],text=choice.text;if(choice.removeCandidate)text=text.replace('{candidate}',p.extra.removalCandidate?eventCardText(p.extra.removalCandidate,catalog):'제거할 카드가 없습니다.');if(choice.exchangeOwnedLow)text=text.replace('{ownedTreasure}',eventTreasureText(p.extra.ownedLowCandidate.treasureId,catalog));if(choice.treasureOffer!==undefined)text=text.replace('{treasure}',eventTreasureText(p.extra.treasureCandidates[choice.treasureOffer],catalog));if(choice.rerollTreasures)text=text.replace('{hpCost}',2+4*(p.extra.rerollCount||0));return (i+1)+'. '+choice.name+': '+text;}).join('\n\n');}
     if(['bundles','camp','forge','event','tavern','shopUpgrade','shopRemove'].indexOf(p.kind)>=0){
       var headings={bundles:'직업 카드 묶음 선택',camp:'휴식 또는 제련',forge:'제련',event:'이벤트',tavern:'선술집',shopUpgrade:'강화권',shopRemove:'카드 제거'};
       lines.push('⚔️ '+headings[p.kind]+' ⚔️','❤️ '+(r.hp===undefined?60:r.hp)+'/60 · 🪙 '+(r.gold||0)+'골드');
@@ -14683,13 +14718,15 @@ A4.UI = (function () {
       if(eventResult.costGold)eventLogs.costGold='골드를 '+eventResult.costGold+' 잃었습니다.'+(eventResult.simpleResult?'':' '+eventResult.beforeGold+' → '+eventResult.afterGold);
       if(eventResult.gainGold)eventLogs.gainGold='골드를 '+eventResult.gainGold+' 얻었습니다.';
       if(eventResult.loseHp)eventLogs.loseHp='체력을 '+eventResult.loseHp+' 잃었습니다.';
-      if(eventResult.treasureId)eventLogs.treasure=eventTreasureText(eventResult.treasureId,catalog)+' 획득했습니다.';
+      if(eventResult.treasureId)eventLogs.treasure=(eventResult.treasureNoParticle?eventTreasureText(eventResult.treasureId,catalog).slice(0,-1):eventTreasureText(eventResult.treasureId,catalog))+' 획득했습니다.';
+      if(eventResult.lostTreasureId)eventLogs.lostTreasure=eventTreasureText(eventResult.lostTreasureId,catalog)+' 잃었습니다.';
       if(eventResult.cardId)eventLogs.card=eventCardText({cardId:eventResult.cardId,upgraded:false},catalog)+' '+(eventResult.deckText||'내 덱')+'에 추가했습니다.';
       if(eventResult.removedCard)eventLogs.removal=eventCardText(eventResult.removedCard,catalog)+' 덱에서 제거했습니다.';
       if(eventResult.heal)eventLogs.heal='체력을 '+eventResult.heal+' 회복했습니다.'+(eventResult.simpleResult?'':' ('+eventResult.beforeHp+'/'+eventResult.maxHp+') → ('+eventResult.afterHp+'/'+eventResult.maxHp+')');
       if(eventResult.nextBattleGold)eventLogs.nextBattleGold='다음 전투 완료 후 '+eventResult.nextBattleGold+'골드를 획득합니다.';
       if(eventResult.eventChanceBonusPercent)eventLogs.eventChance='이번 탐험에서 이벤트 발생 확률이 '+eventResult.eventChanceBonusPercent+'% 증가합니다.';
       (eventResult.logOrder||['costGold','gainGold','loseHp','treasure','card','removal','heal','nextBattleGold','eventChance']).forEach(function(key){if(eventLogs[key])eventLines.push(eventLogs[key]);});
+      if(eventLines[eventLines.length-1]==='')eventLines.pop();
       prefix+=eventLines.join('\n')+separator;
     }
     lines.push(text); return prefix+(result.battleSummary?result.battleSummary+separator:'')+(result.victoryAnnouncement?result.victoryAnnouncement+separator:'')+lines.join('\n')+(result.extraMessages&&result.extraMessages.length?separator+result.extraMessages.join(separator):'');

@@ -32,7 +32,7 @@ A4.UI = (function () {
   function rewardMenu(r,catalog) {
     var p=r.pending,title,lines=[],labels;
     if(p.kind==='eventRemove'){return (p.extra.event.menuTitle||'⚔️ 이벤트 - '+p.extra.event.name+' ⚔️')+'\n\n덱에서 제거할 카드를 선택하세요.\n\n'+p.extra.candidates.map(function(card,i){return (i+1)+'. '+rewardCard(card,catalog);}).join('\n\n');}
-    if(p.kind==='event'&&p.extra&&p.extra.event){var event=p.extra.event,intro=p.extra.lastRerollHp?event.rerollIntro+'\n\n체력을 '+p.extra.lastRerollHp+' 잃었습니다.\n하급 보물 후보 2개를 교체했습니다.':event.intro.join('\n');return (event.menuTitle||'⚔️ 이벤트 - '+event.name+' ⚔️')+'\n\n'+intro+'\n\n'+p.options.map(function(id,i){var choice=event.choices.filter(function(x){return x.id===id;})[0],text=choice.text;if(choice.removeCandidate)text=text.replace('{candidate}',p.extra.removalCandidate?eventCardText(p.extra.removalCandidate,catalog):'제거할 카드가 없습니다.');if(choice.treasureOffer!==undefined)text=text.replace('{treasure}',eventTreasureText(p.extra.treasureCandidates[choice.treasureOffer],catalog));if(choice.rerollTreasures)text=text.replace('{hpCost}',2+4*(p.extra.rerollCount||0));return (i+1)+'. '+choice.name+': '+text;}).join('\n\n');}
+    if(p.kind==='event'&&p.extra&&p.extra.event){var event=p.extra.event,intro=p.extra.lastRerollHp?event.rerollIntro+'\n\n체력을 '+p.extra.lastRerollHp+' 잃었습니다.\n하급 보물 후보 2개를 교체했습니다.':event.intro.join('\n');return (event.menuTitle||'⚔️ 이벤트 - '+event.name+' ⚔️')+'\n\n'+intro+'\n\n'+p.options.map(function(id,i){var choice=event.choices.filter(function(x){return x.id===id;})[0],text=choice.text;if(choice.removeCandidate)text=text.replace('{candidate}',p.extra.removalCandidate?eventCardText(p.extra.removalCandidate,catalog):'제거할 카드가 없습니다.');if(choice.exchangeOwnedLow)text=text.replace('{ownedTreasure}',eventTreasureText(p.extra.ownedLowCandidate.treasureId,catalog));if(choice.treasureOffer!==undefined)text=text.replace('{treasure}',eventTreasureText(p.extra.treasureCandidates[choice.treasureOffer],catalog));if(choice.rerollTreasures)text=text.replace('{hpCost}',2+4*(p.extra.rerollCount||0));return (i+1)+'. '+choice.name+': '+text;}).join('\n\n');}
     if(['bundles','camp','forge','event','tavern','shopUpgrade','shopRemove'].indexOf(p.kind)>=0){
       var headings={bundles:'직업 카드 묶음 선택',camp:'휴식 또는 제련',forge:'제련',event:'이벤트',tavern:'선술집',shopUpgrade:'강화권',shopRemove:'카드 제거'};
       lines.push('⚔️ '+headings[p.kind]+' ⚔️','❤️ '+(r.hp===undefined?60:r.hp)+'/60 · 🪙 '+(r.gold||0)+'골드');
@@ -283,13 +283,15 @@ A4.UI = (function () {
       if(eventResult.costGold)eventLogs.costGold='골드를 '+eventResult.costGold+' 잃었습니다.'+(eventResult.simpleResult?'':' '+eventResult.beforeGold+' → '+eventResult.afterGold);
       if(eventResult.gainGold)eventLogs.gainGold='골드를 '+eventResult.gainGold+' 얻었습니다.';
       if(eventResult.loseHp)eventLogs.loseHp='체력을 '+eventResult.loseHp+' 잃었습니다.';
-      if(eventResult.treasureId)eventLogs.treasure=eventTreasureText(eventResult.treasureId,catalog)+' 획득했습니다.';
+      if(eventResult.treasureId)eventLogs.treasure=(eventResult.treasureNoParticle?eventTreasureText(eventResult.treasureId,catalog).slice(0,-1):eventTreasureText(eventResult.treasureId,catalog))+' 획득했습니다.';
+      if(eventResult.lostTreasureId)eventLogs.lostTreasure=eventTreasureText(eventResult.lostTreasureId,catalog)+' 잃었습니다.';
       if(eventResult.cardId)eventLogs.card=eventCardText({cardId:eventResult.cardId,upgraded:false},catalog)+' '+(eventResult.deckText||'내 덱')+'에 추가했습니다.';
       if(eventResult.removedCard)eventLogs.removal=eventCardText(eventResult.removedCard,catalog)+' 덱에서 제거했습니다.';
       if(eventResult.heal)eventLogs.heal='체력을 '+eventResult.heal+' 회복했습니다.'+(eventResult.simpleResult?'':' ('+eventResult.beforeHp+'/'+eventResult.maxHp+') → ('+eventResult.afterHp+'/'+eventResult.maxHp+')');
       if(eventResult.nextBattleGold)eventLogs.nextBattleGold='다음 전투 완료 후 '+eventResult.nextBattleGold+'골드를 획득합니다.';
       if(eventResult.eventChanceBonusPercent)eventLogs.eventChance='이번 탐험에서 이벤트 발생 확률이 '+eventResult.eventChanceBonusPercent+'% 증가합니다.';
       (eventResult.logOrder||['costGold','gainGold','loseHp','treasure','card','removal','heal','nextBattleGold','eventChance']).forEach(function(key){if(eventLogs[key])eventLines.push(eventLogs[key]);});
+      if(eventLines[eventLines.length-1]==='')eventLines.pop();
       prefix+=eventLines.join('\n')+separator;
     }
     lines.push(text); return prefix+(result.battleSummary?result.battleSummary+separator:'')+(result.victoryAnnouncement?result.victoryAnnouncement+separator:'')+lines.join('\n')+(result.extraMessages&&result.extraMessages.length?separator+result.extraMessages.join(separator):'');
