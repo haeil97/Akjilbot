@@ -6199,8 +6199,8 @@ A4.content = {
         {
           "id": "deep",
           "name": "깊은 곳을 뒤진다",
-          "text": "체력을 4 잃고 상자를 꺼냅니다.",
-          "loseHp": 4,
+          "text": "체력을 8 잃고 상자를 꺼냅니다.",
+          "loseHp": 8,
           "nextEvent": {
             "id": "pouch_below_bank_chest",
             "name": "둑 아래의 주머니",
@@ -6293,15 +6293,15 @@ A4.content = {
         {
           "id": "first",
           "name": "하나 고른다",
-          "text": "4골드를 잃습니다. {treasure} 얻습니다.",
-          "costGold": 4,
+          "text": "10골드를 잃습니다. {treasure} 얻습니다.",
+          "costGold": 10,
           "treasureOffer": 0
         },
         {
           "id": "second",
           "name": "다른 것을 고른다",
-          "text": "6골드를 잃습니다. {treasure} 얻습니다.",
-          "costGold": 6,
+          "text": "14골드를 잃습니다. {treasure} 얻습니다.",
+          "costGold": 14,
           "treasureOffer": 1
         },
         {
@@ -6315,7 +6315,8 @@ A4.content = {
           "name": "흙만 털어 준다",
           "text": "떠납니다."
         }
-      ]
+      ],
+      "minGold": 10
     },
     {
       "id": "raft_rental",
@@ -6348,8 +6349,8 @@ A4.content = {
         {
           "id": "repair_raft",
           "name": "뗏목을 고친다",
-          "text": "체력 10을 잃고 하급 보물을 얻습니다.",
-          "loseHp": 10,
+          "text": "체력 14를 잃고 하급 보물을 얻습니다.",
+          "loseHp": 14,
           "addLowTreasure": true,
           "outro": "돌아보니 뗏목이 정말 조금 떠 있습니다."
         },
@@ -13592,7 +13593,7 @@ A4.Journey=(function(){
         if(rng()>=Math.min(100,20+(r.eventChanceBonusPercent||0))/100)continue;
         var region=A4.Regions&&A4.Regions.enabled(r)?A4.Regions.progress(r,true):null;
         var curses=curseCandidates(r,c);
-        var events=(A4.content.regionEvents||[]).filter(function(e){return region&&e.regionId===region.regionId&&(!e.requiresRemovalCandidate||removalCandidates(r,c).length)&&(!e.lowTreasureOffers||lowTreasures(r,c).length>=2)&&(!e.requiresOwnedGeneralLow||ownedGeneralLow(r,c).length)&&(e.curseOrHpAtMost===undefined||curses.length||(r.hp===undefined?cap(r,c):r.hp)<=e.curseOrHpAtMost);});
+        var events=(A4.content.regionEvents||[]).filter(function(e){return region&&e.regionId===region.regionId&&(e.minGold===undefined||(r.gold||0)>=e.minGold)&&(!e.requiresRemovalCandidate||removalCandidates(r,c).length)&&(!e.lowTreasureOffers||lowTreasures(r,c).length>=2)&&(!e.requiresOwnedGeneralLow||ownedGeneralLow(r,c).length)&&(e.curseOrHpAtMost===undefined||curses.length||(r.hp===undefined?cap(r,c):r.hp)<=e.curseOrHpAtMost);});
         if(events.length){var event=A4.copy(A4.pick(events,rng)),extra={event:event};if(event.requiresOwnedGeneralLow)extra.ownedLowCandidate=A4.copy(A4.pick(ownedGeneralLow(r,c),rng));if(event.requiresRemovalCandidate)extra.removalCandidate=A4.copy(A4.pick(removalCandidates(r,c),rng));if(event.choices.some(function(x){return x.requiresCurse;})&&curses.length)extra.removalCandidate=A4.copy(A4.pick(curses,rng));if(event.lowTreasureOffers){extra.treasureCandidates=A4.sample(lowTreasures(r,c),2,rng);extra.rerollCount=0;}event.choices=event.choices.filter(function(x){return !x.requiresCurse||curses.length;});show(state,r,'event',event.choices.map(function(x){return x.id;}),extra);}
         else show(state,r,'event',['continue']);return true;
       }

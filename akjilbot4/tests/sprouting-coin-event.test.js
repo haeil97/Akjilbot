@@ -1,3 +1,4 @@
+const offerEvent=require('./event-fixture.js');
 const test=require('node:test'),assert=require('node:assert/strict'),A=require('../../악질봇4.0.0.js');
 const title='⚔️ 이벤트 – 싹이 트는 동전 ⚔️',outro='잎은 동전보다 훨씬 가볍게 흔들립니다.';
 function harness({gold=10,wins=1}={}){
@@ -5,7 +6,7 @@ function harness({gold=10,wins=1}={}){
  function open(){store=A.Store.create(io);store.load(A.newState(42));app=A.App.create(store,c);}open();
  const send=(text,id)=>app.handle({text,identity:'seed-user',name:'동전 테스터',room:'개발123',now:1000+(++n),eventId:id||'seed-'+n});
  const user=()=>Object.values(store.getState().users)[0],mutate=fn=>store.transact('seed-fixture',s=>fn(Object.values(s.users)[0],s));
- function offer(){mutate((u,s)=>{const r=u.run;r.phase='REWARD';r.battle=null;r.enemySpec=null;r.enemyId=null;r.turnToken=null;r.pending=null;r.queue=['event','tavern'];let calls=0;A.Journey.next(s,u,c,()=>calls++===1?.999:0);});}
+ function offer(){mutate((u,s)=>{const r=u.run;r.phase='REWARD';r.battle=null;r.enemySpec=null;r.enemyId=null;r.turnToken=null;r.pending=null;r.queue=['event','tavern'];offerEvent(A,s,u,c,'sprouting_coin');});}
  send('+탐험');send('1');mutate(u=>{u.run.wins=wins;u.run.hp=40;u.run.maxHp=60;u.run.gold=gold;});offer();
  function win(id){mutate(u=>{u.run.phase='READY';u.run.pending=null;u.run.queue=[];});send('+탐험');send('y');mutate((u,s)=>{const b=u.run.battle;b.player.hand=[{uid:A.id(s,'seed-hit-'),cardId:'class:starter_strike',cost:0}];b.player.hp=45;b.enemy.hp=1;b.enemy.shield=0;b.enemy.bossId=null;b.enemy.heroPower=null;b.enemyPlan=[];b.enemyPowerPlan=false;b.enemyPlanDeferred=false;b.enemy.status.cards.effects=[];});return send('1',id);}
  return {c,get store(){return store;},send,user,mutate,offer,win,reopen(){store.close();open();}};

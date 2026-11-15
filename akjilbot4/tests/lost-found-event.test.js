@@ -1,3 +1,4 @@
+const offerEvent=require('./event-fixture.js');
 const test=require('node:test'),assert=require('node:assert/strict'),A=require('../../악질봇4.0.0.js');
 const title='⚔️ 이벤트 – 숲의 분실물함 ⚔️',outro='상자는 새 주인을 찾은 듯 잠잠해집니다.';
 const named=name=>Object.keys(A.catalog.treasures).find(id=>A.catalog.treasures[id].name===name),oldId=named('재활용 쓰레기통'),prism=named('프리즘 증류기');
@@ -10,7 +11,7 @@ function harness({held=oldId,wins=1,starting=false,second=false}={}){
  if(held){r.treasures.low=held;const t=c.treasures[held];if(t.kind==='card')r.deck.push({uid:'old-card',cardId:t.cardId,upgraded:false,treasureSlot:'low'});}
  if(starting)r.hero.startingTreasureId=held;
  if(second)r.treasures.other=oldId;
- let calls=0;A.Journey.next(s,u,c,()=>calls++===1?.85:0);});
+ offerEvent(A,s,u,c,'forest_lost_and_found');});
  function onlyHigh(id){for(const key of Object.keys(c.treasures))if(c.treasures[key].tier==='high')c.treasures[key].retired=key!==id;}
  return {c,get store(){return store;},send,user,mutate,onlyHigh,reopen(){store.close();open();}};
 }

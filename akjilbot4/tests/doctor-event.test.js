@@ -1,3 +1,4 @@
+const offerEvent=require('./event-fixture.js');
 const test=require('node:test'),assert=require('node:assert/strict'),A=require('../../악질봇4.0.0.js');
 const title='⚔️ 이벤트 – 의사 키노피오 ⚔️',outro='키노피오가 처방전을 접어 줍니다. 글씨는 읽을 수 없습니다.';
 function harness({hp=20,gold=5,curse=false,wins=1,roll=.4}={}){
@@ -5,7 +6,7 @@ function harness({hp=20,gold=5,curse=false,wins=1,roll=.4}={}){
  function open(){store=A.Store.create(io);store.load(A.newState(42));app=A.App.create(store,c);}open();
  const send=(text,id)=>app.handle({text,identity:'doctor-user',name:'진료 테스터',room:'개발123',now:1000+(++n),eventId:id||'doctor-'+n});
  const user=()=>Object.values(store.getState().users)[0],mutate=fn=>store.transact('doctor-fixture',s=>fn(Object.values(s.users)[0],s));
- send('+탐험');send('1');mutate((u,s)=>{const r=u.run;r.wins=wins;r.hp=hp;r.maxHp=60;r.gold=gold;r.phase='REWARD';r.battle=null;r.enemySpec=null;r.enemyId=null;r.turnToken=null;r.pending=null;r.queue=['event','tavern'];if(curse)r.deck.push({uid:'stone-one',cardId:'event:stone',upgraded:false},{uid:'stone-two',cardId:'event:stone',upgraded:false});let calls=0;A.Journey.next(s,u,c,()=>calls++===1?roll:0);});
+ send('+탐험');send('1');mutate((u,s)=>{const r=u.run;r.wins=wins;r.hp=hp;r.maxHp=60;r.gold=gold;r.phase='REWARD';r.battle=null;r.enemySpec=null;r.enemyId=null;r.turnToken=null;r.pending=null;r.queue=['event','tavern'];if(curse)r.deck.push({uid:'stone-one',cardId:'event:stone',upgraded:false},{uid:'stone-two',cardId:'event:stone',upgraded:false});offerEvent(A,s,u,c,'doctor_kinopio');});
  return {c,get store(){return store;},send,user,mutate,reopen(){store.close();open();}};
 }
 test('doctor eligibility is curse OR HP at most 30, and is restricted to region one',()=>{

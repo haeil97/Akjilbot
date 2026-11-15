@@ -1,3 +1,4 @@
+const offerEvent=require('./event-fixture.js');
 const test=require('node:test'),assert=require('node:assert/strict'),A=require('../../악질봇4.0.0.js');
 const title='⚔️ 이벤트 – 나눠 먹는 도시락 ⚔️',outro='빈자리 쪽의 풀이 조용히 눕습니다.';
 function harness({hp=20,gold=5,wins=1}={}){
@@ -5,7 +6,7 @@ function harness({hp=20,gold=5,wins=1}={}){
  function open(){store=A.Store.create(io);store.load(A.newState(42));app=A.App.create(store,c);}open();
  const send=(text,id)=>app.handle({text,identity:'lunch-user',name:'도시락 테스터',room:'개발123',now:1000+(++n),eventId:id||'lunch-'+n});
  const user=()=>Object.values(store.getState().users)[0],mutate=fn=>store.transact('lunch-fixture',s=>fn(Object.values(s.users)[0],s));
- function offer(roll=0){mutate((u,s)=>{u.run.phase='REWARD';u.run.pending=null;u.run.queue=['event','tavern'];let calls=0;A.Journey.next(s,u,c,()=>calls++===0?roll:.7);});}
+ function offer(roll=0){mutate((u,s)=>{u.run.phase='REWARD';u.run.pending=null;u.run.queue=['event','tavern'];offerEvent(A,s,u,c,'leaf_lunchbox',roll);});}
  send('+탐험');send('1');mutate(u=>{u.run.wins=wins;u.run.hp=hp;u.run.maxHp=60;u.run.gold=gold;u.run.battle=null;u.run.enemySpec=null;u.run.enemyId=null;u.run.turnToken=null;});offer();
  return {c,get store(){return store;},send,user,mutate,offer,reopen(){store.close();open();}};
 }

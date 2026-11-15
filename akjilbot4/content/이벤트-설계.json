@@ -87,8 +87,8 @@
       {
         "id": "deep",
         "name": "깊은 곳을 뒤진다",
-        "text": "체력을 4 잃고 상자를 꺼냅니다.",
-        "loseHp": 4,
+        "text": "체력을 8 잃고 상자를 꺼냅니다.",
+        "loseHp": 8,
         "nextEvent": {
           "id": "pouch_below_bank_chest",
           "name": "둑 아래의 주머니",
@@ -181,15 +181,15 @@
       {
         "id": "first",
         "name": "하나 고른다",
-        "text": "4골드를 잃습니다. {treasure} 얻습니다.",
-        "costGold": 4,
+        "text": "10골드를 잃습니다. {treasure} 얻습니다.",
+        "costGold": 10,
         "treasureOffer": 0
       },
       {
         "id": "second",
         "name": "다른 것을 고른다",
-        "text": "6골드를 잃습니다. {treasure} 얻습니다.",
-        "costGold": 6,
+        "text": "14골드를 잃습니다. {treasure} 얻습니다.",
+        "costGold": 14,
         "treasureOffer": 1
       },
       {
@@ -203,7 +203,8 @@
         "name": "흙만 털어 준다",
         "text": "떠납니다."
       }
-    ]
+    ],
+    "minGold": 10
   },
   {
     "id": "raft_rental",
@@ -236,8 +237,8 @@
       {
         "id": "repair_raft",
         "name": "뗏목을 고친다",
-        "text": "체력 10을 잃고 하급 보물을 얻습니다.",
-        "loseHp": 10,
+        "text": "체력 14를 잃고 하급 보물을 얻습니다.",
+        "loseHp": 14,
         "addLowTreasure": true,
         "outro": "돌아보니 뗏목이 정말 조금 떠 있습니다."
       },
