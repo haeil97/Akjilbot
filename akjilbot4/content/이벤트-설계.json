@@ -13,5 +13,23 @@
       {"id": "root_soup", "name": "뿌리 수프", "text": "골드를 2 잃습니다. 체력을 12 회복합니다.", "costGold": 2, "heal": 12},
       {"id": "thick_soup", "name": "걸쭉한 수프", "text": "내 직업의 무작위 카드를 내 덱에 추가합니다. 체력을 10 회복합니다.", "addClassCard": true, "heal": 10}
     ]
+  },
+  {
+    "id": "ration_inspection",
+    "regionId": "elwynn_forest",
+    "name": "비상식량 검사",
+    "menuTitle": "⚔️ 이벤트 – 비상식량 검사 ⚔️",
+    "requiresRemovalCandidate": true,
+    "deckText": "덱",
+    "intro": [
+      "다람쥐가 당신의 가방에 작은 도장을 찍습니다.",
+      " “먹을 수 없는 게 너무 많네요. 비상시엔 큰일이에요.”"
+    ],
+    "outro": "도장은 도토리 모양입니다. 합격인 것 같습니다.",
+    "choices": [
+      {"id": "take_ration", "name": "식량을 받는다", "text": "비상식량을 덱에 추가합니다.", "addCardId": "event:emergency_ration"},
+      {"id": "reduce_luggage", "name": "짐을 줄인다", "text": "{candidate} 내 덱에서 제거하고 비상식량을 덱에 추가합니다.", "removeCandidate": true, "addCardId": "event:emergency_ration"},
+      {"id": "inspect_luggage", "name": "짐 검사", "text": "골드를 1 잃습니다. 2번 선택지의 카드가 무작위로 변경됩니다. 이 선택지를 반복할 수 있습니다.", "rerollCandidate": true, "costGold": 1}
+    ]
   }
 ]

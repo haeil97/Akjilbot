@@ -64,7 +64,8 @@ function compileContent() {
         neutralRevision,
         minionDesign:JSON.parse(read('하수인-설계.json')),
         regionDesign:JSON.parse(read('지역-설계.json')),
-        regionEvents:JSON.parse(read('이벤트-설계.json'))
+        regionEvents:JSON.parse(read('이벤트-설계.json')),
+        eventCards:JSON.parse(read('이벤트-카드.json'))
     },cardReference);
 }
 

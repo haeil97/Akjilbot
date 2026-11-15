@@ -6142,6 +6142,76 @@ A4.content = {
           "heal": 10
         }
       ]
+    },
+    {
+      "id": "ration_inspection",
+      "regionId": "elwynn_forest",
+      "name": "비상식량 검사",
+      "menuTitle": "⚔️ 이벤트 – 비상식량 검사 ⚔️",
+      "requiresRemovalCandidate": true,
+      "deckText": "덱",
+      "intro": [
+        "다람쥐가 당신의 가방에 작은 도장을 찍습니다.",
+        " “먹을 수 없는 게 너무 많네요. 비상시엔 큰일이에요.”"
+      ],
+      "outro": "도장은 도토리 모양입니다. 합격인 것 같습니다.",
+      "choices": [
+        {
+          "id": "take_ration",
+          "name": "식량을 받는다",
+          "text": "비상식량을 덱에 추가합니다.",
+          "addCardId": "event:emergency_ration"
+        },
+        {
+          "id": "reduce_luggage",
+          "name": "짐을 줄인다",
+          "text": "{candidate} 내 덱에서 제거하고 비상식량을 덱에 추가합니다.",
+          "removeCandidate": true,
+          "addCardId": "event:emergency_ration"
+        },
+        {
+          "id": "inspect_luggage",
+          "name": "짐 검사",
+          "text": "골드를 1 잃습니다. 2번 선택지의 카드가 무작위로 변경됩니다. 이 선택지를 반복할 수 있습니다.",
+          "rerollCandidate": true,
+          "costGold": 1
+        }
+      ]
+    }
+  ],
+  "eventCards": [
+    {
+      "id": "event:emergency_ration",
+      "name": "비상식량",
+      "element": "NEUTRAL",
+      "cost": 0,
+      "text": "일회용. 방어도를 5 얻고 카드를 뽑습니다.",
+      "excludeOnUse": true,
+      "effects": [
+        {
+          "type": "shield",
+          "amount": 5
+        },
+        {
+          "type": "draw",
+          "amount": 1
+        }
+      ],
+      "upgrade": {
+        "cost": 0,
+        "text": "일회용. 방어도를 8 얻고 카드를 뽑습니다.",
+        "excludeOnUse": true,
+        "effects": [
+          {
+            "type": "shield",
+            "amount": 8
+          },
+          {
+            "type": "draw",
+            "amount": 1
+          }
+        ]
+      }
     }
   ],
   "generalCards": [
@@ -13025,6 +13095,7 @@ A4.BossRules.install(A4.catalog);
 A4.Classes.install(A4.catalog);
 A4.Expansion.install(A4.catalog);
 A4.GuffRules.install(A4.catalog);
+A4.content.eventCards.forEach(function(row){var card=A4.copy(row);delete card.id;card.eventCard=true;card.neutralCard=false;A4.catalog.cards[row.id]=card;});
 A4.catalog.config.engineVersion=3;
 A4.catalog.config.regionsEnabled=true;
 A4.catalog.config.enabled=true;
@@ -13132,6 +13203,7 @@ A4.Journey=(function(){
   function cards(run,c){return run.deck.filter(function(x){var d=c.cards[x.cardId];return d&&d.upgrade&&!x.upgraded&&!d.treasure&&!x.treasureSlot;});}
   function show(state,run,kind,options,extra){run.phase='REWARD';run.pending={id:A4.id(state,'choice-'),kind:kind,options:A4.copy(options),extra:extra||null};}
   function pool(run,c){var hero=c.heroes.filter(function(x){return x.id===run.hero.id;})[0];return (hero&&hero.classPool||run.hero.classPool||[]).filter(function(id){return !!c.cards[id];});}
+  function removalCandidates(run,c,previous){return run.deck.filter(function(x){var d=c.cards[x.cardId];return d&&!d.treasure&&!x.treasureSlot&&(!previous||x.cardId!==previous.cardId||!!x.upgraded!==!!previous.upgraded);});}
   function price(run,value,rng){return value;}
   function cardPrice(c,id){var d=c.cards[id];return d.shopPrice||Math.min(6,3+Math.max(0,d.cost||0));}
   function add(state,run,id){var x={uid:A4.id(state,'card-'),cardId:id,upgraded:false};run.deck.push(x);return x;}
@@ -13157,8 +13229,8 @@ A4.Journey=(function(){
       if(step==='forge'){opts=A4.sample(cards(r,c),3,rng).map(function(x){return x.uid;});if(opts.length){show(state,r,'forge',opts);return true;}continue;}
       if(step==='event'){
         var region=A4.Regions&&A4.Regions.enabled(r)?A4.Regions.progress(r,true):null;
-        var events=(A4.content.regionEvents||[]).filter(function(e){return region&&e.regionId===region.regionId;});
-        if(events.length){var event=A4.pick(events,rng);show(state,r,'event',event.choices.map(function(x){return x.id;}),{event:event});}
+        var events=(A4.content.regionEvents||[]).filter(function(e){return region&&e.regionId===region.regionId&&(!e.requiresRemovalCandidate||removalCandidates(r,c).length);});
+        if(events.length){var event=A4.pick(events,rng),extra={event:event};if(event.requiresRemovalCandidate)extra.removalCandidate=A4.copy(A4.pick(removalCandidates(r,c),rng));show(state,r,'event',event.choices.map(function(x){return x.id;}),extra);}
         else show(state,r,'event',['continue']);return true;
       }
       if(step==='tavern'){r.tavern=stock(r,c,rng);return tavern(state,user);}
@@ -13185,11 +13257,20 @@ A4.Journey=(function(){
     if(p.kind==='event'){
       var event=p.extra&&p.extra.event;if(!event)return true;
       var choice=event.choices.filter(function(x){return x.id===picked;})[0];A4.assert(choice,'이벤트 선택지가 올바르지 않습니다.');
-      A4.assert((r.gold||0)>=(choice.costGold||0),'골드가 부족합니다. 다른 수프를 선택하세요.');
+      A4.assert((r.gold||0)>=(choice.costGold||0),event.id==='today_soup'?'골드가 부족합니다. 다른 수프를 선택하세요.':'골드가 부족합니다. 다른 선택지를 골라주세요.');
+      if(choice.rerollCandidate){
+        var alternatives=removalCandidates(r,c,p.extra.removalCandidate);A4.assert(alternatives.length,'직전 후보와 다른 카드가 없습니다. 다른 선택지를 골라주세요.');
+        var nextCandidate=A4.pick(alternatives,rng);r.gold=(r.gold||0)-(choice.costGold||0);var updated=A4.copy(p.extra);updated.removalCandidate=A4.copy(nextCandidate);show(state,r,'event',p.options,updated);return 'stay';
+      }
+      var removal=choice.removeCandidate?r.deck.filter(function(x){return p.extra.removalCandidate&&x.uid===p.extra.removalCandidate.uid;})[0]:null;
+      A4.assert(!choice.removeCandidate||removal&&c.cards[removal.cardId]&&!c.cards[removal.cardId].treasure&&!removal.treasureSlot,'제거할 카드가 없습니다. 다른 선택지를 골라주세요.');
+      A4.assert(!choice.addCardId||c.cards[choice.addCardId],'이벤트 보상 카드가 등록되지 않았습니다.');
       var privatePool=choice.addClassCard?pool(r,c):[];A4.assert(!choice.addClassCard||privatePool.length,'추가할 직업 카드가 없습니다.');
-      var result={id:event.id,name:event.name,outro:event.outro,beforeHp:r.hp===undefined?cap(r,c):r.hp,maxHp:cap(r,c),beforeGold:r.gold||0,heal:choice.heal||0,costGold:choice.costGold||0,cardId:null};
+      var result={id:event.id,name:event.name,outro:event.outro,beforeHp:r.hp===undefined?cap(r,c):r.hp,maxHp:cap(r,c),beforeGold:r.gold||0,heal:choice.heal||0,costGold:choice.costGold||0,cardId:null,deckText:event.deckText||'내 덱',removedCard:removal?A4.copy(removal):null};
       r.gold=result.beforeGold-result.costGold;
       if(choice.addClassCard){result.cardId=A4.pick(privatePool,rng);add(state,r,result.cardId);}
+      if(choice.addCardId){result.cardId=choice.addCardId;add(state,r,choice.addCardId);}
+      if(removal)r.deck=r.deck.filter(function(x){return x.uid!==removal.uid;});
       r.hp=Math.min(result.maxHp,result.beforeHp+result.heal);result.afterHp=r.hp;result.afterGold=r.gold;r.lastEventResult=A4.copy(result);
       return {eventResult:result};
     }
@@ -14022,9 +14103,10 @@ A4.UI = (function () {
     var t=catalog.treasures[id];
     return t.kind==='card'?rewardCard({cardId:t.cardId,upgraded:false},catalog):'['+(t.tier==='high'?'💫':'✨')+'] '+t.name+'\n'+(t.text||effects(t.effects));
   }
+  function eventCardText(instance,catalog){var name=catalog.cards[instance.cardId].name,tail=name.replace(/[^가-힣]+$/,''),last=tail.charCodeAt(tail.length-1),particle=last>=44032&&last<=55203&&(last-44032)%28?'을':'를';return card(instance,catalog).split(' | ')[0]+particle;}
   function rewardMenu(r,catalog) {
     var p=r.pending,title,lines=[],labels;
-    if(p.kind==='event'&&p.extra&&p.extra.event){var event=p.extra.event;return '⚔️ 이벤트 - '+event.name+' ⚔️\n\n'+event.intro.join('\n')+'\n\n'+p.options.map(function(id,i){var choice=event.choices.filter(function(x){return x.id===id;})[0];return (i+1)+'. '+choice.name+': '+choice.text;}).join('\n\n');}
+    if(p.kind==='event'&&p.extra&&p.extra.event){var event=p.extra.event;return (event.menuTitle||'⚔️ 이벤트 - '+event.name+' ⚔️')+'\n\n'+event.intro.join('\n')+'\n\n'+p.options.map(function(id,i){var choice=event.choices.filter(function(x){return x.id===id;})[0],text=choice.text;if(choice.removeCandidate)text=text.replace('{candidate}',p.extra.removalCandidate?eventCardText(p.extra.removalCandidate,catalog):'제거할 카드가 없습니다.');return (i+1)+'. '+choice.name+': '+text;}).join('\n\n');}
     if(['bundles','camp','forge','event','tavern','shopUpgrade','shopRemove'].indexOf(p.kind)>=0){
       var headings={bundles:'직업 카드 묶음 선택',camp:'휴식 또는 제련',forge:'제련',event:'이벤트',tavern:'선술집',shopUpgrade:'강화권',shopRemove:'카드 제거'};
       lines.push('⚔️ '+headings[p.kind]+' ⚔️','❤️ '+(r.hp===undefined?60:r.hp)+'/60 · 🪙 '+(r.gold||0)+'골드');
@@ -14119,7 +14201,7 @@ A4.UI = (function () {
       if(catalog.cards[e.id].upgrade)text+='\n'+rewardCard({cardId:e.id,upgraded:true},catalog);
       return text;
     }
-    var entries=catalog.cardPool.concat(Object.keys(catalog.cards).filter(function(id){return catalog.cards[id].classCard;})).map(entry),needle=normalize(query),lines=[title];
+    var entries=catalog.cardPool.concat(Object.keys(catalog.cards).filter(function(id){return catalog.cards[id].classCard||catalog.cards[id].eventCard;})).map(entry),needle=normalize(query),lines=[title];
     if(needle){
       Object.keys(catalog.minionSkills||{}).forEach(function(id){var skill=catalog.minionSkills[id];entries.push({skill:skill,name:skill.name,cost:0});});
       Object.keys(catalog.cards).forEach(function(id){var d=catalog.cards[id];if((d.token||d.exclusive||d.botOnly)&&!d.classCard&&catalog.cardPool.indexOf(id)<0)entries.push(entry(id));});
@@ -14272,8 +14354,9 @@ A4.UI = (function () {
     if(result.eventResult){
       var eventResult=result.eventResult,eventLines=['⚔️ 이벤트 - '+eventResult.name+' ⚔️','',eventResult.outro,''];
       if(eventResult.costGold)eventLines.push('골드를 '+eventResult.costGold+' 잃었습니다. '+eventResult.beforeGold+' → '+eventResult.afterGold);
-      if(eventResult.cardId){var eventCardName=catalog.cards[eventResult.cardId].name,eventNameTail=eventCardName.replace(/[^가-힣]+$/,''),lastCode=eventNameTail.charCodeAt(eventNameTail.length-1),particle=lastCode>=44032&&lastCode<=55203&&(lastCode-44032)%28?'을':'를';eventLines.push(card({cardId:eventResult.cardId,upgraded:false},catalog).split(' | ')[0]+particle+' 내 덱에 추가했습니다.');}
-      eventLines.push('체력을 '+eventResult.heal+' 회복했습니다. ('+eventResult.beforeHp+'/'+eventResult.maxHp+') → ('+eventResult.afterHp+'/'+eventResult.maxHp+')');
+      if(eventResult.cardId)eventLines.push(eventCardText({cardId:eventResult.cardId,upgraded:false},catalog)+' '+(eventResult.deckText||'내 덱')+'에 추가했습니다.');
+      if(eventResult.removedCard)eventLines.push(eventCardText(eventResult.removedCard,catalog)+' 덱에서 제거했습니다.');
+      if(eventResult.heal)eventLines.push('체력을 '+eventResult.heal+' 회복했습니다. ('+eventResult.beforeHp+'/'+eventResult.maxHp+') → ('+eventResult.afterHp+'/'+eventResult.maxHp+')');
       prefix+=eventLines.join('\n')+separator;
     }
     lines.push(text); return prefix+(result.battleSummary?result.battleSummary+separator:'')+(result.victoryAnnouncement?result.victoryAnnouncement+separator:'')+lines.join('\n')+(result.extraMessages&&result.extraMessages.length?separator+result.extraMessages.join(separator):'');

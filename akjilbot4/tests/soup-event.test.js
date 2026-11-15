@@ -6,7 +6,7 @@ function harness(wins=1,hp=20,gold=5){
  function send(text,eventId){return app.handle({text,identity:'soup-user',name:'수프 테스터',room:'개발123',now:1000+n,eventId:eventId||'soup-'+(++n)});}
  function user(){return Object.values(store.getState().users)[0];}
  function mutate(fn){store.transact('arrange-soup',s=>fn(Object.values(s.users)[0],s));}
- send('+탐험');send('1');mutate((u,s)=>{const r=u.run;r.wins=wins;r.hp=hp;r.gold=gold;r.phase='REWARD';r.battle=null;r.enemySpec=null;r.enemyId=null;r.turnToken=null;r.pending=null;r.queue=['event','tavern'];A.Journey.next(s,u,c,A.random(s));});
+ send('+탐험');send('1');mutate((u,s)=>{const r=u.run;r.wins=wins;r.hp=hp;r.gold=gold;r.phase='REWARD';r.battle=null;r.enemySpec=null;r.enemyId=null;r.turnToken=null;r.pending=null;r.queue=['event','tavern'];A.Journey.next(s,u,c,()=>0);});
  return {c,get store(){return store;},send,user,mutate,reopen(){store.close();open();}};
 }
 test('Elwynn event presents the exact story and three soup choices',()=>{

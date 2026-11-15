@@ -6,6 +6,7 @@ A4.Journey=(function(){
   function cards(run,c){return run.deck.filter(function(x){var d=c.cards[x.cardId];return d&&d.upgrade&&!x.upgraded&&!d.treasure&&!x.treasureSlot;});}
   function show(state,run,kind,options,extra){run.phase='REWARD';run.pending={id:A4.id(state,'choice-'),kind:kind,options:A4.copy(options),extra:extra||null};}
   function pool(run,c){var hero=c.heroes.filter(function(x){return x.id===run.hero.id;})[0];return (hero&&hero.classPool||run.hero.classPool||[]).filter(function(id){return !!c.cards[id];});}
+  function removalCandidates(run,c,previous){return run.deck.filter(function(x){var d=c.cards[x.cardId];return d&&!d.treasure&&!x.treasureSlot&&(!previous||x.cardId!==previous.cardId||!!x.upgraded!==!!previous.upgraded);});}
   function price(run,value,rng){return value;}
   function cardPrice(c,id){var d=c.cards[id];return d.shopPrice||Math.min(6,3+Math.max(0,d.cost||0));}
   function add(state,run,id){var x={uid:A4.id(state,'card-'),cardId:id,upgraded:false};run.deck.push(x);return x;}
@@ -31,8 +32,8 @@ A4.Journey=(function(){
       if(step==='forge'){opts=A4.sample(cards(r,c),3,rng).map(function(x){return x.uid;});if(opts.length){show(state,r,'forge',opts);return true;}continue;}
       if(step==='event'){
         var region=A4.Regions&&A4.Regions.enabled(r)?A4.Regions.progress(r,true):null;
-        var events=(A4.content.regionEvents||[]).filter(function(e){return region&&e.regionId===region.regionId;});
-        if(events.length){var event=A4.pick(events,rng);show(state,r,'event',event.choices.map(function(x){return x.id;}),{event:event});}
+        var events=(A4.content.regionEvents||[]).filter(function(e){return region&&e.regionId===region.regionId&&(!e.requiresRemovalCandidate||removalCandidates(r,c).length);});
+        if(events.length){var event=A4.pick(events,rng),extra={event:event};if(event.requiresRemovalCandidate)extra.removalCandidate=A4.copy(A4.pick(removalCandidates(r,c),rng));show(state,r,'event',event.choices.map(function(x){return x.id;}),extra);}
         else show(state,r,'event',['continue']);return true;
       }
       if(step==='tavern'){r.tavern=stock(r,c,rng);return tavern(state,user);}
@@ -59,11 +60,20 @@ A4.Journey=(function(){
     if(p.kind==='event'){
       var event=p.extra&&p.extra.event;if(!event)return true;
       var choice=event.choices.filter(function(x){return x.id===picked;})[0];A4.assert(choice,'이벤트 선택지가 올바르지 않습니다.');
-      A4.assert((r.gold||0)>=(choice.costGold||0),'골드가 부족합니다. 다른 수프를 선택하세요.');
+      A4.assert((r.gold||0)>=(choice.costGold||0),event.id==='today_soup'?'골드가 부족합니다. 다른 수프를 선택하세요.':'골드가 부족합니다. 다른 선택지를 골라주세요.');
+      if(choice.rerollCandidate){
+        var alternatives=removalCandidates(r,c,p.extra.removalCandidate);A4.assert(alternatives.length,'직전 후보와 다른 카드가 없습니다. 다른 선택지를 골라주세요.');
+        var nextCandidate=A4.pick(alternatives,rng);r.gold=(r.gold||0)-(choice.costGold||0);var updated=A4.copy(p.extra);updated.removalCandidate=A4.copy(nextCandidate);show(state,r,'event',p.options,updated);return 'stay';
+      }
+      var removal=choice.removeCandidate?r.deck.filter(function(x){return p.extra.removalCandidate&&x.uid===p.extra.removalCandidate.uid;})[0]:null;
+      A4.assert(!choice.removeCandidate||removal&&c.cards[removal.cardId]&&!c.cards[removal.cardId].treasure&&!removal.treasureSlot,'제거할 카드가 없습니다. 다른 선택지를 골라주세요.');
+      A4.assert(!choice.addCardId||c.cards[choice.addCardId],'이벤트 보상 카드가 등록되지 않았습니다.');
       var privatePool=choice.addClassCard?pool(r,c):[];A4.assert(!choice.addClassCard||privatePool.length,'추가할 직업 카드가 없습니다.');
-      var result={id:event.id,name:event.name,outro:event.outro,beforeHp:r.hp===undefined?cap(r,c):r.hp,maxHp:cap(r,c),beforeGold:r.gold||0,heal:choice.heal||0,costGold:choice.costGold||0,cardId:null};
+      var result={id:event.id,name:event.name,outro:event.outro,beforeHp:r.hp===undefined?cap(r,c):r.hp,maxHp:cap(r,c),beforeGold:r.gold||0,heal:choice.heal||0,costGold:choice.costGold||0,cardId:null,deckText:event.deckText||'내 덱',removedCard:removal?A4.copy(removal):null};
       r.gold=result.beforeGold-result.costGold;
       if(choice.addClassCard){result.cardId=A4.pick(privatePool,rng);add(state,r,result.cardId);}
+      if(choice.addCardId){result.cardId=choice.addCardId;add(state,r,choice.addCardId);}
+      if(removal)r.deck=r.deck.filter(function(x){return x.uid!==removal.uid;});
       r.hp=Math.min(result.maxHp,result.beforeHp+result.heal);result.afterHp=r.hp;result.afterGold=r.gold;r.lastEventResult=A4.copy(result);
       return {eventResult:result};
     }

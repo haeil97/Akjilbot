@@ -5,6 +5,7 @@ A4.BossRules.install(A4.catalog);
 A4.Classes.install(A4.catalog);
 A4.Expansion.install(A4.catalog);
 A4.GuffRules.install(A4.catalog);
+A4.content.eventCards.forEach(function(row){var card=A4.copy(row);delete card.id;card.eventCard=true;card.neutralCard=false;A4.catalog.cards[row.id]=card;});
 A4.catalog.config.engineVersion=3;
 A4.catalog.config.regionsEnabled=true;
 A4.catalog.config.enabled=true;
