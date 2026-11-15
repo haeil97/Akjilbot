@@ -162,5 +162,47 @@
         "heal": 6
       }
     ]
+  },
+  {
+    "id": "wandering_appraiser",
+    "regionId": "elwynn_forest",
+    "name": "떠돌이 감정사",
+    "menuTitle": "⚔️ 이벤트 – 떠돌이 감정사 ⚔️",
+    "resultTitle": "⚔️ 이벤트 – 떠돌이 감정사 ⚔️",
+    "simpleResult": true,
+    "lowTreasureOffers": true,
+    "intro": [
+      "두더지가 천 보따리를 펼칩니다.",
+      "“흙을 털었으니 새 물건이나 마찬가지죠.”"
+    ],
+    "outro": "두더지는 털어 낸 흙도 소중하게 챙깁니다.",
+    "rerollIntro": "두더지의 보따리를 살펴봅니다.",
+    "choices": [
+      {
+        "id": "first",
+        "name": "하나 고른다",
+        "text": "4골드를 잃습니다. {treasure} 얻습니다.",
+        "costGold": 4,
+        "treasureOffer": 0
+      },
+      {
+        "id": "second",
+        "name": "다른 것을 고른다",
+        "text": "6골드를 잃습니다. {treasure} 얻습니다.",
+        "costGold": 6,
+        "treasureOffer": 1
+      },
+      {
+        "id": "reroll",
+        "name": "다른 보따리",
+        "text": "체력을 {hpCost} 잃고 후보를 교체합니다. 이 선택지를 반복할 수 있으며 반복할 때마다 지불하는 체력이 4 증가합니다.",
+        "rerollTreasures": true
+      },
+      {
+        "id": "leave",
+        "name": "흙만 털어 준다",
+        "text": "떠납니다."
+      }
+    ]
   }
 ]

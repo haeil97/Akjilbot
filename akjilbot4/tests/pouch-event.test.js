@@ -5,7 +5,7 @@ function harness(hp=20,gold=5,wins=1){
  function open(){store=A.Store.create(io);store.load(A.newState(42));app=A.App.create(store,c);}open();
  const send=(text,id)=>app.handle({text,identity:'pouch-user',name:'주머니 테스터',room:'개발123',now:1000+(++n),eventId:id||'pouch-'+n});
  const user=()=>Object.values(store.getState().users)[0],mutate=fn=>store.transact('pouch-fixture',s=>fn(Object.values(s.users)[0],s));
- send('+탐험');send('1');mutate((u,s)=>{const r=u.run;r.wins=wins;r.hp=hp;r.gold=gold;r.phase='REWARD';r.pending=null;r.queue=['event','tavern'];let calls=0;A.Journey.next(s,u,c,()=>calls++===1?.7:0);});
+ send('+탐험');send('1');mutate((u,s)=>{const r=u.run;r.wins=wins;r.hp=hp;r.gold=gold;r.phase='REWARD';r.pending=null;r.queue=['event','tavern'];let calls=0;A.Journey.next(s,u,c,()=>calls++===1?.5:0);});
  function roll(high){let seed=1;while((A.random({rngState:seed})()>=.5)!==high)seed++;mutate((u,s)=>{s.rngState=seed;});}
  return {c,get store(){return store;},send,user,mutate,roll,reopen(){store.close();open();}};
 }
