@@ -58,6 +58,12 @@ A4.Journey=(function(){
   }
   function choose(state,user,c,p,picked,rng){
     var r=user.run,x,offer;
+    if(p.kind==='eventRemove'){
+      var selected=p.extra.candidates.filter(function(card){return card.uid===picked;})[0];A4.assert(selected,'제시된 카드 중 하나를 선택하세요.');
+      var removalEvent=A4.copy(p.extra.event),removalChoice=removalEvent.choices.filter(function(choice){return choice.id===p.extra.choiceId;})[0];
+      A4.assert(removalChoice,'이벤트 선택지가 올바르지 않습니다.');delete removalChoice.discoverRemoval;removalChoice.removeCandidate=true;
+      return choose(state,user,c,{kind:'event',extra:{event:removalEvent,removalCandidate:selected}},removalChoice.id,rng);
+    }
     if(p.kind==='bundles'){var offered=[].concat.apply([],p.options);picked.forEach(function(id){add(state,r,id);});A4.Stats.choice(state,offered,picked,c);return true;}
     if(p.kind==='camp'){if(picked==='rest')r.hp=Math.min(cap(r,c),(r.hp===undefined?cap(r,c):r.hp)+10);else r.queue.unshift('forge');return true;}
     if(p.kind==='forge'||p.kind==='shopUpgrade'){x=cards(r,c).filter(function(y){return y.uid===picked;})[0];A4.assert(x,'강화할 수 없는 카드입니다.');x.upgraded=true;if(p.kind==='shopUpgrade')r.queue.unshift('tavernResume');return true;}
@@ -66,6 +72,10 @@ A4.Journey=(function(){
       var event=p.extra&&p.extra.event;if(!event)return true;
       var choice=event.choices.filter(function(x){return x.id===picked;})[0];A4.assert(choice,'이벤트 선택지가 올바르지 않습니다.');
       A4.assert((r.gold||0)>=(choice.costGold||0),event.id==='today_soup'?'골드가 부족합니다. 다른 수프를 선택하세요.':'골드가 부족합니다. 다른 선택지를 골라주세요.');
+      if(choice.discoverRemoval){
+        var removalOptions=A4.sample(removalCandidates(r,c),3,rng);A4.assert(removalOptions.length,'제거할 수 있는 카드가 없습니다. 다른 선택지를 골라주세요.');
+        show(state,r,'eventRemove',removalOptions.map(function(card){return card.uid;}),{event:A4.copy(event),choiceId:choice.id,candidates:A4.copy(removalOptions)});return 'stay';
+      }
       if(choice.rerollTreasures){
         var previousTreasures=p.extra.treasureCandidates||[],newTreasures=lowTreasures(r,c).filter(function(id){return previousTreasures.indexOf(id)<0;});
         A4.assert(newTreasures.length>=2,'교체할 다른 하급 보물 후보가 부족합니다. 다른 선택지를 골라주세요.');
@@ -91,7 +101,7 @@ A4.Journey=(function(){
       A4.assert(!choice.requiresCurse||removal&&A4.Combat.describeCard(removal,c).element==='CURSE','제거할 저주가 없습니다. 다른 선택지를 골라주세요.');
       A4.assert(!choice.addCardId||c.cards[choice.addCardId],'이벤트 보상 카드가 등록되지 않았습니다.');
       var privatePool=choice.addClassCard?pool(r,c):[];A4.assert(!choice.addClassCard||privatePool.length,'추가할 직업 카드가 없습니다.');
-      var result={id:event.id,name:event.name,title:event.resultTitle,simpleResult:!!event.simpleResult,outro:choice.outro||event.outro,beforeHp:r.hp===undefined?cap(r,c):r.hp,maxHp:cap(r,c),beforeGold:r.gold||0,heal:choice.heal||0,costGold:choice.costGold||0,gainGold:choice.gainGold||0,cardId:null,deckText:event.deckText||'내 덱',removedCard:removal?A4.copy(removal):null};
+      var result={id:event.id,name:event.name,title:choice.resultTitle||event.resultTitle,simpleResult:!!event.simpleResult,outro:choice.outro||event.outro,beforeHp:r.hp===undefined?cap(r,c):r.hp,maxHp:cap(r,c),beforeGold:r.gold||0,heal:choice.heal||0,costGold:choice.costGold||0,gainGold:choice.gainGold||0,cardId:null,deckText:event.deckText||'내 덱',removedCard:removal?A4.copy(removal):null};
       r.gold=result.beforeGold-result.costGold+result.gainGold;
       if(choice.addLowTreasure||offeredTreasure){var treasureId=offeredTreasure||A4.pick(treasurePool,rng),slot='extra-'+A4.id(state,'treasure-');r.treasures[slot]=treasureId;result.treasureId=treasureId;if(c.treasures[treasureId].kind==='card'){var treasureCard=add(state,r,c.treasures[treasureId].cardId);treasureCard.treasureSlot=slot;}}
       if(choice.addClassCard){result.cardId=A4.pick(privatePool,rng);add(state,r,result.cardId);}

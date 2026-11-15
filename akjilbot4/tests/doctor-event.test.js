@@ -1,6 +1,6 @@
 const test=require('node:test'),assert=require('node:assert/strict'),A=require('../../악질봇4.0.0.js');
 const title='⚔️ 이벤트 – 의사 키노피오 ⚔️',outro='키노피오가 처방전을 접어 줍니다. 글씨는 읽을 수 없습니다.';
-function harness({hp=20,gold=5,curse=false,wins=1,roll=.5}={}){
+function harness({hp=20,gold=5,curse=false,wins=1,roll=.45}={}){
  const c=A.copy(A.catalog),files={},io={list:()=>Object.keys(files),read:n=>files[n],writeNewDurable(n,v){files[n]=v;}};let store,app,n=0;
  function open(){store=A.Store.create(io);store.load(A.newState(42));app=A.App.create(store,c);}open();
  const send=(text,id)=>app.handle({text,identity:'doctor-user',name:'진료 테스터',room:'개발123',now:1000+(++n),eventId:id||'doctor-'+n});

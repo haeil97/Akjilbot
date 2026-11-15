@@ -5,7 +5,7 @@ function harness({hp=20,gold=5,wins=1}={}){
  function open(){store=A.Store.create(io);store.load(A.newState(42));app=A.App.create(store,c);}open();
  const send=(text,id)=>app.handle({text,identity:'lunch-user',name:'도시락 테스터',room:'개발123',now:1000+(++n),eventId:id||'lunch-'+n});
  const user=()=>Object.values(store.getState().users)[0],mutate=fn=>store.transact('lunch-fixture',s=>fn(Object.values(s.users)[0],s));
- function offer(roll=0){mutate((u,s)=>{u.run.phase='REWARD';u.run.pending=null;u.run.queue=['event','tavern'];let calls=0;A.Journey.next(s,u,c,()=>calls++===0?roll:.999);});}
+ function offer(roll=0){mutate((u,s)=>{u.run.phase='REWARD';u.run.pending=null;u.run.queue=['event','tavern'];let calls=0;A.Journey.next(s,u,c,()=>calls++===0?roll:.85);});}
  send('+탐험');send('1');mutate(u=>{u.run.wins=wins;u.run.hp=hp;u.run.maxHp=60;u.run.gold=gold;u.run.battle=null;u.run.enemySpec=null;u.run.enemyId=null;u.run.turnToken=null;});offer();
  return {c,get store(){return store;},send,user,mutate,offer,reopen(){store.close();open();}};
 }

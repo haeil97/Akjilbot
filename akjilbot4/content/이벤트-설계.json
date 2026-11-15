@@ -282,5 +282,34 @@
         "eventChanceBonusPercent": 5
       }
     ]
+  },
+  {
+    "id": "knot_crow",
+    "regionId": "elwynn_forest",
+    "name": "까마귀",
+    "menuTitle": "⚔️ 이벤트 – 까마귀 ⚔️",
+    "resultTitle": "⚔️ 이벤트 – 까마귀 ⚔️",
+    "simpleResult": true,
+    "intro": [
+      "까마귀가 꼬인 밧줄을 발로 누릅니다.",
+      "“풀고 싶은 건 여기 놓고 가. 다시 묶는 건 안 해.”"
+    ],
+    "choices": [
+      {
+        "id": "untie",
+        "name": "푼다",
+        "text": "덱에서 카드를 발견하여 제거합니다.",
+        "discoverRemoval": true,
+        "outro": "까마귀가 매듭을 풀었습니다."
+      },
+      {
+        "id": "stop",
+        "name": "그만한다",
+        "text": "체력을 5 회복하고 떠납니다.",
+        "heal": 5,
+        "outro": "까마귀는 풀린 끈을 짧은 둥지 재료로 만듭니다.",
+        "resultTitle": "⚔️ 이벤트 – 매듭을 푸는 까마귀 ⚔️"
+      }
+    ]
   }
 ]
