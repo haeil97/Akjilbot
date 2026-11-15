@@ -5,7 +5,7 @@ function harness({hp=20,wins=1,deck}={}){
  function open(){store=A.Store.create(io);store.load(A.newState(42));app=A.App.create(store,c);}open();
  const send=(text,id)=>app.handle({text,identity:'crow-user',name:'까마귀 테스터',room:'개발123',now:1000+(++n),eventId:id||'crow-'+n});
  const user=()=>Object.values(store.getState().users)[0],mutate=fn=>store.transact('crow-fixture',s=>fn(Object.values(s.users)[0],s));
- send('+탐험');send('1');mutate((u,s)=>{const r=u.run;r.wins=wins;r.hp=hp;r.maxHp=60;r.gold=5;r.phase='REWARD';r.battle=null;r.enemySpec=null;r.enemyId=null;r.turnToken=null;r.pending=null;r.queue=['event','tavern'];if(deck)r.deck=A.copy(deck).map(x=>Object.assign({upgraded:false},x));let calls=0;A.Journey.next(s,u,c,()=>calls++===1?.999:0);});
+ send('+탐험');send('1');mutate((u,s)=>{const r=u.run;r.wins=wins;r.hp=hp;r.maxHp=60;r.gold=5;r.phase='REWARD';r.battle=null;r.enemySpec=null;r.enemyId=null;r.turnToken=null;r.pending=null;r.queue=['event','tavern'];if(deck)r.deck=A.copy(deck).map(x=>Object.assign({upgraded:false},x));let calls=0;A.Journey.next(s,u,c,()=>calls++===1?.85:0);});
  return {c,get store(){return store;},send,user,mutate,reopen(){store.close();open();}};
 }
 test('crow appears in region one with the exact story and standard spacing',()=>{

@@ -6453,6 +6453,46 @@ A4.content = {
           "text": "교환하지 않고 떠납니다."
         }
       ]
+    },
+    {
+      "id": "sprouting_coin",
+      "regionId": "elwynn_forest",
+      "name": "싹이 트는 동전",
+      "menuTitle": "⚔️ 이벤트 – 싹이 트는 동전 ⚔️",
+      "resultTitle": "⚔️ 이벤트 – 싹이 트는 동전 ⚔️",
+      "simpleResult": true,
+      "intro": [
+        "흙에 반쯤 박힌 동전에서 잎이 돋아납니다. 물을 주려 하자 잎이 동전 주머니를 향해 기웁니다."
+      ],
+      "outro": "잎은 동전보다 훨씬 가볍게 흔들립니다.",
+      "choices": [
+        {
+          "id": "plant_two",
+          "name": "2골드를 심는다",
+          "text": "2골드를 잃습니다. 전투 2회 후 6골드를 얻습니다.",
+          "costGold": 2,
+          "delayedReward": {
+            "battles": 2,
+            "gold": 6
+          }
+        },
+        {
+          "id": "plant_four",
+          "name": "4골드를 심는다",
+          "text": "4골드를 잃습니다. 전투 2회 후 무작위 하급 보물을 얻습니다.",
+          "costGold": 4,
+          "delayedReward": {
+            "battles": 2,
+            "lowTreasure": true
+          }
+        },
+        {
+          "id": "harvest_now",
+          "name": "지금 수확한다",
+          "text": "1골드를 얻습니다.",
+          "gainGold": 1
+        }
+      ]
     }
   ],
   "eventCards": [
@@ -13564,10 +13604,17 @@ A4.Journey=(function(){
     return false;
   }
   function tavern(state,user){var r=user.run;show(state,r,'tavern',r.tavern.map(function(x,i){return {index:i,item:x};}).concat([{leave:true}]));return true;}
-  function reward(run,c,rng){
+  function reward(run,c,rng,state){
     var missing=1-Math.max(0,Math.min(1,run.hp/cap(run,c))),base=4+Math.floor(rng()*3),bonus=Math.min(5,Math.round(missing*5));
-    var eventBonus=run.nextBattleGoldBonus||0;
-    run.gold=(run.gold||0)+base+bonus+eventBonus;run.lastBattleGold={base:base,bonus:bonus,eventBonus:eventBonus,total:base+bonus+eventBonus};delete run.nextBattleGoldBonus;
+    var eventBonus=run.nextBattleGoldBonus||0,investmentBonus=0,waiting=[];run.lastBattleEventRewards=[];
+    (run.delayedEventRewards||[]).forEach(function(entry){
+      if(run.wins<entry.dueWins){waiting.push(entry);return;}
+      var payout={id:entry.id,eventId:entry.eventId,gold:entry.gold||0};
+      if(entry.lowTreasure){var available=lowTreasures(run,c);if(!available.length){waiting.push(entry);return;}A4.assert(state,'지연 보물 지급에 저장 상태가 필요합니다.');var id=A4.pick(available,rng),slot='extra-'+A4.id(state,'treasure-');run.treasures[slot]=id;payout.treasureId=id;if(c.treasures[id].kind==='card'){var card=add(state,run,c.treasures[id].cardId);card.treasureSlot=slot;}}
+      investmentBonus+=payout.gold;run.lastBattleEventRewards.push(payout);
+    });
+    if(waiting.length)run.delayedEventRewards=waiting;else delete run.delayedEventRewards;
+    run.gold=(run.gold||0)+base+bonus+eventBonus+investmentBonus;run.lastBattleGold={base:base,bonus:bonus,eventBonus:eventBonus,investmentBonus:investmentBonus,total:base+bonus+eventBonus+investmentBonus};delete run.nextBattleGoldBonus;
     run.journeyVersion=2;
     var milestone=run.wins===1?['low']:run.wins===4?['high']:run.wins===6?['swap']:[];
     run.queue=milestone.concat(['bundles','camp','event','tavern']);if(run.wins>=(A4.Regions?A4.Regions.limit(run):8))run.queue.push('clear');
@@ -13629,6 +13676,7 @@ A4.Journey=(function(){
       result.loseHp=choice.loseHp||0;result.logOrder=event.logOrder||null;
       if(choice.nextBattleGold){r.nextBattleGoldBonus=(r.nextBattleGoldBonus||0)+choice.nextBattleGold;result.nextBattleGold=choice.nextBattleGold;}
       if(choice.eventChanceBonusPercent){r.eventChanceBonusPercent=Math.min(80,(r.eventChanceBonusPercent||0)+choice.eventChanceBonusPercent);result.eventChanceBonusPercent=choice.eventChanceBonusPercent;}
+      if(choice.delayedReward){var delayed=A4.copy(choice.delayedReward);delayed.id=A4.id(state,'event-reward-');delayed.eventId=event.id;delayed.dueWins=r.wins+delayed.battles;if(!r.delayedEventRewards)r.delayedEventRewards=[];r.delayedEventRewards.push(delayed);result.delayedReward=A4.copy(choice.delayedReward);}
       r.hp=Math.max(0,Math.min(result.maxHp,result.beforeHp+result.heal-result.loseHp));result.afterHp=r.hp;result.afterGold=r.gold;r.lastEventResult=A4.copy(result);
       return {eventResult:result,eventDefeat:r.hp===0};
     }
@@ -13954,7 +14002,7 @@ A4.Game = (function () {
     var extraMessages=[];
     delete run.battle.pendingDoctorSpeeches;
     if(!run.battle.pendingChoice){extraMessages=(run.battle.pendingPowerAnnouncements||[]).slice();run.battle.pendingPowerAnnouncements=[];}
-    var victoryAnnouncement=null,summary=run.battle.rulesVersion===3&&result.outcome!=='ongoing'?A4.BattleUI.summary(run.battle,run.wins+1,catalog):null;
+    var victoryAnnouncement=null,delayedEventRewards=null,summary=run.battle.rulesVersion===3&&result.outcome!=='ongoing'?A4.BattleUI.summary(run.battle,run.wins+1,catalog):null;
     if (result.removedFromRun && result.removedFromRun.length) run.deck = run.deck.filter(function (c) { return result.removedFromRun.indexOf(c.uid) < 0; });
     if (result.outcome === 'defeat') return {kind:'finished',record:finish(state,user,'defeat',now,rng,catalog),log:result.log,battleSummary:summary,extraMessages:extraMessages};
     if (result.outcome === 'victory') {
@@ -13966,9 +14014,9 @@ A4.Game = (function () {
       run.wins++; run.battle = null; run.turnToken = null;run.enemySpec=null;
       if (run.wins === 8 && catalog.config.engineVersion!==3) return {kind:'finished',record:finish(state,user,'clear',now,rng,catalog),log:result.log,battleSummary:summary,victoryAnnouncement:victoryAnnouncement,extraMessages:extraMessages};
       queues = {1:['low','add','add'],2:['upgrade','add','add'],3:['offerRemove','add','add'],4:['high','add','add'],5:['upgrade','add','add'],6:['swap','add','add'],7:['finalEdit']};
-      if(A4.Journey&&catalog.config.engineVersion===3)A4.Journey.reward(run,catalog,rng);else run.queue=queues[run.wins].slice();nextReward(state,user,catalog,rng);
+      if(A4.Journey&&catalog.config.engineVersion===3){A4.Journey.reward(run,catalog,rng,state);delayedEventRewards=A4.copy(run.lastBattleEventRewards||[]);}else run.queue=queues[run.wins].slice();nextReward(state,user,catalog,rng);
     } else run.turnToken = A4.id(state,'turn-');
-    return {kind:'run',log:result.log,battleSummary:summary,victoryAnnouncement:victoryAnnouncement,extraMessages:extraMessages};
+    return {kind:'run',log:result.log,battleSummary:summary,victoryAnnouncement:victoryAnnouncement,extraMessages:extraMessages,delayedEventRewards:delayedEventRewards};
   }
   function applyRunChanges(state,user,catalog){
     var run=user.run,b=run&&run.battle;
@@ -14472,7 +14520,7 @@ A4.UI = (function () {
       var headings={bundles:'직업 카드 묶음 선택',camp:'휴식 또는 제련',forge:'제련',event:'이벤트',tavern:'선술집',shopUpgrade:'강화권',shopRemove:'카드 제거'};
       lines.push('⚔️ '+headings[p.kind]+' ⚔️','❤️ '+(r.hp===undefined?60:r.hp)+'/60 · 🪙 '+(r.gold||0)+'골드');
       if(A4.Regions&&A4.Regions.enabled(r))lines.splice(1,0,A4.Regions.label(r,true)+' · 누적 '+r.wins+'/32처치');
-      if(p.kind==='bundles'&&r.lastBattleGold)lines.push('전투 골드 +'+r.lastBattleGold.total+' (기본 '+r.lastBattleGold.base+' + 체력 보너스 '+r.lastBattleGold.bonus+(r.lastBattleGold.eventBonus?' + 도시락 보너스 '+r.lastBattleGold.eventBonus:'')+')');
+      if(p.kind==='bundles'&&r.lastBattleGold)lines.push('전투 골드 +'+r.lastBattleGold.total+' (기본 '+r.lastBattleGold.base+' + 체력 보너스 '+r.lastBattleGold.bonus+(r.lastBattleGold.eventBonus?' + 도시락 보너스 '+r.lastBattleGold.eventBonus:'')+(r.lastBattleGold.investmentBonus?' + 동전 수확 '+r.lastBattleGold.investmentBonus:'')+')');
       if(p.kind==='event')lines.push('이벤트는 준비 중입니다. 다음 단계로 진행합니다.');
       p.options.forEach(function(x,i){var text;
         if(p.kind==='bundles')text=x.map(function(id){return rewardCard({cardId:id,upgraded:false},catalog);}).join('\n');
@@ -14725,10 +14773,12 @@ A4.UI = (function () {
       if(eventResult.heal)eventLogs.heal='체력을 '+eventResult.heal+' 회복했습니다.'+(eventResult.simpleResult?'':' ('+eventResult.beforeHp+'/'+eventResult.maxHp+') → ('+eventResult.afterHp+'/'+eventResult.maxHp+')');
       if(eventResult.nextBattleGold)eventLogs.nextBattleGold='다음 전투 완료 후 '+eventResult.nextBattleGold+'골드를 획득합니다.';
       if(eventResult.eventChanceBonusPercent)eventLogs.eventChance='이번 탐험에서 이벤트 발생 확률이 '+eventResult.eventChanceBonusPercent+'% 증가합니다.';
-      (eventResult.logOrder||['costGold','gainGold','loseHp','treasure','card','removal','heal','nextBattleGold','eventChance']).forEach(function(key){if(eventLogs[key])eventLines.push(eventLogs[key]);});
+      if(eventResult.delayedReward)eventLogs.delayedReward='전투 '+eventResult.delayedReward.battles+'회 후 '+(eventResult.delayedReward.gold?eventResult.delayedReward.gold+'골드를':'무작위 하급 보물을')+' 획득합니다.';
+      (eventResult.logOrder||['costGold','gainGold','loseHp','treasure','card','removal','heal','nextBattleGold','eventChance','delayedReward']).forEach(function(key){if(eventLogs[key])eventLines.push(eventLogs[key]);});
       if(eventLines[eventLines.length-1]==='')eventLines.pop();
       prefix+=eventLines.join('\n')+separator;
     }
+    if(result.delayedEventRewards&&result.delayedEventRewards.length){var harvestLines=['⚔️ 이벤트 – 싹이 트는 동전 ⚔️','','잎은 동전보다 훨씬 가볍게 흔들립니다.',''];result.delayedEventRewards.forEach(function(reward){if(reward.gold)harvestLines.push('골드를 '+reward.gold+' 얻었습니다.');if(reward.treasureId)harvestLines.push(eventTreasureText(reward.treasureId,catalog)+' 획득했습니다.');});prefix+=harvestLines.join('\n')+separator;}
     lines.push(text); return prefix+(result.battleSummary?result.battleSummary+separator:'')+(result.victoryAnnouncement?result.victoryAnnouncement+separator:'')+lines.join('\n')+(result.extraMessages&&result.extraMessages.length?separator+result.extraMessages.join(separator):'');
   }
   return {render:render,card:card,effects:effects,messages:function(text){return String(text).split(separator);}};

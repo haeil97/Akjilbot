@@ -302,7 +302,7 @@ A4.Game = (function () {
     var extraMessages=[];
     delete run.battle.pendingDoctorSpeeches;
     if(!run.battle.pendingChoice){extraMessages=(run.battle.pendingPowerAnnouncements||[]).slice();run.battle.pendingPowerAnnouncements=[];}
-    var victoryAnnouncement=null,summary=run.battle.rulesVersion===3&&result.outcome!=='ongoing'?A4.BattleUI.summary(run.battle,run.wins+1,catalog):null;
+    var victoryAnnouncement=null,delayedEventRewards=null,summary=run.battle.rulesVersion===3&&result.outcome!=='ongoing'?A4.BattleUI.summary(run.battle,run.wins+1,catalog):null;
     if (result.removedFromRun && result.removedFromRun.length) run.deck = run.deck.filter(function (c) { return result.removedFromRun.indexOf(c.uid) < 0; });
     if (result.outcome === 'defeat') return {kind:'finished',record:finish(state,user,'defeat',now,rng,catalog),log:result.log,battleSummary:summary,extraMessages:extraMessages};
     if (result.outcome === 'victory') {
@@ -314,9 +314,9 @@ A4.Game = (function () {
       run.wins++; run.battle = null; run.turnToken = null;run.enemySpec=null;
       if (run.wins === 8 && catalog.config.engineVersion!==3) return {kind:'finished',record:finish(state,user,'clear',now,rng,catalog),log:result.log,battleSummary:summary,victoryAnnouncement:victoryAnnouncement,extraMessages:extraMessages};
       queues = {1:['low','add','add'],2:['upgrade','add','add'],3:['offerRemove','add','add'],4:['high','add','add'],5:['upgrade','add','add'],6:['swap','add','add'],7:['finalEdit']};
-      if(A4.Journey&&catalog.config.engineVersion===3)A4.Journey.reward(run,catalog,rng);else run.queue=queues[run.wins].slice();nextReward(state,user,catalog,rng);
+      if(A4.Journey&&catalog.config.engineVersion===3){A4.Journey.reward(run,catalog,rng,state);delayedEventRewards=A4.copy(run.lastBattleEventRewards||[]);}else run.queue=queues[run.wins].slice();nextReward(state,user,catalog,rng);
     } else run.turnToken = A4.id(state,'turn-');
-    return {kind:'run',log:result.log,battleSummary:summary,victoryAnnouncement:victoryAnnouncement,extraMessages:extraMessages};
+    return {kind:'run',log:result.log,battleSummary:summary,victoryAnnouncement:victoryAnnouncement,extraMessages:extraMessages,delayedEventRewards:delayedEventRewards};
   }
   function applyRunChanges(state,user,catalog){
     var run=user.run,b=run&&run.battle;

@@ -37,7 +37,7 @@ A4.UI = (function () {
       var headings={bundles:'직업 카드 묶음 선택',camp:'휴식 또는 제련',forge:'제련',event:'이벤트',tavern:'선술집',shopUpgrade:'강화권',shopRemove:'카드 제거'};
       lines.push('⚔️ '+headings[p.kind]+' ⚔️','❤️ '+(r.hp===undefined?60:r.hp)+'/60 · 🪙 '+(r.gold||0)+'골드');
       if(A4.Regions&&A4.Regions.enabled(r))lines.splice(1,0,A4.Regions.label(r,true)+' · 누적 '+r.wins+'/32처치');
-      if(p.kind==='bundles'&&r.lastBattleGold)lines.push('전투 골드 +'+r.lastBattleGold.total+' (기본 '+r.lastBattleGold.base+' + 체력 보너스 '+r.lastBattleGold.bonus+(r.lastBattleGold.eventBonus?' + 도시락 보너스 '+r.lastBattleGold.eventBonus:'')+')');
+      if(p.kind==='bundles'&&r.lastBattleGold)lines.push('전투 골드 +'+r.lastBattleGold.total+' (기본 '+r.lastBattleGold.base+' + 체력 보너스 '+r.lastBattleGold.bonus+(r.lastBattleGold.eventBonus?' + 도시락 보너스 '+r.lastBattleGold.eventBonus:'')+(r.lastBattleGold.investmentBonus?' + 동전 수확 '+r.lastBattleGold.investmentBonus:'')+')');
       if(p.kind==='event')lines.push('이벤트는 준비 중입니다. 다음 단계로 진행합니다.');
       p.options.forEach(function(x,i){var text;
         if(p.kind==='bundles')text=x.map(function(id){return rewardCard({cardId:id,upgraded:false},catalog);}).join('\n');
@@ -290,10 +290,12 @@ A4.UI = (function () {
       if(eventResult.heal)eventLogs.heal='체력을 '+eventResult.heal+' 회복했습니다.'+(eventResult.simpleResult?'':' ('+eventResult.beforeHp+'/'+eventResult.maxHp+') → ('+eventResult.afterHp+'/'+eventResult.maxHp+')');
       if(eventResult.nextBattleGold)eventLogs.nextBattleGold='다음 전투 완료 후 '+eventResult.nextBattleGold+'골드를 획득합니다.';
       if(eventResult.eventChanceBonusPercent)eventLogs.eventChance='이번 탐험에서 이벤트 발생 확률이 '+eventResult.eventChanceBonusPercent+'% 증가합니다.';
-      (eventResult.logOrder||['costGold','gainGold','loseHp','treasure','card','removal','heal','nextBattleGold','eventChance']).forEach(function(key){if(eventLogs[key])eventLines.push(eventLogs[key]);});
+      if(eventResult.delayedReward)eventLogs.delayedReward='전투 '+eventResult.delayedReward.battles+'회 후 '+(eventResult.delayedReward.gold?eventResult.delayedReward.gold+'골드를':'무작위 하급 보물을')+' 획득합니다.';
+      (eventResult.logOrder||['costGold','gainGold','loseHp','treasure','card','removal','heal','nextBattleGold','eventChance','delayedReward']).forEach(function(key){if(eventLogs[key])eventLines.push(eventLogs[key]);});
       if(eventLines[eventLines.length-1]==='')eventLines.pop();
       prefix+=eventLines.join('\n')+separator;
     }
+    if(result.delayedEventRewards&&result.delayedEventRewards.length){var harvestLines=['⚔️ 이벤트 – 싹이 트는 동전 ⚔️','','잎은 동전보다 훨씬 가볍게 흔들립니다.',''];result.delayedEventRewards.forEach(function(reward){if(reward.gold)harvestLines.push('골드를 '+reward.gold+' 얻었습니다.');if(reward.treasureId)harvestLines.push(eventTreasureText(reward.treasureId,catalog)+' 획득했습니다.');});prefix+=harvestLines.join('\n')+separator;}
     lines.push(text); return prefix+(result.battleSummary?result.battleSummary+separator:'')+(result.victoryAnnouncement?result.victoryAnnouncement+separator:'')+lines.join('\n')+(result.extraMessages&&result.extraMessages.length?separator+result.extraMessages.join(separator):'');
   }
   return {render:render,card:card,effects:effects,messages:function(text){return String(text).split(separator);}};

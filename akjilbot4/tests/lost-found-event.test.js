@@ -10,7 +10,7 @@ function harness({held=oldId,wins=1,starting=false,second=false}={}){
  if(held){r.treasures.low=held;const t=c.treasures[held];if(t.kind==='card')r.deck.push({uid:'old-card',cardId:t.cardId,upgraded:false,treasureSlot:'low'});}
  if(starting)r.hero.startingTreasureId=held;
  if(second)r.treasures.other=oldId;
- let calls=0;A.Journey.next(s,u,c,()=>calls++===1?.999:0);});
+ let calls=0;A.Journey.next(s,u,c,()=>calls++===1?.85:0);});
  function onlyHigh(id){for(const key of Object.keys(c.treasures))if(c.treasures[key].tier==='high')c.treasures[key].retired=key!==id;}
  return {c,get store(){return store;},send,user,mutate,onlyHigh,reopen(){store.close();open();}};
 }

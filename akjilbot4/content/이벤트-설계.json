@@ -341,5 +341,45 @@
         "text": "교환하지 않고 떠납니다."
       }
     ]
+  },
+  {
+    "id": "sprouting_coin",
+    "regionId": "elwynn_forest",
+    "name": "싹이 트는 동전",
+    "menuTitle": "⚔️ 이벤트 – 싹이 트는 동전 ⚔️",
+    "resultTitle": "⚔️ 이벤트 – 싹이 트는 동전 ⚔️",
+    "simpleResult": true,
+    "intro": [
+      "흙에 반쯤 박힌 동전에서 잎이 돋아납니다. 물을 주려 하자 잎이 동전 주머니를 향해 기웁니다."
+    ],
+    "outro": "잎은 동전보다 훨씬 가볍게 흔들립니다.",
+    "choices": [
+      {
+        "id": "plant_two",
+        "name": "2골드를 심는다",
+        "text": "2골드를 잃습니다. 전투 2회 후 6골드를 얻습니다.",
+        "costGold": 2,
+        "delayedReward": {
+          "battles": 2,
+          "gold": 6
+        }
+      },
+      {
+        "id": "plant_four",
+        "name": "4골드를 심는다",
+        "text": "4골드를 잃습니다. 전투 2회 후 무작위 하급 보물을 얻습니다.",
+        "costGold": 4,
+        "delayedReward": {
+          "battles": 2,
+          "lowTreasure": true
+        }
+      },
+      {
+        "id": "harvest_now",
+        "name": "지금 수확한다",
+        "text": "1골드를 얻습니다.",
+        "gainGold": 1
+      }
+    ]
   }
 ]
