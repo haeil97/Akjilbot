@@ -20,8 +20,9 @@ A4.Economy = (function () {
     if (user.items.keys >= 5) user.keyUpdatedAt = Math.max(now, user.keyUpdatedAt);
   }
   function reward(wins, rng) {
-    A4.assert(A4.integer(wins, 0) && wins <= 8, '잘못된 처치 수입니다.');
-    var bounds = GOLD[wins], out = {gold: bounds[0] + 50 * Math.floor(rng() * ((bounds[1] - bounds[0]) / 50 + 1)), keys:0,stones:0,essence:0};
+    A4.assert(A4.integer(wins, 0) && wins <= 32, '잘못된 처치 수입니다.');
+    var blocks=Math.floor(wins/8),part=wins%8,bounds=wins<=8?GOLD[wins]:[blocks*GOLD[8][0]+(part?GOLD[part][0]:0),blocks*GOLD[8][1]+(part?GOLD[part][1]:0)],out={gold:bounds[0]+50*Math.floor(rng()*((bounds[1]-bounds[0])/50+1)),keys:0,stones:0,essence:0};
+    wins=Math.min(8,wins);
     if (wins === 4) out.keys = rng() < 0.2 ? 1 : 0;
     if (wins === 5) { out.keys = rng() < 0.8 ? 1 : 0; out.stones = rng() < 0.8 ? 0 : 1; }
     if (wins === 6) { out.keys = 1; out.stones = rng() < 0.8 ? 1 : 2; }

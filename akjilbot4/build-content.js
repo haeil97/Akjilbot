@@ -62,7 +62,8 @@ function compileContent() {
         classes:JSON.parse(read('직업-설계.json')),
         guffRevision:JSON.parse(read('거프-개편.json')),
         neutralRevision,
-        minionDesign:JSON.parse(read('하수인-설계.json'))
+        minionDesign:JSON.parse(read('하수인-설계.json')),
+        regionDesign:JSON.parse(read('지역-설계.json'))
     },cardReference);
 }
 

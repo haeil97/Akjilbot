@@ -13,7 +13,7 @@ A4.validateState = function (state) {
       Object.keys(state.stats[kind]).forEach(function(id){var r=state.stats[kind][id];
         ok(object(r),'통계 기록');
         ['offered','picked','runs','totalWins','win','loss'].forEach(function(field){ok(A4.integer(r[field],0),'통계 수치 '+field);});
-        ok(r.picked<=r.offered&&r.totalWins<=r.runs*8,'통계 집계 범위');
+        ok(r.picked<=r.offered&&r.totalWins<=r.runs*32,'통계 집계 범위');
       });
     });
   }
@@ -52,7 +52,8 @@ A4.validateState = function (state) {
     if(r.bloodstones!==undefined)ok(A4.integer(r.bloodstones,0)&&r.bloodstones<=5,'혈석');
     if(r.shrineId!==undefined)ok(typeof r.shrineId==='string','제단 선택');
     if(r.hp!==undefined)ok(A4.integer(r.hp,1),'탐험 현재 체력');
-    ok(typeof r.id === 'string' && A4.integer(r.wins,0) && r.wins <= 8 && ['HERO','ENCOUNTER','BATTLE','REWARD','READY'].indexOf(r.phase) >= 0,'탐험 단계');
+    ok(typeof r.id === 'string' && A4.integer(r.wins,0) && r.wins <= (A4.Regions?A4.Regions.limit(r):8) && ['HERO','ENCOUNTER','BATTLE','REWARD','READY'].indexOf(r.phase) >= 0,'탐험 단계');
+    if(r.regionVersion!==undefined)ok(r.regionVersion===1,'지역 탐험 버전');
     if(r.phase!=='HERO') ok(r.hero && typeof r.hero.id==='string' && r.hero.power,'선택 영웅');
     ok(Array.isArray(r.deck) && Array.isArray(r.queue) && Array.isArray(r.effects) && object(r.treasures),'탐험 덱과 보상 큐');
     seen={};

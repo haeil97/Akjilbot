@@ -44,5 +44,5 @@ test('opponent results count one per stage and ignore preview or reward abandonm
  r.phase='BATTLE';r.enemyId='boo';A.Stats.battle(s,r,false);
  assert.equal(s.stats.bots.boo.loss,1);assert.match(A.Stats.render(s.stats,A.catalog),/티모: 1승 0패 \| 격파율 100.0%/);
  const resumed=copy(s);A.validateState(resumed);assert.deepEqual(resumed.stats,s.stats);
- resumed.stats.cards.bad={offered:0,picked:0,runs:1,totalWins:9,win:0,loss:0};assert.throws(()=>A.validateState(resumed),/통계 집계 범위/);
+ resumed.stats.cards.bad={offered:0,picked:0,runs:1,totalWins:33,win:0,loss:0};assert.throws(()=>A.validateState(resumed),/통계 집계 범위/);
 });

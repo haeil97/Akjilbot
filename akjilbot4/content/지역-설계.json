@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "battlesPerRegion": 8,
+  "regions": [
+    {
+      "id": "elwynn_forest",
+      "name": "엘윈 숲",
+      "enemies": ["cannon_minion", "little_hatchling", "ivysaur", "piranha_plant", "ivern", "teemo", "brightwing"],
+      "bosses": ["aviana"]
+    },
+    {
+      "id": "wings_industrial_city",
+      "name": "날개, 공업도시",
+      "enemies": ["cannon_minion", "pikachu", "super_minion", "trap_room", "hanar", "fiora", "patchwerk", "black_knight"],
+      "bosses": ["meltranix"]
+    },
+    {
+      "id": "archive_of_time",
+      "name": "시간의 서고",
+      "enemies": ["antonidas", "boo", "yuumi", "faceless_manipulator", "hanar", "brightwing", "trap_room", "aurelion_sol"],
+      "bosses": ["yogg_saron"]
+    },
+    {
+      "id": "where_light_sleeps",
+      "name": "빛이 잠든 곳",
+      "enemies": ["lich_king", "faceless_manipulator", "boo", "yuumi", "black_knight", "aurelion_sol", "extreme_troll", "antonidas"],
+      "bosses": ["mida"]
+    }
+  ]
+}

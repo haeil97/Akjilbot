@@ -68,30 +68,34 @@ A4.Opponents = (function () {
     target.push({uid:A4.id(state,'enemy-card-'),cardId:definition.id,upgraded:!!entry.upgraded});
   }
   function prepare(state, run, catalog, forcedEnemyId) {
-    var stage = run.wins+1, rng, id, enemy, plan, bag = [], errors;
+    var regional=A4.Regions&&A4.Regions.enabled(run),stage=regional?A4.Regions.stage(run):run.wins+1,totalStage=run.wins+1,rng,id,enemy,plan,bag=[],errors;
     A4.assert(A4.integer(stage,1) && stage <= 8,'상대 생성 단계가 올바르지 않습니다.');
-    if (run.enemySpec && run.enemySpec.stage === stage) {
+    A4.assert(!regional||totalStage<=A4.Regions.limit(run),'모든 지역을 완료했습니다.');
+    if (run.enemySpec && run.enemySpec.stage === totalStage) {
       A4.assert(!forcedEnemyId || run.enemySpec.enemyId === forcedEnemyId,'이미 확정된 상대를 다시 추첨할 수 없습니다.');
       return run.enemySpec;
     }
     errors = validateDesign(); A4.assert(!errors.length,errors.join(', '));
     var seenIds={},seenNames={};
     (run.encounterResults||[]).forEach(function(result){
+      if(regional&&Math.floor((result.stage-1)/8)!==Math.floor(run.wins/8))return;
       if(result.enemyId)seenIds[result.enemyId]=true;
       if(result.name)seenNames[result.name]=true;
     });
     // Older saves may retain only the most recent opponent ID.
-    if(run.wins>0&&run.enemyId)seenIds[run.enemyId]=true;
-    var candidates=encounters[stage-1].filter(function(candidate){return (enabledEncounter(candidate)||candidate===forcedEnemyId)&&!seenIds[candidate]&&!seenNames[byId[candidate].name];});
+    if(run.wins>0&&run.enemyId&&(!regional||run.wins%8!==0))seenIds[run.enemyId]=true;
+    var encounterPool=regional?A4.Regions.candidates(run):encounters[stage-1];
+    var candidates=encounterPool.filter(function(candidate){return (enabledEncounter(candidate)||candidate===forcedEnemyId)&&!seenIds[candidate]&&!seenNames[byId[candidate].name];});
     if (forcedEnemyId) {
-      A4.assert(encounters[stage-1].indexOf(forcedEnemyId) >= 0,'해당 전투의 후보가 아닙니다.');
+      A4.assert(encounterPool.indexOf(forcedEnemyId) >= 0,'해당 전투의 후보가 아닙니다.');
       A4.assert(candidates.indexOf(forcedEnemyId)>=0,'이번 탐험에서 이미 만난 상대입니다.');
     }
     A4.assert(candidates.length>0,'이번 탐험에서 아직 만나지 않은 상대 후보가 없습니다.');
     rng = A4.random(state); id = forcedEnemyId || A4.pick(candidates,rng); enemy = byId[id];
     plan = {version:1,contentRevision:content.revision,battleReady:false,enemyId:id,name:enemy.name,
-      stage:stage,maxHp:content.stageHp[stage-1],deckMode:enemy.deckMode,deck:[],
+      stage:totalStage,maxHp:content.stageHp[stage-1],deckMode:enemy.deckMode,deck:[],
       heroPowerSpec:A4.copy(abilities.abilities[id]),treasures:[],treasurePassives:[],playerOpeningAdditions:[]};
+    if(regional)plan.region=A4.Regions.info(run);
     if (enemy.deckMode === 'mirror') {
       A4.assert(Array.isArray(run.deck) && run.deck.length > 0,'복제할 탐험 덱이 없습니다.');
       if(run.hero&&run.hero.startingTreasureId)plan.startingTreasureId=run.hero.startingTreasureId;

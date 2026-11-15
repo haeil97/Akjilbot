@@ -32,6 +32,7 @@ A4.UI = (function () {
     if(['bundles','camp','forge','event','tavern','shopUpgrade','shopRemove'].indexOf(p.kind)>=0){
       var headings={bundles:'직업 카드 묶음 선택',camp:'휴식 또는 제련',forge:'제련',event:'이벤트',tavern:'선술집',shopUpgrade:'강화권',shopRemove:'카드 제거'};
       lines.push('⚔️ '+headings[p.kind]+' ⚔️','❤️ '+(r.hp===undefined?60:r.hp)+'/60 · 🪙 '+(r.gold||0)+'골드');
+      if(A4.Regions&&A4.Regions.enabled(r))lines.splice(1,0,A4.Regions.label(r,true)+' · 누적 '+r.wins+'/32처치');
       if(p.kind==='bundles'&&r.lastBattleGold)lines.push('전투 골드 +'+r.lastBattleGold.total+' (기본 '+r.lastBattleGold.base+' + 체력 보너스 '+r.lastBattleGold.bonus+')');
       if(p.kind==='event')lines.push('이벤트는 준비 중입니다. 다음 단계로 진행합니다.');
       p.options.forEach(function(x,i){var text;
@@ -152,11 +153,11 @@ A4.UI = (function () {
   }
   function run(user,catalog) {
     var r = user.run, lines = [], p, b, view, i, option, before, after, mana;
-    if (!r) return user.lastRun ? '최근 탐험: '+user.lastRun.wins+'승\n받은 보상: '+reward(user.lastRun.reward)+'\n+탐험으로 새 탐험을 시작하세요.' : '+탐험으로 시작하세요.';
-    if (r.phase === 'READY') return '⚔️ '+r.wins+'/8 처치 · 덱 구성 완료 ⚔️\n진행이 저장되었습니다. +탐험으로 계속하세요.';
+    if (!r) return user.lastRun ? '최근 탐험: '+user.lastRun.wins+'승'+(user.lastRun.progress?' · '+user.lastRun.progress.completedRegions+'/4지역 완료':'')+'\n받은 보상: '+reward(user.lastRun.reward)+'\n+탐험으로 새 탐험을 시작하세요.' : '+탐험으로 시작하세요.';
+    if (r.phase === 'READY') {var status=A4.Regions&&A4.Regions.enabled(r)?A4.Regions.info(r):null;return '⚔️ '+(status?status.regionNumber+'/4지역 · '+status.regionName+' · '+r.wins%8+'/8 처치':r.wins+'/8 처치')+' · 덱 구성 완료 ⚔️\n진행이 저장되었습니다. +탐험으로 계속하세요.';}
     if (r.phase === 'ENCOUNTER') {
       var enemy=r.enemySpec,ability=A4.BossRules.power(enemy.enemyId);
-      return '⚔️ 탐험 '+(r.wins+1)+'/8 ⚔️\n'+enemy.name+' ❤️ '+enemy.maxHp+'\n[🛟] '+ability.name+(ability.kind==='active'?' | 💧'+ability.cost:' | ⏳️지속')+'\n'+ability.text+'\ny / n';
+      return '⚔️ 탐험 '+(A4.Regions?A4.Regions.label(r,false):(r.wins+1)+'/8')+' ⚔️\n'+enemy.name+' ❤️ '+enemy.maxHp+'\n[🛟] '+ability.name+(ability.kind==='active'?' | 💧'+ability.cost:' | ⏳️지속')+'\n'+ability.text+'\ny / n';
     }
     if (r.phase === 'BATTLE') {
       if(r.battle.rulesVersion===3){
@@ -235,7 +236,7 @@ A4.UI = (function () {
     var text, lines = [], def, rule;
     if (catalog.config.engineVersion!==3 && result.log && result.log.length) lines.push(result.log.join('\n'),'');
     if (result.kind === 'run') text = run(user,catalog);
-    else if (result.kind === 'finished') text = ['⚔️ 탐험 - 결과 ⚔️'].concat((result.record.encounterResults||[]).map(function(x){return x.name+' '+(x.won?'✅️':'❌️');})).concat(['보상: '+reward(result.record.reward)]).join('\n');
+    else if (result.kind === 'finished') text = ['⚔️ 탐험 - 결과 ⚔️'].concat(result.record.progress?['누적 '+result.record.wins+'/32처치 · '+result.record.progress.completedRegions+'/4지역 완료']:[]).concat((result.record.encounterResults||[]).map(function(x){return (x.regionName?x.regionName+' · '+x.regionBattle+'/8 · ':'')+x.name+' '+(x.won?'✅️':'❌️');})).concat(['보상: '+reward(result.record.reward)]).join('\n');
     else if (result.kind === 'stats') text=A4.Stats.render(result.stats,catalog);
     else if (result.kind === 'rules') text=rules();
     else if (result.kind === 'encyclopedia') text=encyclopedia(catalog,result.query);

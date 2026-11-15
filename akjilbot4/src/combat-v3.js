@@ -507,6 +507,7 @@ A4.Battle = (function () {
     var b={rulesVersion:3,turn:0,phase:'MAIN1',phaseSerial:0,outcome:'ongoing',player:fighter(p,c,rng),enemy:fighter(e,c,rng),enemyPlan:[],enemyPowerPlan:false,enemyPlanTurn:0,enemyPlanPhase:'MAIN1',enemyPlanDeferred:false,history:[],generatedCounter:0,removedFromRun:[],runChanges:[],scheduled:[],pendingChoice:null,lastLog:[],resolution:{queue:[{kind:'phase',op:'opening'}],entries:null},restartSpecs:{player:clone(p),enemy:clone(e)}};
     if(internalOptions&&internalOptions.simulation){b._aiSimulation=true;b._aiStepsRemaining=internalOptions.steps===undefined?400:internalOptions.steps;}
     if(internalOptions&&internalOptions.publicPlayerHistory)b.publicPlayerHistory=clone(internalOptions.publicPlayerHistory);
+    if(p.region)b.region=clone(p.region);
     // The initial deck composition is public; current zones and draw order are not.
     b.publicPlayerDeck=(p.deck||[]).map(function(card){var known={cardId:card.cardId,upgraded:!!card.upgraded};['cost','costDelta','costFloor','element'].forEach(function(k){if(card[k]!==undefined)known[k]=card[k];});return known;}).sort(function(a,z){return JSON.stringify(a).localeCompare(JSON.stringify(z));});
     process(b,c,rng);return b;

@@ -12,6 +12,7 @@ function request(text,extra={}){return Object.assign({identity:ID,name:'실제 �
 function harness(t){
   const root=fs.mkdtempSync(path.join(os.tmpdir(),'akjil4-production-'));
   const c=JSON.parse(JSON.stringify(A4.catalog));
+  c.config.regionsEnabled=false; // Retain explicit coverage of previously saved eight-battle runs.
   c.heroes.forEach(h=>{h.enabled=true;}); // Exercise retained classes independently of production selection availability.
   const h={root,c,store:null,io:null,app:null};
   h.open=function(){h.io=A4.Store.nodeIO(root,require);h.store=A4.Store.create(h.io);h.store.load(A4.newState(871236541));h.app=A4.App.create(h.store,c);return h;};

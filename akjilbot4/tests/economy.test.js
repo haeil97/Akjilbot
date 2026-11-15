@@ -127,7 +127,7 @@ test("zero through three wins give no items and invalid victory counts are rejec
         const reward = A4.Economy.reward(wins, () => 0.5);
         assert.deepEqual({ keys: reward.keys, stones: reward.stones, essence: reward.essence }, { keys: 0, stones: 0, essence: 0 });
     }
-    for (const wins of [-1, 9, 1.5, NaN, "8"]) assert.throws(() => A4.Economy.reward(wins, () => 0.5), /처치 수/);
+    for (const wins of [-1, 33, 1.5, NaN, "8"]) assert.throws(() => A4.Economy.reward(wins, () => 0.5), /처치 수/);
 });
 
 test("four through seven wins obey the exact independent material probability boundaries", () => {

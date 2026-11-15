@@ -6037,6 +6037,79 @@ A4.content = {
     "minions": [],
     "skills": []
   },
+  "regionDesign": {
+    "version": 1,
+    "battlesPerRegion": 8,
+    "regions": [
+      {
+        "id": "elwynn_forest",
+        "name": "엘윈 숲",
+        "enemies": [
+          "cannon_minion",
+          "little_hatchling",
+          "ivysaur",
+          "piranha_plant",
+          "ivern",
+          "teemo",
+          "brightwing"
+        ],
+        "bosses": [
+          "aviana"
+        ]
+      },
+      {
+        "id": "wings_industrial_city",
+        "name": "날개, 공업도시",
+        "enemies": [
+          "cannon_minion",
+          "pikachu",
+          "super_minion",
+          "trap_room",
+          "hanar",
+          "fiora",
+          "patchwerk",
+          "black_knight"
+        ],
+        "bosses": [
+          "meltranix"
+        ]
+      },
+      {
+        "id": "archive_of_time",
+        "name": "시간의 서고",
+        "enemies": [
+          "antonidas",
+          "boo",
+          "yuumi",
+          "faceless_manipulator",
+          "hanar",
+          "brightwing",
+          "trap_room",
+          "aurelion_sol"
+        ],
+        "bosses": [
+          "yogg_saron"
+        ]
+      },
+      {
+        "id": "where_light_sleeps",
+        "name": "빛이 잠든 곳",
+        "enemies": [
+          "lich_king",
+          "faceless_manipulator",
+          "boo",
+          "yuumi",
+          "black_knight",
+          "aurelion_sol",
+          "extreme_troll",
+          "antonidas"
+        ],
+        "bosses": [
+          "mida"
+        ]
+      }
+    ]
+  },
   "generalCards": [
     {
       "name": "과열",
@@ -8334,6 +8407,30 @@ A4.content = {
   ]
 };
 
+// ---- src/regions.js ----
+ 
+A4.Regions=(function(){
+ 'use strict';
+ var design=A4.content.regionDesign;
+ function enabled(run){return !!(run&&run.regionVersion===1);}
+ function limit(run){return enabled(run)?design.regions.length*design.battlesPerRegion:8;}
+ function progress(run,completed){
+  var total=run.wins||0,n=design.battlesPerRegion,index=Math.min(design.regions.length-1,Math.floor(Math.max(0,total-(completed?1:0))/n)),region=design.regions[index];
+  return {regionIndex:index,regionNumber:index+1,regionId:region.id,regionName:region.name,regionCount:design.regions.length,battle:completed?((Math.max(1,total)-1)%n)+1:(total%n)+1,totalWins:total,totalBattles:limit(run),completedRegions:Math.floor(total/n)};
+ }
+ function stage(run){return enabled(run)?(run.wins%design.battlesPerRegion)+1:run.wins+1;}
+ function info(run){var p=progress(run,false);p.battle=stage(run);p.isBoss=p.battle===design.battlesPerRegion;return p;}
+ function candidates(run){var p=info(run),r=design.regions[p.regionIndex];return (p.isBoss?r.bosses:r.enemies).slice();}
+ function playerHp(run,c){var i=enabled(run)?Math.min(7,run.wins%8):Math.min(7,run.wins);return c.config.playerMaxHpByStage[i];}
+ function label(run,completed){if(!enabled(run))return (completed?run.wins:run.wins+1)+'/8';var p=completed?progress(run,true):info(run);return p.regionNumber+'/'+p.regionCount+'지역 · '+p.regionName+' · '+p.battle+'/8'+(p.battle===8?' 보스':'');}
+ function battleLabel(b,totalStage){if(!b.region)return totalStage+'/8';var p=b.region;return p.regionNumber+'/'+p.regionCount+'지역 · '+p.regionName+' · '+p.battle+'/8'+(p.isBoss?' 보스':'');}
+ function validate(c){
+  var errors=[],ids={};if(design.regions.length!==4||design.battlesPerRegion!==8)errors.push('지역 4개·각 8전투가 필요합니다.');
+  design.regions.forEach(function(r){if(!r.id||ids[r.id])errors.push('지역 ID가 없거나 중복됩니다.');ids[r.id]=true;var available=r.enemies.filter(function(id){return c.enemies[id]&&c.enemies[id].encounterEnabled!==false;});if(available.filter(function(id,i){return available.indexOf(id)===i;}).length<7)errors.push(r.name+'의 일반 상대가 7종보다 적습니다.');if(!r.bosses.length)errors.push(r.name+'의 보스가 없습니다.');r.enemies.concat(r.bosses).forEach(function(id){if(!c.enemies[id]||c.enemies[id].encounterEnabled===false)errors.push(r.name+'의 상대 정의가 없거나 비활성화 상태입니다: '+id);});if(r.bosses.some(function(id){return r.enemies.indexOf(id)>=0;}))errors.push(r.name+'의 보스가 일반 풀에 섞였습니다.');});return errors;
+ }
+ return {enabled:enabled,limit:limit,stage:stage,info:info,progress:progress,candidates:candidates,playerHp:playerHp,label:label,battleLabel:battleLabel,validate:validate};
+}());
+
 // ---- src/opponents.js ----
  
 
@@ -8405,30 +8502,34 @@ A4.Opponents = (function () {
     target.push({uid:A4.id(state,'enemy-card-'),cardId:definition.id,upgraded:!!entry.upgraded});
   }
   function prepare(state, run, catalog, forcedEnemyId) {
-    var stage = run.wins+1, rng, id, enemy, plan, bag = [], errors;
+    var regional=A4.Regions&&A4.Regions.enabled(run),stage=regional?A4.Regions.stage(run):run.wins+1,totalStage=run.wins+1,rng,id,enemy,plan,bag=[],errors;
     A4.assert(A4.integer(stage,1) && stage <= 8,'상대 생성 단계가 올바르지 않습니다.');
-    if (run.enemySpec && run.enemySpec.stage === stage) {
+    A4.assert(!regional||totalStage<=A4.Regions.limit(run),'모든 지역을 완료했습니다.');
+    if (run.enemySpec && run.enemySpec.stage === totalStage) {
       A4.assert(!forcedEnemyId || run.enemySpec.enemyId === forcedEnemyId,'이미 확정된 상대를 다시 추첨할 수 없습니다.');
       return run.enemySpec;
     }
     errors = validateDesign(); A4.assert(!errors.length,errors.join(', '));
     var seenIds={},seenNames={};
     (run.encounterResults||[]).forEach(function(result){
+      if(regional&&Math.floor((result.stage-1)/8)!==Math.floor(run.wins/8))return;
       if(result.enemyId)seenIds[result.enemyId]=true;
       if(result.name)seenNames[result.name]=true;
     });
      
-    if(run.wins>0&&run.enemyId)seenIds[run.enemyId]=true;
-    var candidates=encounters[stage-1].filter(function(candidate){return (enabledEncounter(candidate)||candidate===forcedEnemyId)&&!seenIds[candidate]&&!seenNames[byId[candidate].name];});
+    if(run.wins>0&&run.enemyId&&(!regional||run.wins%8!==0))seenIds[run.enemyId]=true;
+    var encounterPool=regional?A4.Regions.candidates(run):encounters[stage-1];
+    var candidates=encounterPool.filter(function(candidate){return (enabledEncounter(candidate)||candidate===forcedEnemyId)&&!seenIds[candidate]&&!seenNames[byId[candidate].name];});
     if (forcedEnemyId) {
-      A4.assert(encounters[stage-1].indexOf(forcedEnemyId) >= 0,'해당 전투의 후보가 아닙니다.');
+      A4.assert(encounterPool.indexOf(forcedEnemyId) >= 0,'해당 전투의 후보가 아닙니다.');
       A4.assert(candidates.indexOf(forcedEnemyId)>=0,'이번 탐험에서 이미 만난 상대입니다.');
     }
     A4.assert(candidates.length>0,'이번 탐험에서 아직 만나지 않은 상대 후보가 없습니다.');
     rng = A4.random(state); id = forcedEnemyId || A4.pick(candidates,rng); enemy = byId[id];
     plan = {version:1,contentRevision:content.revision,battleReady:false,enemyId:id,name:enemy.name,
-      stage:stage,maxHp:content.stageHp[stage-1],deckMode:enemy.deckMode,deck:[],
+      stage:totalStage,maxHp:content.stageHp[stage-1],deckMode:enemy.deckMode,deck:[],
       heroPowerSpec:A4.copy(abilities.abilities[id]),treasures:[],treasurePassives:[],playerOpeningAdditions:[]};
+    if(regional)plan.region=A4.Regions.info(run);
     if (enemy.deckMode === 'mirror') {
       A4.assert(Array.isArray(run.deck) && run.deck.length > 0,'복제할 탐험 덱이 없습니다.');
       if(run.hero&&run.hero.startingTreasureId)plan.startingTreasureId=run.hero.startingTreasureId;
@@ -11649,6 +11750,7 @@ A4.Battle = (function () {
     var b={rulesVersion:3,turn:0,phase:'MAIN1',phaseSerial:0,outcome:'ongoing',player:fighter(p,c,rng),enemy:fighter(e,c,rng),enemyPlan:[],enemyPowerPlan:false,enemyPlanTurn:0,enemyPlanPhase:'MAIN1',enemyPlanDeferred:false,history:[],generatedCounter:0,removedFromRun:[],runChanges:[],scheduled:[],pendingChoice:null,lastLog:[],resolution:{queue:[{kind:'phase',op:'opening'}],entries:null},restartSpecs:{player:clone(p),enemy:clone(e)}};
     if(internalOptions&&internalOptions.simulation){b._aiSimulation=true;b._aiStepsRemaining=internalOptions.steps===undefined?400:internalOptions.steps;}
     if(internalOptions&&internalOptions.publicPlayerHistory)b.publicPlayerHistory=clone(internalOptions.publicPlayerHistory);
+    if(p.region)b.region=clone(p.region);
      
     b.publicPlayerDeck=(p.deck||[]).map(function(card){var known={cardId:card.cardId,upgraded:!!card.upgraded};['cost','costDelta','costFloor','element'].forEach(function(k){if(card[k]!==undefined)known[k]=card[k];});return known;}).sort(function(a,z){return JSON.stringify(a).localeCompare(JSON.stringify(z));});
     process(b,c,rng);return b;
@@ -12890,6 +12992,7 @@ A4.Classes.install(A4.catalog);
 A4.Expansion.install(A4.catalog);
 A4.GuffRules.install(A4.catalog);
 A4.catalog.config.engineVersion=3;
+A4.catalog.config.regionsEnabled=true;
 A4.catalog.config.enabled=true;
 A4.catalog.config.rooms={live:['옥랜111','옥랜222'],test:['개발123']};
 A4.catalog.config.initialInventory={gold:0,keys:5,stones:0,essence:0};
@@ -12920,8 +13023,9 @@ A4.Economy = (function () {
     if (user.items.keys >= 5) user.keyUpdatedAt = Math.max(now, user.keyUpdatedAt);
   }
   function reward(wins, rng) {
-    A4.assert(A4.integer(wins, 0) && wins <= 8, '잘못된 처치 수입니다.');
-    var bounds = GOLD[wins], out = {gold: bounds[0] + 50 * Math.floor(rng() * ((bounds[1] - bounds[0]) / 50 + 1)), keys:0,stones:0,essence:0};
+    A4.assert(A4.integer(wins, 0) && wins <= 32, '잘못된 처치 수입니다.');
+    var blocks=Math.floor(wins/8),part=wins%8,bounds=wins<=8?GOLD[wins]:[blocks*GOLD[8][0]+(part?GOLD[part][0]:0),blocks*GOLD[8][1]+(part?GOLD[part][1]:0)],out={gold:bounds[0]+50*Math.floor(rng()*((bounds[1]-bounds[0])/50+1)),keys:0,stones:0,essence:0};
+    wins=Math.min(8,wins);
     if (wins === 4) out.keys = rng() < 0.2 ? 1 : 0;
     if (wins === 5) { out.keys = rng() < 0.8 ? 1 : 0; out.stones = rng() < 0.8 ? 0 : 1; }
     if (wins === 6) { out.keys = 1; out.stones = rng() < 0.8 ? 1 : 2; }
@@ -12990,7 +13094,7 @@ A4.Economy = (function () {
 A4.Journey=(function(){
   'use strict';
   function own(run,id){return Object.keys(run.treasures||{}).some(function(k){return run.treasures[k]===id;});}
-  function cap(run,c){return (run.maxHp||c.config.playerMaxHpByStage[Math.min(7,run.wins)])||60;}
+  function cap(run,c){return (run.maxHp||(A4.Regions?A4.Regions.playerHp(run,c):c.config.playerMaxHpByStage[Math.min(7,run.wins)]))||60;}
   function cards(run,c){return run.deck.filter(function(x){var d=c.cards[x.cardId];return d&&d.upgrade&&!x.upgraded&&!d.treasure&&!x.treasureSlot;});}
   function show(state,run,kind,options,extra){run.phase='REWARD';run.pending={id:A4.id(state,'choice-'),kind:kind,options:A4.copy(options),extra:extra||null};}
   function pool(run,c){var hero=c.heroes.filter(function(x){return x.id===run.hero.id;})[0];return (hero&&hero.classPool||run.hero.classPool||[]).filter(function(id){return !!c.cards[id];});}
@@ -13031,7 +13135,7 @@ A4.Journey=(function(){
     run.gold=(run.gold||0)+base+bonus;run.lastBattleGold={base:base,bonus:bonus,total:base+bonus};
     run.journeyVersion=2;
     var milestone=run.wins===1?['low']:run.wins===4?['high']:run.wins===6?['swap']:[];
-    run.queue=milestone.concat(['bundles','camp','event','tavern']);if(run.wins>=8)run.queue.push('clear');
+    run.queue=milestone.concat(['bundles','camp','event','tavern']);if(run.wins>=(A4.Regions?A4.Regions.limit(run):8))run.queue.push('clear');
   }
   function choose(state,user,c,p,picked,rng){
     var r=user.run,x,offer;
@@ -13216,7 +13320,7 @@ A4.Game = (function () {
     var results=encounterResults(run),enemy=run.battle&&run.battle.enemy||run.enemySpec;
     if(!enemy)return;
     var stage=run.wins+1;
-    if(!results.some(function(x){return x.stage===stage;}))results.push({stage:stage,enemyId:run.enemyId||null,name:enemy.name,won:won});
+    if(!results.some(function(x){return x.stage===stage;})){var entry={stage:stage,enemyId:run.enemyId||null,name:enemy.name,won:won};if(A4.Regions&&A4.Regions.enabled(run)){var region=A4.Regions.info(run);entry.regionName=region.regionName;entry.regionId=region.regionId;entry.regionBattle=region.battle;entry.isBoss=region.isBoss;}results.push(entry);}
   }
   function finish(state, user, reason, now, rng, catalog) {
     var run = user.run;
@@ -13224,9 +13328,10 @@ A4.Game = (function () {
     if(reason!=='clear')A4.Stats.battle(state,run,false);
     A4.Stats.finish(state,run,catalog);
     if(reason!=='clear')recordEncounter(run,false);
-    var reward = run.journeyVersion===2?{gold:run.gold||0,keys:0,stones:0,essence:0}:A4.Economy.reward(run.wins,rng);
+    var regional=A4.Regions&&A4.Regions.enabled(run),reward=run.journeyVersion===2&&!regional?{gold:run.gold||0,keys:0,stones:0,essence:0}:A4.Economy.reward(run.wins,rng);
     A4.Economy.grant(user,reward,now);
     user.lastRun = {id:run.id,wins:run.wins,reason:reason,reward:reward,finishedAt:now,encounterResults:A4.copy(encounterResults(run))};
+    if(regional){user.lastRun.regionVersion=1;user.lastRun.progress=A4.Regions.progress(run,reason==='clear');}
     user.keyUpdatedAt = Math.max(now, user.keyUpdatedAt);
     user.run = null; user.session = null;
     return user.lastRun;
@@ -13244,7 +13349,7 @@ A4.Game = (function () {
     var run=user.run;
     A4.assert(run&&['BATTLE','ENCOUNTER'].indexOf(run.phase)>=0,'재시작할 진행 중인 전투가 없습니다.');
     A4.assert(catalog.config.engineVersion===3&&run.enemySpec&&run.enemySpec.enemyId===run.enemyId,'재시작할 상대의 저장된 정보가 없습니다.');
-    run.enemySpec.maxHp=A4.Opponents.stage(run.wins+1).maxHp;
+    run.enemySpec.maxHp=A4.Opponents.stage(A4.Regions?A4.Regions.stage(run):run.wins+1).maxHp;
     run.enemySpec.stage=run.wins+1;
     run.phase='ENCOUNTER';run.pending=null;run.battle=null;run.turnToken=null;
     user.session={room:room,until:now+catalog.config.sessionTimeoutMs};
@@ -13255,10 +13360,11 @@ A4.Game = (function () {
     if(catalog.config.engineVersion===3){
       var liveRun=user.run,spec=A4.Opponents.prepare(state,liveRun,catalog);
       liveRun.enemyId=spec.enemyId;
-      liveRun.battle=A4.Combat.create({name:user.name,heroName:liveRun.hero.name,heroPower:A4.copy(liveRun.hero.power),heroId:liveRun.hero.id,startingTreasureId:liveRun.hero.startingTreasureId,shrineId:liveRun.shrineId,bloodstones:liveRun.bloodstones,runWins:liveRun.wins,maxHp:catalog.config.playerMaxHpByStage[liveRun.wins],hp:liveRun.hp,deck:A4.copy(liveRun.deck),passives:combinedPassives(user,catalog),treasureIds:Object.keys(liveRun.treasures).map(function(k){return liveRun.treasures[k];})},
+      liveRun.battle=A4.Combat.create({name:user.name,region:spec.region,heroName:liveRun.hero.name,heroPower:A4.copy(liveRun.hero.power),heroId:liveRun.hero.id,startingTreasureId:liveRun.hero.startingTreasureId,shrineId:liveRun.shrineId,bloodstones:liveRun.bloodstones,runWins:liveRun.wins,maxHp:A4.Regions?A4.Regions.playerHp(liveRun,catalog):catalog.config.playerMaxHpByStage[liveRun.wins],hp:liveRun.hp,deck:A4.copy(liveRun.deck),passives:combinedPassives(user,catalog),treasureIds:Object.keys(liveRun.treasures).map(function(k){return liveRun.treasures[k];})},
         {name:spec.name,bossId:spec.enemyId,startingTreasureId:spec.startingTreasureId,heroPower:A4.BossRules.power(spec.enemyId),maxHp:spec.maxHp,deck:A4.copy(spec.deck),passives:A4.copy(spec.treasurePassives),treasureIds:spec.treasures.map(function(x){return x.treasureId;})},catalog,rng,{publicPlayerHistory:A4.copy(user.aiPublicHistory||[])});
       liveRun.phase='BATTLE';liveRun.pending=null;liveRun.turnToken=A4.id(state,'turn-');
       liveRun.battle.publicPlayerHistory=A4.copy(user.aiPublicHistory||[]);
+      if(spec.region)liveRun.battle.region=A4.copy(spec.region);
       applyRunChanges(state,user,catalog);return;
     }
     var run = user.run, enemyId = A4.pick(catalog.encounters[run.wins],rng), enemy = catalog.enemies[enemyId];
@@ -13277,6 +13383,7 @@ A4.Game = (function () {
       A4.assert(user.items.keys >= 1,'미궁 열쇠가 부족합니다.');
       user.items.keys--;
       user.run = {id:A4.id(state,'run-'),startedAt:now,wins:0,gold:0,journeyVersion:catalog.config.engineVersion===3?2:1,phase:'HERO',hero:null,deck:[],treasures:{},effects:[],queue:[],pending:null,battle:null};
+      if(catalog.config.engineVersion===3&&catalog.config.regionsEnabled)user.run.regionVersion=1;
       user.run.pending = {id:A4.id(state,'choice-'),kind:'hero',options:catalog.heroes.filter(function (s) { return s.enabled!==false; }).map(function (s) { return s.id; })};
     } else if (user.run.phase === 'READY') offerBattle(state,user,catalog,rng);
     user.session = {room:room,until:now+catalog.config.sessionTimeoutMs};
@@ -13576,7 +13683,7 @@ A4.validateState = function (state) {
       Object.keys(state.stats[kind]).forEach(function(id){var r=state.stats[kind][id];
         ok(object(r),'통계 기록');
         ['offered','picked','runs','totalWins','win','loss'].forEach(function(field){ok(A4.integer(r[field],0),'통계 수치 '+field);});
-        ok(r.picked<=r.offered&&r.totalWins<=r.runs*8,'통계 집계 범위');
+        ok(r.picked<=r.offered&&r.totalWins<=r.runs*32,'통계 집계 범위');
       });
     });
   }
@@ -13615,7 +13722,8 @@ A4.validateState = function (state) {
     if(r.bloodstones!==undefined)ok(A4.integer(r.bloodstones,0)&&r.bloodstones<=5,'혈석');
     if(r.shrineId!==undefined)ok(typeof r.shrineId==='string','제단 선택');
     if(r.hp!==undefined)ok(A4.integer(r.hp,1),'탐험 현재 체력');
-    ok(typeof r.id === 'string' && A4.integer(r.wins,0) && r.wins <= 8 && ['HERO','ENCOUNTER','BATTLE','REWARD','READY'].indexOf(r.phase) >= 0,'탐험 단계');
+    ok(typeof r.id === 'string' && A4.integer(r.wins,0) && r.wins <= (A4.Regions?A4.Regions.limit(r):8) && ['HERO','ENCOUNTER','BATTLE','REWARD','READY'].indexOf(r.phase) >= 0,'탐험 단계');
+    if(r.regionVersion!==undefined)ok(r.regionVersion===1,'지역 탐험 버전');
     if(r.phase!=='HERO') ok(r.hero && typeof r.hero.id==='string' && r.hero.power,'선택 영웅');
     ok(Array.isArray(r.deck) && Array.isArray(r.queue) && Array.isArray(r.effects) && object(r.treasures),'탐험 덱과 보상 큐');
     seen={};
@@ -13749,7 +13857,7 @@ A4.BattleUI = (function () {
   function instrumental(text){var end=ending(text);return text+(end&&end!==8?'으로':'로');}
   function summary(b,stage,c){
     var r=b.report||{turn:b.turn,phase:b.phase,nodes:[],logs:[]},lines=[],ready=b.outcome==='ongoing'&&!b.resolution&&!b.pendingChoice,shownPhase=ready?b.phase:(r.submitted?r.phase:b.phase),shownTurn=ready?b.turn:(r.submitted?r.turn:b.turn);
-    lines.push('⚔️ 탐험 '+stage+'/8 · '+((shownTurn+1)+'턴 · '+phase(shownPhase))+' ⚔️');
+    lines.push('⚔️ 탐험 '+(A4.Regions?A4.Regions.battleLabel(b,stage):stage+'/8')+' · '+((shownTurn+1)+'턴 · '+phase(shownPhase))+' ⚔️');
     function tree(n,depth){if(depth>24)return '…';var children=r.nodes.filter(function(x){return x.parent===n.id;});return name(n.label,c)+(n.countered?' ❌️':'')+(children.length?' ⮕ '+children.map(function(x){return tree(x,depth+1);}).join(', '):'');}
     ['player','enemy'].forEach(function(s){var roots=r.nodes.filter(function(n){return n.side===s&&n.parent===null;});if(r.submitted||roots.length)lines.push(b[s].name+': '+(roots.map(function(n){return tree(n,0);}).join(', ')||'쉬기'));});
     ['player','enemy'].forEach(function(s){var f=b[s];lines.push('','■ '+f.name+': ❤️ '+f.hp+(f.shield?'(+'+f.shield+')':'')+'/'+f.maxHp);lines=lines.concat(states(b,s,c));
@@ -13870,6 +13978,7 @@ A4.UI = (function () {
     if(['bundles','camp','forge','event','tavern','shopUpgrade','shopRemove'].indexOf(p.kind)>=0){
       var headings={bundles:'직업 카드 묶음 선택',camp:'휴식 또는 제련',forge:'제련',event:'이벤트',tavern:'선술집',shopUpgrade:'강화권',shopRemove:'카드 제거'};
       lines.push('⚔️ '+headings[p.kind]+' ⚔️','❤️ '+(r.hp===undefined?60:r.hp)+'/60 · 🪙 '+(r.gold||0)+'골드');
+      if(A4.Regions&&A4.Regions.enabled(r))lines.splice(1,0,A4.Regions.label(r,true)+' · 누적 '+r.wins+'/32처치');
       if(p.kind==='bundles'&&r.lastBattleGold)lines.push('전투 골드 +'+r.lastBattleGold.total+' (기본 '+r.lastBattleGold.base+' + 체력 보너스 '+r.lastBattleGold.bonus+')');
       if(p.kind==='event')lines.push('이벤트는 준비 중입니다. 다음 단계로 진행합니다.');
       p.options.forEach(function(x,i){var text;
@@ -13990,11 +14099,11 @@ A4.UI = (function () {
   }
   function run(user,catalog) {
     var r = user.run, lines = [], p, b, view, i, option, before, after, mana;
-    if (!r) return user.lastRun ? '최근 탐험: '+user.lastRun.wins+'승\n받은 보상: '+reward(user.lastRun.reward)+'\n+탐험으로 새 탐험을 시작하세요.' : '+탐험으로 시작하세요.';
-    if (r.phase === 'READY') return '⚔️ '+r.wins+'/8 처치 · 덱 구성 완료 ⚔️\n진행이 저장되었습니다. +탐험으로 계속하세요.';
+    if (!r) return user.lastRun ? '최근 탐험: '+user.lastRun.wins+'승'+(user.lastRun.progress?' · '+user.lastRun.progress.completedRegions+'/4지역 완료':'')+'\n받은 보상: '+reward(user.lastRun.reward)+'\n+탐험으로 새 탐험을 시작하세요.' : '+탐험으로 시작하세요.';
+    if (r.phase === 'READY') {var status=A4.Regions&&A4.Regions.enabled(r)?A4.Regions.info(r):null;return '⚔️ '+(status?status.regionNumber+'/4지역 · '+status.regionName+' · '+r.wins%8+'/8 처치':r.wins+'/8 처치')+' · 덱 구성 완료 ⚔️\n진행이 저장되었습니다. +탐험으로 계속하세요.';}
     if (r.phase === 'ENCOUNTER') {
       var enemy=r.enemySpec,ability=A4.BossRules.power(enemy.enemyId);
-      return '⚔️ 탐험 '+(r.wins+1)+'/8 ⚔️\n'+enemy.name+' ❤️ '+enemy.maxHp+'\n[🛟] '+ability.name+(ability.kind==='active'?' | 💧'+ability.cost:' | ⏳️지속')+'\n'+ability.text+'\ny / n';
+      return '⚔️ 탐험 '+(A4.Regions?A4.Regions.label(r,false):(r.wins+1)+'/8')+' ⚔️\n'+enemy.name+' ❤️ '+enemy.maxHp+'\n[🛟] '+ability.name+(ability.kind==='active'?' | 💧'+ability.cost:' | ⏳️지속')+'\n'+ability.text+'\ny / n';
     }
     if (r.phase === 'BATTLE') {
       if(r.battle.rulesVersion===3){
@@ -14073,7 +14182,7 @@ A4.UI = (function () {
     var text, lines = [], def, rule;
     if (catalog.config.engineVersion!==3 && result.log && result.log.length) lines.push(result.log.join('\n'),'');
     if (result.kind === 'run') text = run(user,catalog);
-    else if (result.kind === 'finished') text = ['⚔️ 탐험 - 결과 ⚔️'].concat((result.record.encounterResults||[]).map(function(x){return x.name+' '+(x.won?'✅️':'❌️');})).concat(['보상: '+reward(result.record.reward)]).join('\n');
+    else if (result.kind === 'finished') text = ['⚔️ 탐험 - 결과 ⚔️'].concat(result.record.progress?['누적 '+result.record.wins+'/32처치 · '+result.record.progress.completedRegions+'/4지역 완료']:[]).concat((result.record.encounterResults||[]).map(function(x){return (x.regionName?x.regionName+' · '+x.regionBattle+'/8 · ':'')+x.name+' '+(x.won?'✅️':'❌️');})).concat(['보상: '+reward(result.record.reward)]).join('\n');
     else if (result.kind === 'stats') text=A4.Stats.render(result.stats,catalog);
     else if (result.kind === 'rules') text=rules();
     else if (result.kind === 'encyclopedia') text=encyclopedia(catalog,result.query);

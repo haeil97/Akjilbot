@@ -98,7 +98,7 @@ A4.BattleUI = (function () {
   function instrumental(text){var end=ending(text);return text+(end&&end!==8?'으로':'로');}
   function summary(b,stage,c){
     var r=b.report||{turn:b.turn,phase:b.phase,nodes:[],logs:[]},lines=[],ready=b.outcome==='ongoing'&&!b.resolution&&!b.pendingChoice,shownPhase=ready?b.phase:(r.submitted?r.phase:b.phase),shownTurn=ready?b.turn:(r.submitted?r.turn:b.turn);
-    lines.push('⚔️ 탐험 '+stage+'/8 · '+((shownTurn+1)+'턴 · '+phase(shownPhase))+' ⚔️');
+    lines.push('⚔️ 탐험 '+(A4.Regions?A4.Regions.battleLabel(b,stage):stage+'/8')+' · '+((shownTurn+1)+'턴 · '+phase(shownPhase))+' ⚔️');
     function tree(n,depth){if(depth>24)return '…';var children=r.nodes.filter(function(x){return x.parent===n.id;});return name(n.label,c)+(n.countered?' ❌️':'')+(children.length?' ⮕ '+children.map(function(x){return tree(x,depth+1);}).join(', '):'');}
     ['player','enemy'].forEach(function(s){var roots=r.nodes.filter(function(n){return n.side===s&&n.parent===null;});if(r.submitted||roots.length)lines.push(b[s].name+': '+(roots.map(function(n){return tree(n,0);}).join(', ')||'쉬기'));});
     ['player','enemy'].forEach(function(s){var f=b[s];lines.push('','■ '+f.name+': ❤️ '+f.hp+(f.shield?'(+'+f.shield+')':'')+'/'+f.maxHp);lines=lines.concat(states(b,s,c));

@@ -15,6 +15,7 @@ This repository contains a Korean KakaoTalk card-battle bot. Communicate with th
 - Preserve save compatibility. All battle state and queued choices must be JSON serializable.
 - Do not reset user progress, delete save files, or weaken durable saving or duplicate-command protection.
 - Keep account coins (`user.gold`, displayed as C) separate from run/tavern gold (`run.gold`). These legacy field names are intentional.
+- New explorations use four regions, eight encounters each, with the eighth reserved for that region's boss. `wins` is the cumulative kill count up to 32 when `regionVersion: 1`; older runs without this flag retain their eight-battle format. Region-run coin settlement depends on kills and RNG, never remaining run gold. Temporary assignments live in `akjilbot4/content/지역-설계.json`.
 - AI may use public information and sampled unknown hands; never expose the actual hidden opponent hand or deck order. Keep the 5-second planning budget and fallback behavior.
 - The current class document is `akjilbot4/docs/플레이어-직업.md`.
 - Current post-battle flow is documented in `akjilbot4/docs/전투후-선술집-개편.md`. Rune behavior is in `akjilbot4/docs/룬-카드군.md`.

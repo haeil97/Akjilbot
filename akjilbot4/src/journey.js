@@ -2,7 +2,7 @@
 A4.Journey=(function(){
   'use strict';
   function own(run,id){return Object.keys(run.treasures||{}).some(function(k){return run.treasures[k]===id;});}
-  function cap(run,c){return (run.maxHp||c.config.playerMaxHpByStage[Math.min(7,run.wins)])||60;}
+  function cap(run,c){return (run.maxHp||(A4.Regions?A4.Regions.playerHp(run,c):c.config.playerMaxHpByStage[Math.min(7,run.wins)]))||60;}
   function cards(run,c){return run.deck.filter(function(x){var d=c.cards[x.cardId];return d&&d.upgrade&&!x.upgraded&&!d.treasure&&!x.treasureSlot;});}
   function show(state,run,kind,options,extra){run.phase='REWARD';run.pending={id:A4.id(state,'choice-'),kind:kind,options:A4.copy(options),extra:extra||null};}
   function pool(run,c){var hero=c.heroes.filter(function(x){return x.id===run.hero.id;})[0];return (hero&&hero.classPool||run.hero.classPool||[]).filter(function(id){return !!c.cards[id];});}
@@ -43,7 +43,7 @@ A4.Journey=(function(){
     run.gold=(run.gold||0)+base+bonus;run.lastBattleGold={base:base,bonus:bonus,total:base+bonus};
     run.journeyVersion=2;
     var milestone=run.wins===1?['low']:run.wins===4?['high']:run.wins===6?['swap']:[];
-    run.queue=milestone.concat(['bundles','camp','event','tavern']);if(run.wins>=8)run.queue.push('clear');
+    run.queue=milestone.concat(['bundles','camp','event','tavern']);if(run.wins>=(A4.Regions?A4.Regions.limit(run):8))run.queue.push('clear');
   }
   function choose(state,user,c,p,picked,rng){
     var r=user.run,x,offer;

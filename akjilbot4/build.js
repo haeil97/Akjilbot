@@ -3,7 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const content = require('./build-content.js').compileContent();
-const files = ['base','catalog','content','opponents','store','combat','cards-v3','treasures-v3','bosses-v3','keywords','classes','expansion','runes','minions','guff-v2','combat-v3','ai-evaluation','ai-choices','ai-opponent-model','ai-planner','live-config','economy','journey','game','validate','battle-ui','ui','admin','link','app','runtime'];
+const files = ['base','catalog','content','regions','opponents','store','combat','cards-v3','treasures-v3','bosses-v3','keywords','classes','expansion','runes','minions','guff-v2','combat-v3','ai-evaluation','ai-choices','ai-opponent-model','ai-planner','live-config','economy','journey','game','validate','battle-ui','ui','admin','link','app','runtime'];
 const source = files.map(name => name === 'content' ? '\n// Embedded design references; no runtime file reads.\nA4.content = '+JSON.stringify(content,null,2)+';\n' :
   '\n// ---- src/' + name + '.js ----\n' + fs.readFileSync(path.join(__dirname,'src',name+'.js'),'utf8')).join('\n');
 const header = '// 악질봇 4.0.0 — 카카오톡봇 단일 실행 파일\n' +
@@ -43,7 +43,7 @@ const sandbox = {};
 vm.runInNewContext(output,sandbox,{timeout:10000});
 const contentErrors = sandbox.A4.Opponents.validateDesign();
 if (contentErrors.length) throw new Error('상대 설계 검증 실패:\n'+contentErrors.join('\n'));
-const runtimeErrors = sandbox.A4.validateCatalog(sandbox.A4.catalog);
+const runtimeErrors = sandbox.A4.validateCatalog(sandbox.A4.catalog).concat(sandbox.A4.Regions.validate(sandbox.A4.catalog));
 if (runtimeErrors.length) throw new Error('실행 콘텐츠 검증 실패:\n'+runtimeErrors.join('\n'));
 fs.writeFileSync(path.join(__dirname,'..','악질봇4.0.0.js'),output,'utf8');
 console.log('Built 악질봇4.0.0.js ('+Buffer.byteLength(output,'utf8')+' bytes)');

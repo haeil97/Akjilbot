@@ -11,6 +11,7 @@ function fixture(treasures=[]){
  return {b,c,card,ctx,job,play,settle};
 }
 function harness(){const files={},c=A.copy(A.catalog),io={list:()=>Object.keys(files),read:n=>files[n],writeNewDurable(n,v){files[n]=v;}};let store,app,now=1000,event=0;
+ c.config.regionsEnabled=false; // Legacy eight-battle reward flow remains loadable.
  function open(){store=A.Store.create(io);store.load(A.newState(42));app=A.App.create(store,c);}open();
  return {c,get store(){return store;},send(text){return app.handle({text,identity:'exp-user',name:'테스터',room:'개발123',now:now++,eventId:'exp-event-'+(++event)});},user(){const s=store.getState();return s.users[s.identities['identity:exp-user']];},reopen(){store.close();open();},mutate(fn){store.transact('arrange',s=>fn(s,s.users[s.identities['identity:exp-user']]));}};
 }

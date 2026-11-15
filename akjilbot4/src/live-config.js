@@ -6,6 +6,7 @@ A4.Classes.install(A4.catalog);
 A4.Expansion.install(A4.catalog);
 A4.GuffRules.install(A4.catalog);
 A4.catalog.config.engineVersion=3;
+A4.catalog.config.regionsEnabled=true;
 A4.catalog.config.enabled=true;
 A4.catalog.config.rooms={live:['옥랜111','옥랜222'],test:['개발123']};
 A4.catalog.config.initialInventory={gold:0,keys:5,stones:0,essence:0};

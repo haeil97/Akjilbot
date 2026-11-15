@@ -156,7 +156,7 @@ A4.Game = (function () {
     var results=encounterResults(run),enemy=run.battle&&run.battle.enemy||run.enemySpec;
     if(!enemy)return;
     var stage=run.wins+1;
-    if(!results.some(function(x){return x.stage===stage;}))results.push({stage:stage,enemyId:run.enemyId||null,name:enemy.name,won:won});
+    if(!results.some(function(x){return x.stage===stage;})){var entry={stage:stage,enemyId:run.enemyId||null,name:enemy.name,won:won};if(A4.Regions&&A4.Regions.enabled(run)){var region=A4.Regions.info(run);entry.regionName=region.regionName;entry.regionId=region.regionId;entry.regionBattle=region.battle;entry.isBoss=region.isBoss;}results.push(entry);}
   }
   function finish(state, user, reason, now, rng, catalog) {
     var run = user.run;
@@ -164,9 +164,10 @@ A4.Game = (function () {
     if(reason!=='clear')A4.Stats.battle(state,run,false);
     A4.Stats.finish(state,run,catalog);
     if(reason!=='clear')recordEncounter(run,false);
-    var reward = run.journeyVersion===2?{gold:run.gold||0,keys:0,stones:0,essence:0}:A4.Economy.reward(run.wins,rng);
+    var regional=A4.Regions&&A4.Regions.enabled(run),reward=run.journeyVersion===2&&!regional?{gold:run.gold||0,keys:0,stones:0,essence:0}:A4.Economy.reward(run.wins,rng);
     A4.Economy.grant(user,reward,now);
     user.lastRun = {id:run.id,wins:run.wins,reason:reason,reward:reward,finishedAt:now,encounterResults:A4.copy(encounterResults(run))};
+    if(regional){user.lastRun.regionVersion=1;user.lastRun.progress=A4.Regions.progress(run,reason==='clear');}
     user.keyUpdatedAt = Math.max(now, user.keyUpdatedAt);
     user.run = null; user.session = null;
     return user.lastRun;
@@ -184,7 +185,7 @@ A4.Game = (function () {
     var run=user.run;
     A4.assert(run&&['BATTLE','ENCOUNTER'].indexOf(run.phase)>=0,'재시작할 진행 중인 전투가 없습니다.');
     A4.assert(catalog.config.engineVersion===3&&run.enemySpec&&run.enemySpec.enemyId===run.enemyId,'재시작할 상대의 저장된 정보가 없습니다.');
-    run.enemySpec.maxHp=A4.Opponents.stage(run.wins+1).maxHp;
+    run.enemySpec.maxHp=A4.Opponents.stage(A4.Regions?A4.Regions.stage(run):run.wins+1).maxHp;
     run.enemySpec.stage=run.wins+1;
     run.phase='ENCOUNTER';run.pending=null;run.battle=null;run.turnToken=null;
     user.session={room:room,until:now+catalog.config.sessionTimeoutMs};
@@ -195,10 +196,11 @@ A4.Game = (function () {
     if(catalog.config.engineVersion===3){
       var liveRun=user.run,spec=A4.Opponents.prepare(state,liveRun,catalog);
       liveRun.enemyId=spec.enemyId;
-      liveRun.battle=A4.Combat.create({name:user.name,heroName:liveRun.hero.name,heroPower:A4.copy(liveRun.hero.power),heroId:liveRun.hero.id,startingTreasureId:liveRun.hero.startingTreasureId,shrineId:liveRun.shrineId,bloodstones:liveRun.bloodstones,runWins:liveRun.wins,maxHp:catalog.config.playerMaxHpByStage[liveRun.wins],hp:liveRun.hp,deck:A4.copy(liveRun.deck),passives:combinedPassives(user,catalog),treasureIds:Object.keys(liveRun.treasures).map(function(k){return liveRun.treasures[k];})},
+      liveRun.battle=A4.Combat.create({name:user.name,region:spec.region,heroName:liveRun.hero.name,heroPower:A4.copy(liveRun.hero.power),heroId:liveRun.hero.id,startingTreasureId:liveRun.hero.startingTreasureId,shrineId:liveRun.shrineId,bloodstones:liveRun.bloodstones,runWins:liveRun.wins,maxHp:A4.Regions?A4.Regions.playerHp(liveRun,catalog):catalog.config.playerMaxHpByStage[liveRun.wins],hp:liveRun.hp,deck:A4.copy(liveRun.deck),passives:combinedPassives(user,catalog),treasureIds:Object.keys(liveRun.treasures).map(function(k){return liveRun.treasures[k];})},
         {name:spec.name,bossId:spec.enemyId,startingTreasureId:spec.startingTreasureId,heroPower:A4.BossRules.power(spec.enemyId),maxHp:spec.maxHp,deck:A4.copy(spec.deck),passives:A4.copy(spec.treasurePassives),treasureIds:spec.treasures.map(function(x){return x.treasureId;})},catalog,rng,{publicPlayerHistory:A4.copy(user.aiPublicHistory||[])});
       liveRun.phase='BATTLE';liveRun.pending=null;liveRun.turnToken=A4.id(state,'turn-');
       liveRun.battle.publicPlayerHistory=A4.copy(user.aiPublicHistory||[]);
+      if(spec.region)liveRun.battle.region=A4.copy(spec.region);
       applyRunChanges(state,user,catalog);return;
     }
     var run = user.run, enemyId = A4.pick(catalog.encounters[run.wins],rng), enemy = catalog.enemies[enemyId];
@@ -217,6 +219,7 @@ A4.Game = (function () {
       A4.assert(user.items.keys >= 1,'미궁 열쇠가 부족합니다.');
       user.items.keys--;
       user.run = {id:A4.id(state,'run-'),startedAt:now,wins:0,gold:0,journeyVersion:catalog.config.engineVersion===3?2:1,phase:'HERO',hero:null,deck:[],treasures:{},effects:[],queue:[],pending:null,battle:null};
+      if(catalog.config.engineVersion===3&&catalog.config.regionsEnabled)user.run.regionVersion=1;
       user.run.pending = {id:A4.id(state,'choice-'),kind:'hero',options:catalog.heroes.filter(function (s) { return s.enabled!==false; }).map(function (s) { return s.id; })};
     } else if (user.run.phase === 'READY') offerBattle(state,user,catalog,rng);
     user.session = {room:room,until:now+catalog.config.sessionTimeoutMs};
