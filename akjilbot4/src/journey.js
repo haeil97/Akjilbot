@@ -96,8 +96,9 @@ A4.Journey=(function(){
       if(choice.addClassCard){result.cardId=A4.pick(privatePool,rng);add(state,r,result.cardId);}
       if(choice.addCardId){result.cardId=choice.addCardId;add(state,r,choice.addCardId);}
       if(removal)r.deck=r.deck.filter(function(x){return x.uid!==removal.uid;});
-      r.hp=Math.min(result.maxHp,result.beforeHp+result.heal);result.afterHp=r.hp;result.afterGold=r.gold;r.lastEventResult=A4.copy(result);
-      return {eventResult:result};
+      result.loseHp=choice.loseHp||0;result.logOrder=event.logOrder||null;
+      r.hp=Math.max(0,Math.min(result.maxHp,result.beforeHp+result.heal-result.loseHp));result.afterHp=r.hp;result.afterGold=r.gold;r.lastEventResult=A4.copy(result);
+      return {eventResult:result,eventDefeat:r.hp===0};
     }
     if(p.kind==='tavern'){
       if(picked.leave){var interest=Math.min(5,Math.floor((r.gold||0)/10));r.gold+=interest;r.lastInterest=interest;delete r.tavern;return true;}

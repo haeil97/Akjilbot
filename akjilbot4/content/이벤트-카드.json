@@ -39,5 +39,38 @@
     "cost": 0,
     "text": "흠, 쓸모없군...",
     "effects": []
+  },
+  {
+    "id": "event:rowing",
+    "name": "노 젓기",
+    "element": "NATURE",
+    "cost": 0,
+    "text": "인양. 방어도를 8 얻습니다.",
+    "effects": [
+      {
+        "type": "dredge",
+        "amount": 3,
+        "drawIfAffordable": false
+      },
+      {
+        "type": "shield",
+        "amount": 8
+      }
+    ],
+    "upgrade": {
+      "cost": 0,
+      "text": "인양. 방어도를 12 얻습니다.",
+      "effects": [
+        {
+          "type": "dredge",
+          "amount": 3,
+          "drawIfAffordable": false
+        },
+        {
+          "type": "shield",
+          "amount": 12
+        }
+      ]
+    }
   }
 ]

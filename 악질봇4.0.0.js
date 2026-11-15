@@ -6316,6 +6316,51 @@ A4.content = {
           "text": "떠납니다."
         }
       ]
+    },
+    {
+      "id": "raft_rental",
+      "regionId": "elwynn_forest",
+      "name": "뗏목을 빌려 드립니다",
+      "menuTitle": "⚔️ 이벤트 – 뗏목을 빌려 드립니다 ⚔️",
+      "resultTitle": "⚔️ 이벤트 – 뗏목을 빌려 드립니다 ⚔️",
+      "simpleResult": true,
+      "deckText": "덱",
+      "logOrder": [
+        "card",
+        "costGold",
+        "treasure",
+        "loseHp",
+        "heal"
+      ],
+      "intro": [
+        "물에 뜨지도 않는 뗏목 옆에서 노인이 표를 팝니다.",
+        "“돌아오는 길에는 뜹니다. 늘 그랬어요.”"
+      ],
+      "choices": [
+        {
+          "id": "rent_oar",
+          "name": "노를 빌린다",
+          "text": "2골드를 잃습니다. 덱에 [🍃] 노 젓기를 추가합니다.",
+          "costGold": 2,
+          "addCardId": "event:rowing",
+          "outro": "뗏목과 노를 살펴봅니다."
+        },
+        {
+          "id": "repair_raft",
+          "name": "뗏목을 고친다",
+          "text": "체력 10을 잃고 하급 보물을 얻습니다.",
+          "loseHp": 10,
+          "addLowTreasure": true,
+          "outro": "돌아보니 뗏목이 정말 조금 떠 있습니다."
+        },
+        {
+          "id": "drink_water",
+          "name": "물만 마신다",
+          "text": "체력을 5 회복합니다.",
+          "heal": 5,
+          "outro": "갈증이 조금 가십니다."
+        }
+      ]
     }
   ],
   "eventCards": [
@@ -6359,6 +6404,39 @@ A4.content = {
       "cost": 0,
       "text": "흠, 쓸모없군...",
       "effects": []
+    },
+    {
+      "id": "event:rowing",
+      "name": "노 젓기",
+      "element": "NATURE",
+      "cost": 0,
+      "text": "인양. 방어도를 8 얻습니다.",
+      "effects": [
+        {
+          "type": "dredge",
+          "amount": 3,
+          "drawIfAffordable": false
+        },
+        {
+          "type": "shield",
+          "amount": 8
+        }
+      ],
+      "upgrade": {
+        "cost": 0,
+        "text": "인양. 방어도를 12 얻습니다.",
+        "effects": [
+          {
+            "type": "dredge",
+            "amount": 3,
+            "drawIfAffordable": false
+          },
+          {
+            "type": "shield",
+            "amount": 12
+          }
+        ]
+      }
     }
   ],
   "generalCards": [
@@ -11879,7 +11957,7 @@ A4.Battle = (function () {
     case 'excludeSelf':ctx.move(s,t.card.uid,'excluded');break;
     case 'removeFromRun':ctx.move(s,t.card.uid,'excluded');ctx.runChange({type:'removeCard',side:s,uid:t.card.uid});ctx.battle.removedFromRun.push(t.card.uid);break;
     case 'upgradeSelf':var live=ctx.find(s,t.card.uid);if(live)ctx.upgrade(live);break;
-    case 'dredge':ctx.discover(s,f.deck.slice(-e.amount),{kind:'coreChoice',side:s,op:'dredge'},{label:'덱 맨 위에 놓을 카드를 선택하세요.',sourceZone:'deck'});break;
+    case 'dredge':var dredgeTask={kind:'coreChoice',side:s,op:'dredge',drawIfAffordable:e.drawIfAffordable!==false},dredgeSettings={label:'덱 맨 위에 놓을 카드를 선택하세요.',sourceZone:'deck'};if(e.drawIfAffordable===false)ctx.choose(s,f.deck.slice(-e.amount),dredgeTask,dredgeSettings);else ctx.discover(s,f.deck.slice(-e.amount),dredgeTask,dredgeSettings);break;
     default:A4.assert(false,'처리되지 않은 카드 효과: '+e.type);
     }
   }
@@ -11906,7 +11984,7 @@ A4.Battle = (function () {
     }
     if(t.kind==='effect'){effect(ctx,t);return;}
     if(t.kind==='coreChoice'){
-      if(t.op==='dredge'){card=ctx.remove(s,t.choice.uid);if(card){f.deck.unshift(card);if(ctx.cost(s,card)<=f.mana)ctx.draw(s,1);}}return;
+      if(t.op==='dredge'){card=ctx.remove(s,t.choice.uid);if(card){f.deck.unshift(card);if(t.drawIfAffordable!==false&&ctx.cost(s,card)<=f.mana)ctx.draw(s,1);}}return;
     }
     if(t.kind==='card'){
       if(b.resolution.suppressed&&t.free&&!t.reflected)return;
@@ -13440,8 +13518,9 @@ A4.Journey=(function(){
       if(choice.addClassCard){result.cardId=A4.pick(privatePool,rng);add(state,r,result.cardId);}
       if(choice.addCardId){result.cardId=choice.addCardId;add(state,r,choice.addCardId);}
       if(removal)r.deck=r.deck.filter(function(x){return x.uid!==removal.uid;});
-      r.hp=Math.min(result.maxHp,result.beforeHp+result.heal);result.afterHp=r.hp;result.afterGold=r.gold;r.lastEventResult=A4.copy(result);
-      return {eventResult:result};
+      result.loseHp=choice.loseHp||0;result.logOrder=event.logOrder||null;
+      r.hp=Math.max(0,Math.min(result.maxHp,result.beforeHp+result.heal-result.loseHp));result.afterHp=r.hp;result.afterGold=r.gold;r.lastEventResult=A4.copy(result);
+      return {eventResult:result,eventDefeat:r.hp===0};
     }
     if(p.kind==='tavern'){
       if(picked.leave){var interest=Math.min(5,Math.floor((r.gold||0)/10));r.gold+=interest;r.lastInterest=interest;delete r.tavern;return true;}
@@ -14524,13 +14603,15 @@ A4.UI = (function () {
     }
     if(result.eventResult){
       var eventResult=result.eventResult,eventLines=[eventResult.title||'⚔️ 이벤트 - '+eventResult.name+' ⚔️','',eventResult.outro,''];
-      if(eventResult.costGold)eventLines.push('골드를 '+eventResult.costGold+' 잃었습니다.'+(eventResult.simpleResult?'':' '+eventResult.beforeGold+' → '+eventResult.afterGold));
-      if(eventResult.gainGold)eventLines.push('골드를 '+eventResult.gainGold+' 얻었습니다.');
-      if(eventResult.loseHp)eventLines.push('체력을 '+eventResult.loseHp+' 잃었습니다.');
-      if(eventResult.treasureId)eventLines.push(eventTreasureText(eventResult.treasureId,catalog)+' 획득했습니다.');
-      if(eventResult.cardId)eventLines.push(eventCardText({cardId:eventResult.cardId,upgraded:false},catalog)+' '+(eventResult.deckText||'내 덱')+'에 추가했습니다.');
-      if(eventResult.removedCard)eventLines.push(eventCardText(eventResult.removedCard,catalog)+' 덱에서 제거했습니다.');
-      if(eventResult.heal)eventLines.push('체력을 '+eventResult.heal+' 회복했습니다.'+(eventResult.simpleResult?'':' ('+eventResult.beforeHp+'/'+eventResult.maxHp+') → ('+eventResult.afterHp+'/'+eventResult.maxHp+')'));
+      var eventLogs={};
+      if(eventResult.costGold)eventLogs.costGold='골드를 '+eventResult.costGold+' 잃었습니다.'+(eventResult.simpleResult?'':' '+eventResult.beforeGold+' → '+eventResult.afterGold);
+      if(eventResult.gainGold)eventLogs.gainGold='골드를 '+eventResult.gainGold+' 얻었습니다.';
+      if(eventResult.loseHp)eventLogs.loseHp='체력을 '+eventResult.loseHp+' 잃었습니다.';
+      if(eventResult.treasureId)eventLogs.treasure=eventTreasureText(eventResult.treasureId,catalog)+' 획득했습니다.';
+      if(eventResult.cardId)eventLogs.card=eventCardText({cardId:eventResult.cardId,upgraded:false},catalog)+' '+(eventResult.deckText||'내 덱')+'에 추가했습니다.';
+      if(eventResult.removedCard)eventLogs.removal=eventCardText(eventResult.removedCard,catalog)+' 덱에서 제거했습니다.';
+      if(eventResult.heal)eventLogs.heal='체력을 '+eventResult.heal+' 회복했습니다.'+(eventResult.simpleResult?'':' ('+eventResult.beforeHp+'/'+eventResult.maxHp+') → ('+eventResult.afterHp+'/'+eventResult.maxHp+')');
+      (eventResult.logOrder||['costGold','gainGold','loseHp','treasure','card','removal','heal']).forEach(function(key){if(eventLogs[key])eventLines.push(eventLogs[key]);});
       prefix+=eventLines.join('\n')+separator;
     }
     lines.push(text); return prefix+(result.battleSummary?result.battleSummary+separator:'')+(result.victoryAnnouncement?result.victoryAnnouncement+separator:'')+lines.join('\n')+(result.extraMessages&&result.extraMessages.length?separator+result.extraMessages.join(separator):'');

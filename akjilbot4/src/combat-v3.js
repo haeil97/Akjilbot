@@ -385,7 +385,7 @@ A4.Battle = (function () {
     case 'excludeSelf':ctx.move(s,t.card.uid,'excluded');break;
     case 'removeFromRun':ctx.move(s,t.card.uid,'excluded');ctx.runChange({type:'removeCard',side:s,uid:t.card.uid});ctx.battle.removedFromRun.push(t.card.uid);break;
     case 'upgradeSelf':var live=ctx.find(s,t.card.uid);if(live)ctx.upgrade(live);break;
-    case 'dredge':ctx.discover(s,f.deck.slice(-e.amount),{kind:'coreChoice',side:s,op:'dredge'},{label:'덱 맨 위에 놓을 카드를 선택하세요.',sourceZone:'deck'});break;
+    case 'dredge':var dredgeTask={kind:'coreChoice',side:s,op:'dredge',drawIfAffordable:e.drawIfAffordable!==false},dredgeSettings={label:'덱 맨 위에 놓을 카드를 선택하세요.',sourceZone:'deck'};if(e.drawIfAffordable===false)ctx.choose(s,f.deck.slice(-e.amount),dredgeTask,dredgeSettings);else ctx.discover(s,f.deck.slice(-e.amount),dredgeTask,dredgeSettings);break;
     default:A4.assert(false,'처리되지 않은 카드 효과: '+e.type);
     }
   }
@@ -412,7 +412,7 @@ A4.Battle = (function () {
     }
     if(t.kind==='effect'){effect(ctx,t);return;}
     if(t.kind==='coreChoice'){
-      if(t.op==='dredge'){card=ctx.remove(s,t.choice.uid);if(card){f.deck.unshift(card);if(ctx.cost(s,card)<=f.mana)ctx.draw(s,1);}}return;
+      if(t.op==='dredge'){card=ctx.remove(s,t.choice.uid);if(card){f.deck.unshift(card);if(t.drawIfAffordable!==false&&ctx.cost(s,card)<=f.mana)ctx.draw(s,1);}}return;
     }
     if(t.kind==='card'){
       if(b.resolution.suppressed&&t.free&&!t.reflected)return;

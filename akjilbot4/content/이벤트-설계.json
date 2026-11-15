@@ -204,5 +204,50 @@
         "text": "떠납니다."
       }
     ]
+  },
+  {
+    "id": "raft_rental",
+    "regionId": "elwynn_forest",
+    "name": "뗏목을 빌려 드립니다",
+    "menuTitle": "⚔️ 이벤트 – 뗏목을 빌려 드립니다 ⚔️",
+    "resultTitle": "⚔️ 이벤트 – 뗏목을 빌려 드립니다 ⚔️",
+    "simpleResult": true,
+    "deckText": "덱",
+    "logOrder": [
+      "card",
+      "costGold",
+      "treasure",
+      "loseHp",
+      "heal"
+    ],
+    "intro": [
+      "물에 뜨지도 않는 뗏목 옆에서 노인이 표를 팝니다.",
+      "“돌아오는 길에는 뜹니다. 늘 그랬어요.”"
+    ],
+    "choices": [
+      {
+        "id": "rent_oar",
+        "name": "노를 빌린다",
+        "text": "2골드를 잃습니다. 덱에 [🍃] 노 젓기를 추가합니다.",
+        "costGold": 2,
+        "addCardId": "event:rowing",
+        "outro": "뗏목과 노를 살펴봅니다."
+      },
+      {
+        "id": "repair_raft",
+        "name": "뗏목을 고친다",
+        "text": "체력 10을 잃고 하급 보물을 얻습니다.",
+        "loseHp": 10,
+        "addLowTreasure": true,
+        "outro": "돌아보니 뗏목이 정말 조금 떠 있습니다."
+      },
+      {
+        "id": "drink_water",
+        "name": "물만 마신다",
+        "text": "체력을 5 회복합니다.",
+        "heal": 5,
+        "outro": "갈증이 조금 가십니다."
+      }
+    ]
   }
 ]
