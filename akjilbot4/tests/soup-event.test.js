@@ -10,7 +10,7 @@ function harness(wins=1,hp=20,gold=5){
  return {c,get store(){return store;},send,user,mutate,reopen(){store.close();open();}};
 }
 test('Elwynn event presents the exact story and three soup choices',()=>{
- const h=harness();assert.equal(h.send('+탐험'),title+'\n나무 그루터기 위에서 솥 세 개가 끓고 있습니다. 요리사는 국자를 든 채 당신을 기다립니다.\n당신의 배가 꼬르륵거립니다...\n\n1. 맑은 수프: 체력을 6 회복합니다.\n\n2. 뿌리 수프: 골드를 2 잃습니다. 체력을 12 회복합니다.\n\n3. 걸쭉한 수프: 내 직업의 무작위 카드를 내 덱에 추가합니다. 체력을 10 회복합니다.');
+ const h=harness();assert.equal(h.send('+탐험'),title+'\n\n나무 그루터기 위에서 솥 세 개가 끓고 있습니다. 요리사는 국자를 든 채 당신을 기다립니다.\n당신의 배가 꼬르륵거립니다...\n\n1. 맑은 수프: 체력을 6 회복합니다.\n\n2. 뿌리 수프: 골드를 2 잃습니다. 체력을 12 회복합니다.\n\n3. 걸쭉한 수프: 내 직업의 무작위 카드를 내 덱에 추가합니다. 체력을 10 회복합니다.');
 });
 test('clear soup heals six, logs before and after HP, and then presents the tavern',()=>{
  const h=harness(),coins=h.user().gold,deck=A.copy(h.user().run.deck),messages=A.UI.messages(h.send('1'));

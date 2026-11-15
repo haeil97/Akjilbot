@@ -14024,7 +14024,7 @@ A4.UI = (function () {
   }
   function rewardMenu(r,catalog) {
     var p=r.pending,title,lines=[],labels;
-    if(p.kind==='event'&&p.extra&&p.extra.event){var event=p.extra.event;return '⚔️ 이벤트 - '+event.name+' ⚔️\n'+event.intro.join('\n')+'\n\n'+p.options.map(function(id,i){var choice=event.choices.filter(function(x){return x.id===id;})[0];return (i+1)+'. '+choice.name+': '+choice.text;}).join('\n\n');}
+    if(p.kind==='event'&&p.extra&&p.extra.event){var event=p.extra.event;return '⚔️ 이벤트 - '+event.name+' ⚔️\n\n'+event.intro.join('\n')+'\n\n'+p.options.map(function(id,i){var choice=event.choices.filter(function(x){return x.id===id;})[0];return (i+1)+'. '+choice.name+': '+choice.text;}).join('\n\n');}
     if(['bundles','camp','forge','event','tavern','shopUpgrade','shopRemove'].indexOf(p.kind)>=0){
       var headings={bundles:'직업 카드 묶음 선택',camp:'휴식 또는 제련',forge:'제련',event:'이벤트',tavern:'선술집',shopUpgrade:'강화권',shopRemove:'카드 제거'};
       lines.push('⚔️ '+headings[p.kind]+' ⚔️','❤️ '+(r.hp===undefined?60:r.hp)+'/60 · 🪙 '+(r.gold||0)+'골드');
