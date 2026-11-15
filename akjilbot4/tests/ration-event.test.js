@@ -5,7 +5,7 @@ function harness(deck,gold=5){
  function open(){store=A.Store.create(io);store.load(A.newState(42));app=A.App.create(store,c);}open();
  const send=(text,id)=>app.handle({text,identity:'ration-user',name:'가방 테스터',room:'개발123',now:1000+n,eventId:id||'ration-'+(++n)});
  const user=()=>Object.values(store.getState().users)[0],mutate=fn=>store.transact('ration-fixture',s=>fn(Object.values(s.users)[0],s));
- send('+탐험');send('1');mutate((u,s)=>{const r=u.run;r.wins=1;r.hp=20;r.gold=gold;r.phase='REWARD';r.battle=null;r.enemySpec=null;r.enemyId=null;r.turnToken=null;r.pending=null;r.queue=['event','tavern'];r.deck=A.copy(deck||[{uid:'willow',cardId:'class:guff_willow'},{uid:'growth',cardId:'class:guff_growth'},{uid:'wall',cardId:'class:guff_root_wall'}]).map(x=>Object.assign({upgraded:false},x));let calls=0;A.Journey.next(s,u,c,()=>calls++===1?.5:0);});
+ send('+탐험');send('1');mutate((u,s)=>{const r=u.run;r.wins=1;r.hp=20;r.gold=gold;r.phase='REWARD';r.battle=null;r.enemySpec=null;r.enemyId=null;r.turnToken=null;r.pending=null;r.queue=['event','tavern'];r.deck=A.copy(deck||[{uid:'willow',cardId:'class:guff_willow'},{uid:'growth',cardId:'class:guff_growth'},{uid:'wall',cardId:'class:guff_root_wall'}]).map(x=>Object.assign({upgraded:false},x));let calls=0;A.Journey.next(s,u,c,()=>calls++===1?.4:0);});
  return {c,get store(){return store;},send,user,mutate,reopen(){store.close();open();}};
 }
 test('ration menu shows the stored non-treasure candidate with blank lines and the exact story',()=>{

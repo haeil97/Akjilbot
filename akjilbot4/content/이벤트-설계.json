@@ -124,5 +124,43 @@
         }
       }
     ]
+  },
+  {
+    "id": "doctor_kinopio",
+    "regionId": "elwynn_forest",
+    "name": "의사 키노피오",
+    "menuTitle": "⚔️ 이벤트 – 의사 키노피오 ⚔️",
+    "resultTitle": "⚔️ 이벤트 – 의사 키노피오 ⚔️",
+    "simpleResult": true,
+    "curseOrHpAtMost": 30,
+    "deckText": "덱",
+    "intro": [
+      "버섯 갓 아래에서 작은 안경이 번쩍입니다.",
+      "“얼굴이 안 좋네요. 얼굴이 원래 그런 건 아니죠?”"
+    ],
+    "outro": "키노피오가 처방전을 접어 줍니다. 글씨는 읽을 수 없습니다.",
+    "choices": [
+      {
+        "id": "show_wounds",
+        "name": "상처를 보여 준다",
+        "text": "체력을 12 회복합니다.",
+        "heal": 12
+      },
+      {
+        "id": "pay_medicine",
+        "name": "약값을 낸다",
+        "text": "3골드로 체력을 20 회복합니다.",
+        "costGold": 3,
+        "heal": 20
+      },
+      {
+        "id": "show_memory",
+        "name": "아픈 기억을 보여 준다",
+        "text": "{candidate} 덱에서 제거합니다.",
+        "requiresCurse": true,
+        "removeCandidate": true,
+        "heal": 6
+      }
+    ]
   }
 ]
