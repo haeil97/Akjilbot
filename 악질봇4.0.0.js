@@ -13228,6 +13228,7 @@ A4.Journey=(function(){
       if(step==='camp'){show(state,r,'camp',['rest','forge']);return true;}
       if(step==='forge'){opts=A4.sample(cards(r,c),3,rng).map(function(x){return x.uid;});if(opts.length){show(state,r,'forge',opts);return true;}continue;}
       if(step==='event'){
+        if(rng()>=0.2)continue;
         var region=A4.Regions&&A4.Regions.enabled(r)?A4.Regions.progress(r,true):null;
         var events=(A4.content.regionEvents||[]).filter(function(e){return region&&e.regionId===region.regionId&&(!e.requiresRemovalCandidate||removalCandidates(r,c).length);});
         if(events.length){var event=A4.pick(events,rng),extra={event:event};if(event.requiresRemovalCandidate)extra.removalCandidate=A4.copy(A4.pick(removalCandidates(r,c),rng));show(state,r,'event',event.choices.map(function(x){return x.id;}),extra);}

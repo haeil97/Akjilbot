@@ -41,5 +41,14 @@ test('soup is scoped to all eight first-region event steps, including the boss r
 });
 test('legacy event placeholders remain usable and invalid choices do not consume the soup',()=>{
  const h=harness();const before=A.copy(h.store.getState());assert.throws(()=>h.send('4'),/선택 번호/);assert.deepEqual(h.store.getState(),before);
- h.mutate((u,s)=>{delete u.run.regionVersion;u.run.queue=['event','tavern'];A.Journey.next(s,u,h.c,A.random(s));});assert.deepEqual(h.user().run.pending.options,['continue']);h.send('1');assert.equal(h.user().run.pending.kind,'tavern');assert.equal(h.user().run.hp,20);
+ h.mutate((u,s)=>{delete u.run.regionVersion;u.run.queue=['event','tavern'];A.Journey.next(s,u,h.c,()=>0);});assert.deepEqual(h.user().run.pending.options,['continue']);h.send('1');assert.equal(h.user().run.pending.kind,'tavern');assert.equal(h.user().run.hp,20);
+});
+
+test('post-battle events occur below 20 percent and skipped events advance straight to the tavern',()=>{
+ for(const roll of [0,.199999,.2,.999999]){
+  const h=harness();h.mutate((u,s)=>{u.run.pending=null;u.run.queue=['event','tavern'];let calls=0;A.Journey.next(s,u,h.c,()=>calls++===0?roll:0);});
+  assert.equal(h.user().run.pending.kind,roll<.2?'event':'tavern');
+  const before=A.copy(h.user().run.pending),rng=h.store.getState().rngState;h.reopen();h.send('+탐험');
+  assert.deepEqual(h.user().run.pending,before);assert.equal(h.store.getState().rngState,rng);
+ }
 });
